@@ -4,7 +4,18 @@ import (
 	"fmt"
 
 	gsrpc "github.com/centrifuge/go-substrate-rpc-client/v4"
+	"github.com/centrifuge/go-substrate-rpc-client/v4/types"
 )
+
+type SubtensorCRV3WeightsCommitted struct {
+	Phase  types.Phase
+	Hotkey []types.Hash
+}
+
+type CustomEventRecords struct {
+	types.EventRecords
+	SubtensorModule_CRV3WeightsCommitted []SubtensorCRV3WeightsCommitted
+}
 
 func main() {
 	testURL := "ws://localhost:9944"
