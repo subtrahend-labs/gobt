@@ -19,10 +19,13 @@ require (
 	github.com/gtank/merlin v0.1.1 // indirect
 	github.com/gtank/ristretto255 v0.1.2 // indirect
 	github.com/holiman/uint256 v1.3.2 // indirect
+	github.com/huandu/xstrings v1.5.0 // indirect
+	github.com/itering/scale.go v1.9.16 // indirect
 	github.com/mimoo/StrobeGo v0.0.0-20220103164710-9a04d6ca976b // indirect
 	github.com/pierrec/xxHash v0.1.5 // indirect
 	github.com/rs/cors v1.11.1 // indirect
-	golang.org/x/crypto v0.35.0 // indirect
-	golang.org/x/sys v0.30.0 // indirect
+	github.com/shopspring/decimal v1.4.0 // indirect
+	golang.org/x/crypto v0.36.0 // indirect
+	golang.org/x/sys v0.31.0 // indirect
 	gopkg.in/natefinch/npipe.v2 v2.0.0-20160621034901-c1b8fa8bdcce // indirect
 )

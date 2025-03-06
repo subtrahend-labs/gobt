@@ -15,12 +15,19 @@ import (
 )
 
 type AccountInfo struct {
-	Nonce types.U32
-	Data  struct {
-		Free     types.U64 // Balance as u64
+	// Nonce       types.UCompact
+	// Consumers   types.UCompact
+	// Providers   types.UCompact
+	// Sufficients types.UCompact
+	Nonce       types.U32
+	Consumers   types.U32
+	Providers   types.U32
+	Sufficients types.U32
+	Data        struct {
+		Free     types.U64
 		Reserved types.U64
-		Frozen   types.U64 // Now Frozen instead of MiscFrozen
-		Flags    types.U64 // ExtraFlags field
+		Frozen   types.U64
+		Flags    types.U128 // Assuming ExtraFlags is u128
 	}
 }
 
@@ -79,7 +86,48 @@ func main() {
 		log.Fatalf("No storage found")
 	}
 
+	for _, module := range meta.AsMetadataV14.Pallets {
+		if string(module.Name) == "System" {
+			// Check if Storage exists
+			if module.HasStorage {
+				// Access entries through Value
+				for _, storageEntry := range module.Storage.Items {
+					if string(storageEntry.Name) == "Account" {
+						fmt.Printf("Account type: %v\n", storageEntry.Type)
+
+						// Get the type ID if it's a map
+						if storageEntry.Type.IsMap {
+							valueTypeId := storageEntry.Type.AsMap.Value.Int64()
+							fmt.Printf("Account value type ID: %d\n", valueTypeId)
+
+							// Look up this type ID in the type registry
+							if accountType, found := meta.AsMetadataV14.EfficientLookup[valueTypeId]; found {
+								fmt.Printf("Account type definition: %+v\n", accountType)
+							}
+						}
+						break
+					}
+				}
+				break
+			}
+		}
+	}
+
+	// Print raw storage bytes
+	rawData, err := api.RPC.State.GetStorageRawLatest(senderKey)
+	if err != nil {
+		log.Fatalf("Error getting raw storage: %s", err)
+	}
+	fmt.Printf("Raw account data: %x\n", rawData)
+
+	// Print decoded nonce
+	fmt.Printf("Decoded nonce: %v (type: %T)\n", accountInfo.Nonce, accountInfo.Nonce)
+
 	// Print the balance information
+	fmt.Printf("Nonce: %v\n", accountInfo.Nonce)
+	fmt.Printf("Consumers: %v\n", accountInfo.Consumers)
+	fmt.Printf("Providers: %v\n", accountInfo.Providers)
+	fmt.Printf("Sufficients: %v\n", accountInfo.Sufficients)
 	fmt.Printf("Free balance: %v\n", accountInfo.Data.Free)
 	fmt.Printf("Reserved balance: %v\n", accountInfo.Data.Reserved)
 	fmt.Printf("Frozen balance: %v\n", accountInfo.Data.Frozen)
@@ -101,43 +149,47 @@ func main() {
 	}
 
 	// Print the balance information
+	fmt.Printf("Nonce: %v\n", accountInfo.Nonce)
+	fmt.Printf("Consumers: %v\n", accountInfo.Consumers)
+	fmt.Printf("Providers: %v\n", accountInfo.Providers)
+	fmt.Printf("Sufficients: %v\n", accountInfo.Sufficients)
 	fmt.Printf("Free balance: %v\n", recipientInfo.Data.Free)
 	fmt.Printf("Reserved balance: %v\n", recipientInfo.Data.Reserved)
 	fmt.Printf("Frozen balance: %v\n", recipientInfo.Data.Frozen)
 	fmt.Printf("Flags: %v\n", recipientInfo.Data.Flags)
 
-	bal, ok := new(big.Int).SetString("500000", 10) // Just 0.0005 TAO
+	bal, ok := new(big.Int).SetString("10000000", 10) // Just 0.0005 TAO
 	if !ok {
 		log.Fatalf("Error converting string to big.Int")
 	}
 
 	// Print all modules and their calls
-	// fmt.Println("\nAVAILABLE MODULES AND CALLS:")
-	// for _, module := range meta.AsMetadataV14.Pallets {
-	// 	fmt.Printf("Module: %s (Index: %d)\n", module.Name, module.Index)
+	fmt.Println("\nAVAILABLE MODULES AND CALLS:")
+	for _, module := range meta.AsMetadataV14.Pallets {
+		fmt.Printf("Module: %s (Index: %d)\n", module.Name, module.Index)
 
-	// 	// Print calls if they exist
-	// 	if module.HasCalls {
-	// 		// Get the call type ID
-	// 		callTypeID := module.Calls.Type.Int64()
-	// 		fmt.Printf("  Call Type ID: %d\n", callTypeID)
+		// Print calls if they exist
+		if module.HasCalls {
+			// Get the call type ID
+			callTypeID := module.Calls.Type.Int64()
+			fmt.Printf("  Call Type ID: %d\n", callTypeID)
 
-	// 		// Find the type in the lookup
-	// 		if callType, ok := meta.AsMetadataV14.EfficientLookup[callTypeID]; ok {
-	// 			if callType.Def.IsVariant {
-	// 				fmt.Println("  Available Calls:")
-	// 				for _, variant := range callType.Def.Variant.Variants {
-	// 					fmt.Printf("    %s (Index: %d)\n", variant.Name, variant.Index)
-	// 				}
-	// 			}
-	// 		} else {
-	// 			fmt.Printf("  Call type not found in lookup\n")
-	// 		}
-	// 	} else {
-	// 		fmt.Printf("  No calls available\n")
-	// 	}
-	// 	fmt.Println()
-	// }
+			// Find the type in the lookup
+			if callType, ok := meta.AsMetadataV14.EfficientLookup[callTypeID]; ok {
+				if callType.Def.IsVariant {
+					fmt.Println("  Available Calls:")
+					for _, variant := range callType.Def.Variant.Variants {
+						fmt.Printf("    %s (Index: %d)\n", variant.Name, variant.Index)
+					}
+				}
+			} else {
+				fmt.Printf("  Call type not found in lookup\n")
+			}
+		} else {
+			fmt.Printf("  No calls available\n")
+		}
+		fmt.Println()
+	}
 
 	c, err := types.NewCall(meta, "Balances.transfer_keep_alive", recipient, types.NewUCompact(bal))
 	if err != nil {
@@ -165,9 +217,9 @@ func main() {
 		BlockHash:          currentHash,
 		Era:                types.ExtrinsicEra{IsMortalEra: false},
 		GenesisHash:        genesisHash,
-		Nonce:              types.NewUCompactFromUInt(uint64(uint32(accountInfo.Nonce))),
+		Nonce:              types.NewUCompactFromUInt(uint64(accountInfo.Nonce)),
 		SpecVersion:        rv.SpecVersion,
-		Tip:                types.NewUCompactFromUInt(0),
+		Tip:                types.NewUCompactFromUInt(100000),
 		TransactionVersion: rv.TransactionVersion,
 	}
 
@@ -178,6 +230,12 @@ func main() {
 
 	_, err = api.RPC.Author.SubmitExtrinsic(ext)
 	if err != nil {
+		// Try to extract more details from the error
+		fmt.Printf("Error type: %T\n", err)
+		fmt.Printf("Error details: %+v\n", err)
+
+		// Check if it's a specific error type
+
 		log.Fatalf("Error submitting extrinsic: %s", err)
 	}
 
@@ -195,5 +253,6 @@ func main() {
 		log.Fatalf("No storage found")
 	}
 	fmt.Println("Sender balance after transfer: ", accountInfo.Data.Free)
-
 }
+
+// can we construct the type at runtime
