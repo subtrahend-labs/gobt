@@ -2,7 +2,10 @@ module github.com/subtrahend-labs/gobt
 
 go 1.23.6
 
-require github.com/centrifuge/go-substrate-rpc-client/v4 v4.2.1
+require (
+	github.com/centrifuge/go-substrate-rpc-client/v4 v4.2.1
+	github.com/joho/godotenv v1.5.1
+)
 
 require (
 	github.com/ChainSafe/go-schnorrkel v1.0.0 // indirect
