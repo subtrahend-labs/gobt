@@ -5,6 +5,7 @@ go 1.23.6
 require (
 	github.com/centrifuge/go-substrate-rpc-client/v4 v4.2.1
 	github.com/joho/godotenv v1.5.1
+	github.com/vedhavyas/go-subkey/v2 v2.0.0
 )
 
 require (
@@ -21,7 +22,6 @@ require (
 	github.com/mimoo/StrobeGo v0.0.0-20220103164710-9a04d6ca976b // indirect
 	github.com/pierrec/xxHash v0.1.5 // indirect
 	github.com/rs/cors v1.11.1 // indirect
-	github.com/vedhavyas/go-subkey/v2 v2.0.0 // indirect
 	golang.org/x/crypto v0.35.0 // indirect
 	golang.org/x/sys v0.30.0 // indirect
 	gopkg.in/natefinch/npipe.v2 v2.0.0-20160621034901-c1b8fa8bdcce // indirect

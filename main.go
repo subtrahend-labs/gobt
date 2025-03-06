@@ -8,6 +8,7 @@ import (
 	gsrpc "github.com/centrifuge/go-substrate-rpc-client/v4"
 	"github.com/centrifuge/go-substrate-rpc-client/v4/types"
 	"github.com/joho/godotenv"
+	"github.com/vedhavyas/go-subkey/v2"
 )
 
 type SubtensorCRV3WeightsCommitted struct {
@@ -39,13 +40,17 @@ func main() {
 		log.Fatalf("Error getting metadata: %s", err)
 	}
 
-	fmt.Println(meta)
+	_ = meta
 
 	user, err := types.NewMultiAddressFromHexAccountID(accountID)
 	if err != nil {
 		log.Fatalf("Error creating user address: %s", err)
 	}
 
-	fmt.Println("User details %v", user)
+	fmt.Println(user.AsID.ToHexString())
+
+	pubKey := subkey.SS58Encode(user.AsID.ToBytes(), 42)
+
+	fmt.Println(pubKey)
 
 }
