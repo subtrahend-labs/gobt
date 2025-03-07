@@ -16,16 +16,22 @@ const (
 )
 
 type AxonInfo struct {
-	IP      types.U128
-	Port    types.U32
-	IPType  types.U8
-	Version types.U32
+	Block        types.U64
+	Version      types.U32
+	IP           types.U128
+	Port         types.U16
+	IPType       types.U8
+	Protocol     types.U8
+	Placeholder1 types.U8
+	Placeholder2 types.U8
 }
 
 type PrometheusInfo struct {
-	IP      types.U128
-	Port    types.U32
+	Block   types.U64
 	Version types.U32
+	IP      types.U128
+	Port    types.U16
+	IPType  types.U8
 }
 
 type NeuronInfo struct {
@@ -61,8 +67,7 @@ type NeuronInfo struct {
 }
 
 func getNeurons(api *gsrpc.SubstrateAPI, netuid uint16, blockHash *types.Hash) ([]NeuronInfo, error) {
-	// Expect a hex-encoded Vec<u8>
-	var encodedResponse string
+	var encodedResponse []byte
 	err := api.Client.Call(
 		&encodedResponse,
 		"neuronInfo_getNeurons",
@@ -73,24 +78,15 @@ func getNeurons(api *gsrpc.SubstrateAPI, netuid uint16, blockHash *types.Hash) (
 		return nil, fmt.Errorf("failed to call neuronInfo_getNeurons: %v", err)
 	}
 
-	// Print the raw hex response
 	fmt.Printf("Raw response for netuid %d: %s\n", netuid, encodedResponse)
 
-	// Handle empty response
-	if encodedResponse == "" || encodedResponse == "0x00" {
+	if len(encodedResponse) == 0 {
 		fmt.Printf("No neurons found for netuid %d\n", netuid)
 		return []NeuronInfo{}, nil
 	}
 
-	// Decode hex string to bytes
-	bytes, err := codec.HexDecodeString(encodedResponse)
-	if err != nil {
-		return nil, fmt.Errorf("failed to decode hex response: %v", err)
-	}
-
-	// Decode bytes into []NeuronInfo
 	var neurons []NeuronInfo
-	err = codec.Decode(bytes, &neurons)
+	err = codec.Decode(encodedResponse, &neurons)
 	if err != nil {
 		return nil, fmt.Errorf("failed to decode neurons: %v", err)
 	}
@@ -111,7 +107,6 @@ func main() {
 		log.Fatalf("Error creating API instance: %s", err)
 	}
 
-	// Get the latest block hash
 	blockHash, err := api.RPC.Chain.GetBlockHashLatest()
 	if err != nil {
 		log.Fatalf("Error getting latest block hash: %s", err)
