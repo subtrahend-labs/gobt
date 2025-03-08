@@ -1,6 +1,8 @@
 package main
 
 import (
+	"bytes"
+	"encoding/hex"
 	"fmt"
 	"log"
 	"math/big"
@@ -10,6 +12,9 @@ import (
 	gsrpc "github.com/centrifuge/go-substrate-rpc-client/v4"
 	"github.com/centrifuge/go-substrate-rpc-client/v4/signature"
 	"github.com/centrifuge/go-substrate-rpc-client/v4/types"
+	"github.com/centrifuge/go-substrate-rpc-client/v4/types/codec"
+	"github.com/centrifuge/go-substrate-rpc-client/v4/types/extrinsic"
+	"github.com/centrifuge/go-substrate-rpc-client/v4/types/extrinsic/extensions"
 	"github.com/joho/godotenv"
 	"github.com/vedhavyas/go-subkey/v2"
 )
@@ -69,7 +74,23 @@ func main() {
 		log.Fatalf("Error getting metadata: %s", err)
 	}
 
-	_ = meta
+	// Dump signed extensions from metadata
+	fmt.Println("Signed Extensions:")
+	for _, ext := range meta.AsMetadataV14.Extrinsic.SignedExtensions {
+		fmt.Printf("- %s (Identifier: %s, Type: %d, AdditionalSigned: %d)\n",
+			ext.Identifier, ext.Identifier, ext.Type, ext.AdditionalSigned)
+	}
+
+	for _, ext := range meta.AsMetadataV14.Extrinsic.SignedExtensions {
+		if ext.Identifier == "SubtensorSignedExtension" || ext.Identifier == "CommitmentsSignedExtension" || ext.Identifier == "CheckMetadataHash" {
+			typeID := ext.Type.Int64()
+			if def, ok := meta.AsMetadataV14.EfficientLookup[typeID]; ok {
+				fmt.Printf("Extension %s Type Definition: %+v\n", ext.Identifier, def)
+			} else {
+				fmt.Printf("Extension %s Type ID %d not found in lookup\n", ext.Identifier, typeID)
+			}
+		}
+	}
 
 	senderKey, err := types.CreateStorageKey(meta, "System", "Account", sender.PublicKey)
 	if err != nil {
@@ -86,32 +107,32 @@ func main() {
 		log.Fatalf("No storage found")
 	}
 
-	for _, module := range meta.AsMetadataV14.Pallets {
-		if string(module.Name) == "System" {
-			// Check if Storage exists
-			if module.HasStorage {
-				// Access entries through Value
-				for _, storageEntry := range module.Storage.Items {
-					if string(storageEntry.Name) == "Account" {
-						fmt.Printf("Account type: %v\n", storageEntry.Type)
+	// for _, module := range meta.AsMetadataV14.Pallets {
+	// 	if string(module.Name) == "System" {
+	// 		// Check if Storage exists
+	// 		if module.HasStorage {
+	// 			// Access entries through Value
+	// 			for _, storageEntry := range module.Storage.Items {
+	// 				if string(storageEntry.Name) == "Account" {
+	// 					fmt.Printf("Account type: %v\n", storageEntry.Type)
 
-						// Get the type ID if it's a map
-						if storageEntry.Type.IsMap {
-							valueTypeId := storageEntry.Type.AsMap.Value.Int64()
-							fmt.Printf("Account value type ID: %d\n", valueTypeId)
+	// 					// Get the type ID if it's a map
+	// 					if storageEntry.Type.IsMap {
+	// 						valueTypeId := storageEntry.Type.AsMap.Value.Int64()
+	// 						fmt.Printf("Account value type ID: %d\n", valueTypeId)
 
-							// Look up this type ID in the type registry
-							if accountType, found := meta.AsMetadataV14.EfficientLookup[valueTypeId]; found {
-								fmt.Printf("Account type definition: %+v\n", accountType)
-							}
-						}
-						break
-					}
-				}
-				break
-			}
-		}
-	}
+	// 						// Look up this type ID in the type registry
+	// 						if accountType, found := meta.AsMetadataV14.EfficientLookup[valueTypeId]; found {
+	// 							fmt.Printf("Account type definition: %+v\n", accountType)
+	// 						}
+	// 					}
+	// 					break
+	// 				}
+	// 			}
+	// 			break
+	// 		}
+	// 	}
+	// }
 
 	// Print raw storage bytes
 	rawData, err := api.RPC.State.GetStorageRawLatest(senderKey)
@@ -158,45 +179,45 @@ func main() {
 	fmt.Printf("Frozen balance: %v\n", recipientInfo.Data.Frozen)
 	fmt.Printf("Flags: %v\n", recipientInfo.Data.Flags)
 
-	bal, ok := new(big.Int).SetString("10000000", 10) // Just 0.0005 TAO
+	bal, ok := new(big.Int).SetString("100000000", 10)
 	if !ok {
 		log.Fatalf("Error converting string to big.Int")
 	}
 
 	// Print all modules and their calls
-	fmt.Println("\nAVAILABLE MODULES AND CALLS:")
-	for _, module := range meta.AsMetadataV14.Pallets {
-		fmt.Printf("Module: %s (Index: %d)\n", module.Name, module.Index)
+	// fmt.Println("\nAVAILABLE MODULES AND CALLS:")
+	// for _, module := range meta.AsMetadataV14.Pallets {
+	// 	fmt.Printf("Module: %s (Index: %d)\n", module.Name, module.Index)
 
-		// Print calls if they exist
-		if module.HasCalls {
-			// Get the call type ID
-			callTypeID := module.Calls.Type.Int64()
-			fmt.Printf("  Call Type ID: %d\n", callTypeID)
+	// 	// Print calls if they exist
+	// 	if module.HasCalls {
+	// 		// Get the call type ID
+	// 		callTypeID := module.Calls.Type.Int64()
+	// 		fmt.Printf("  Call Type ID: %d\n", callTypeID)
 
-			// Find the type in the lookup
-			if callType, ok := meta.AsMetadataV14.EfficientLookup[callTypeID]; ok {
-				if callType.Def.IsVariant {
-					fmt.Println("  Available Calls:")
-					for _, variant := range callType.Def.Variant.Variants {
-						fmt.Printf("    %s (Index: %d)\n", variant.Name, variant.Index)
-					}
-				}
-			} else {
-				fmt.Printf("  Call type not found in lookup\n")
-			}
-		} else {
-			fmt.Printf("  No calls available\n")
-		}
-		fmt.Println()
-	}
+	// 		// Find the type in the lookup
+	// 		if callType, ok := meta.AsMetadataV14.EfficientLookup[callTypeID]; ok {
+	// 			if callType.Def.IsVariant {
+	// 				fmt.Println("  Available Calls:")
+	// 				for _, variant := range callType.Def.Variant.Variants {
+	// 					fmt.Printf("    %s (Index: %d)\n", variant.Name, variant.Index)
+	// 				}
+	// 			}
+	// 		} else {
+	// 			fmt.Printf("  Call type not found in lookup\n")
+	// 		}
+	// 	} else {
+	// 		fmt.Printf("  No calls available\n")
+	// 	}
+	// 	fmt.Println()
+	// }
 
 	c, err := types.NewCall(meta, "Balances.transfer_keep_alive", recipient, types.NewUCompact(bal))
 	if err != nil {
 		log.Fatalf("Error creating call: %s", err)
 	}
 
-	ext := types.NewExtrinsic(c)
+	ext := types.NewDynamicExtrinsic(c)
 
 	genesisHash, err := api.RPC.Chain.GetBlockHash(0)
 	if err != nil {
@@ -212,21 +233,48 @@ func main() {
 	if err != nil {
 		log.Fatalf("Error getting current block: %s", err)
 	}
+	currentBlock, err := api.RPC.Chain.GetBlock(currentHash)
+	if err != nil {
+		log.Fatalf("Error getting block: %s", err)
+	}
+	currentBlockNumber := uint64(currentBlock.Block.Header.Number)
+
+	mortalEra := calculateMortalEra(64, currentBlockNumber)
 
 	o := types.SignatureOptions{
 		BlockHash:          currentHash,
-		Era:                types.ExtrinsicEra{IsMortalEra: false},
+		Era:                types.ExtrinsicEra{IsMortalEra: true, AsMortalEra: mortalEra},
 		GenesisHash:        genesisHash,
 		Nonce:              types.NewUCompactFromUInt(uint64(accountInfo.Nonce)),
 		SpecVersion:        rv.SpecVersion,
-		Tip:                types.NewUCompactFromUInt(100000),
+		Tip:                types.NewUCompactFromUInt(1000000),
 		TransactionVersion: rv.TransactionVersion,
 	}
+
+	fmt.Printf("Spec Version: %d, Tx Version: %d, Nonce: %d\n", rv.SpecVersion, rv.TransactionVersion, accountInfo.Nonce)
+	fmt.Printf("Transfer Amount: %v, Tip: %v, Sender Balance: %v\n", bal, o.Tip, accountInfo.Data.Free)
+	fmt.Printf("Signature Payload Inputs:\n")
+	fmt.Printf("  Era - IsMortal: %v, First: %d, Second: %d\n", o.Era.IsMortalEra, o.Era.AsMortalEra.First, o.Era.AsMortalEra.Second)
+	fmt.Printf("  Nonce: %v\n", o.Nonce)
+	fmt.Printf("  Tip: %v\n", o.Tip)
+	fmt.Printf("  Spec Version: %d\n", o.SpecVersion)
+	fmt.Printf("  Tx Version: %d\n", o.TransactionVersion)
+	fmt.Printf("  Genesis Hash: %x\n", o.GenesisHash)
+	fmt.Printf("  Block Hash: %x\n", o.BlockHash)
 
 	err = ext.Sign(sender, o)
 	if err != nil {
 		log.Fatalf("Error signing: %s", err)
 	}
+
+	buf := bytes.NewBuffer(nil)
+	enc := scale.NewEncoder(buf)
+	err = enc.Encode(ext)
+	if err != nil {
+		log.Fatalf("Error encoding extrinsic: %s", err)
+	}
+	extrinsicHex := "0x" + hex.EncodeToString(buf.Bytes())
+	fmt.Printf("Signed Extrinsic (hex): %s\n", extrinsicHex)
 
 	_, err = api.RPC.Author.SubmitExtrinsic(ext)
 	if err != nil {
@@ -255,4 +303,37 @@ func main() {
 	fmt.Println("Sender balance after transfer: ", accountInfo.Data.Free)
 }
 
-// can we construct the type at runtime
+func calculateMortalEra(period, currentBlockNumber uint64) types.MortalEra {
+	quantizedPeriod := uint64(4)
+	for quantizedPeriod < period && quantizedPeriod < 65536 {
+		quantizedPeriod *= 2
+	}
+	if quantizedPeriod > 65536 {
+		quantizedPeriod = 65536
+	}
+
+	phase := currentBlockNumber % quantizedPeriod
+	periodBits := uint64(0)
+	switch quantizedPeriod {
+	case 4:
+		periodBits = 1
+	case 8:
+		periodBits = 2
+	case 16:
+		periodBits = 3
+	case 32:
+		periodBits = 4
+	case 64:
+		periodBits = 5
+	case 128:
+		periodBits = 6
+	default:
+		periodBits = 15
+	}
+
+	value := (periodBits << 12) | (phase & 0xFFF)
+	return types.MortalEra{
+		First:  byte(value >> 8),
+		Second: byte(value & 0xFF),
+	}
+}
