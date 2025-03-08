@@ -1,7 +1,6 @@
 package main
 
 import (
-	"bytes"
 	"encoding/hex"
 	"fmt"
 	"log"
@@ -217,7 +216,7 @@ func main() {
 		log.Fatalf("Error creating call: %s", err)
 	}
 
-	ext := types.NewDynamicExtrinsic(c)
+	ext := extrinsic.NewExtrinsic(c)
 
 	genesisHash, err := api.RPC.Chain.GetBlockHash(0)
 	if err != nil {
@@ -229,51 +228,51 @@ func main() {
 		log.Fatalf("Error getting runtime version: %s", err)
 	}
 
-	currentHash, err := api.RPC.Chain.GetBlockHashLatest()
-	if err != nil {
-		log.Fatalf("Error getting current block: %s", err)
-	}
-	currentBlock, err := api.RPC.Chain.GetBlock(currentHash)
-	if err != nil {
-		log.Fatalf("Error getting block: %s", err)
-	}
-	currentBlockNumber := uint64(currentBlock.Block.Header.Number)
+	// o := types.SignatureOptions{
+	// 	BlockHash:          currentHash,
+	// 	Era:                types.ExtrinsicEra{IsMortalEra: true, AsMortalEra: mortalEra},
+	// 	GenesisHash:        genesisHash,
+	// 	Nonce:              types.NewUCompactFromUInt(uint64(accountInfo.Nonce)),
+	// 	SpecVersion:        rv.SpecVersion,
+	// 	Tip:                types.NewUCompactFromUInt(1000000),
+	// 	TransactionVersion: rv.TransactionVersion,
+	// }
 
-	mortalEra := calculateMortalEra(64, currentBlockNumber)
+	// fmt.Printf("Spec Version: %d, Tx Version: %d, Nonce: %d\n", rv.SpecVersion, rv.TransactionVersion, accountInfo.Nonce)
+	// fmt.Printf("Transfer Amount: %v, Tip: %v, Sender Balance: %v\n", bal, o.Tip, accountInfo.Data.Free)
+	// fmt.Printf("Signature Payload Inputs:\n")
+	// fmt.Printf("  Era - IsMortal: %v, First: %d, Second: %d\n", o.Era.IsMortalEra, o.Era.AsMortalEra.First, o.Era.AsMortalEra.Second)
+	// fmt.Printf("  Nonce: %v\n", o.Nonce)
+	// fmt.Printf("  Tip: %v\n", o.Tip)
+	// fmt.Printf("  Spec Version: %d\n", o.SpecVersion)
+	// fmt.Printf("  Tx Version: %d\n", o.TransactionVersion)
+	// fmt.Printf("  Genesis Hash: %x\n", o.GenesisHash)
+	// fmt.Printf("  Block Hash: %x\n", o.BlockHash)
 
-	o := types.SignatureOptions{
-		BlockHash:          currentHash,
-		Era:                types.ExtrinsicEra{IsMortalEra: true, AsMortalEra: mortalEra},
-		GenesisHash:        genesisHash,
-		Nonce:              types.NewUCompactFromUInt(uint64(accountInfo.Nonce)),
-		SpecVersion:        rv.SpecVersion,
-		Tip:                types.NewUCompactFromUInt(1000000),
-		TransactionVersion: rv.TransactionVersion,
-	}
+	extrinsic.PayloadMutatorFns[extensions.SignedExtensionName("SubtensorSignedExtension")] = func(payload *extrinsic.Payload) {}
+	extrinsic.PayloadMutatorFns[extensions.SignedExtensionName("CommitmentsSignedExtension")] = func(payload *extrinsic.Payload) {}
 
-	fmt.Printf("Spec Version: %d, Tx Version: %d, Nonce: %d\n", rv.SpecVersion, rv.TransactionVersion, accountInfo.Nonce)
-	fmt.Printf("Transfer Amount: %v, Tip: %v, Sender Balance: %v\n", bal, o.Tip, accountInfo.Data.Free)
-	fmt.Printf("Signature Payload Inputs:\n")
-	fmt.Printf("  Era - IsMortal: %v, First: %d, Second: %d\n", o.Era.IsMortalEra, o.Era.AsMortalEra.First, o.Era.AsMortalEra.Second)
-	fmt.Printf("  Nonce: %v\n", o.Nonce)
-	fmt.Printf("  Tip: %v\n", o.Tip)
-	fmt.Printf("  Spec Version: %d\n", o.SpecVersion)
-	fmt.Printf("  Tx Version: %d\n", o.TransactionVersion)
-	fmt.Printf("  Genesis Hash: %x\n", o.GenesisHash)
-	fmt.Printf("  Block Hash: %x\n", o.BlockHash)
+	err = ext.Sign(
+		sender,
+		meta,
+		extrinsic.WithEra(types.ExtrinsicEra{IsImmortalEra: true}, genesisHash),
+		extrinsic.WithNonce(types.NewUCompactFromUInt(uint64(accountInfo.Nonce))),
+		extrinsic.WithTip(types.NewUCompactFromUInt(0)),
+		extrinsic.WithSpecVersion(rv.SpecVersion),
+		extrinsic.WithTransactionVersion(rv.TransactionVersion),
+		extrinsic.WithGenesisHash(genesisHash),
+		extrinsic.WithMetadataMode(extensions.CheckMetadataModeDisabled, extensions.CheckMetadataHash{Hash: types.NewEmptyOption[types.H256]()}),
+	)
 
-	err = ext.Sign(sender, o)
 	if err != nil {
 		log.Fatalf("Error signing: %s", err)
 	}
 
-	buf := bytes.NewBuffer(nil)
-	enc := scale.NewEncoder(buf)
-	err = enc.Encode(ext)
+	buf, err := codec.Encode(ext)
 	if err != nil {
 		log.Fatalf("Error encoding extrinsic: %s", err)
 	}
-	extrinsicHex := "0x" + hex.EncodeToString(buf.Bytes())
+	extrinsicHex := "0x" + hex.EncodeToString(buf)
 	fmt.Printf("Signed Extrinsic (hex): %s\n", extrinsicHex)
 
 	_, err = api.RPC.Author.SubmitExtrinsic(ext)
