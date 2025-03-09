@@ -9,15 +9,19 @@ import (
 )
 
 type Client struct {
-	api     *gsrpc.SubstrateAPI
-	meta    *types.Metadata
+	Api     *gsrpc.SubstrateAPI
+	Meta    *types.Metadata
 	keyring *signature.KeyringPair
-	network uint16
+	Network uint16
 }
 
-func NewClient(endpoint string) (*Client, error) {
+func NewClient(endpoint string, opts ...Option) (*Client, error) {
 	client := &Client{
-		network: 42,
+		Network: 42,
+	}
+
+	for _, opt := range opts {
+		opt(client)
 	}
 
 	api, err := gsrpc.NewSubstrateAPI(endpoint)
@@ -25,14 +29,14 @@ func NewClient(endpoint string) (*Client, error) {
 		return nil, fmt.Errorf("failed to connect to subtensor node: %w", err)
 	}
 
-	client.api = api
+	client.Api = api
 
 	meta, err := api.RPC.State.GetMetadataLatest()
 	if err != nil {
 		return nil, fmt.Errorf("failed to get metadata from subtensor node: %w", err)
 	}
 
-	client.meta = meta
+	client.Meta = meta
 
 	return client, nil
 }

@@ -12,6 +12,6 @@ func WithKeyring(keyring *signature.KeyringPair) Option {
 
 func WithNetwork(network uint16) Option {
 	return func(c *Client) {
-		c.network = network
+		c.Network = network
 	}
 }

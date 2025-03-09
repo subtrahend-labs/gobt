@@ -184,32 +184,6 @@ func main() {
 	}
 
 	// Print all modules and their calls
-	fmt.Println("\nAVAILABLE MODULES AND CALLS:")
-	for _, module := range meta.AsMetadataV14.Pallets {
-		fmt.Printf("Module: %s (Index: %d)\n", module.Name, module.Index)
-
-		// Print calls if they exist
-		if module.HasCalls {
-			// Get the call type ID
-			callTypeID := module.Calls.Type.Int64()
-			fmt.Printf("  Call Type ID: %d\n", callTypeID)
-
-			// Find the type in the lookup
-			if callType, ok := meta.AsMetadataV14.EfficientLookup[callTypeID]; ok {
-				if callType.Def.IsVariant {
-					fmt.Println("  Available Calls:")
-					for _, variant := range callType.Def.Variant.Variants {
-						fmt.Printf("    %s (Index: %d)\n", variant.Name, variant.Index)
-					}
-				}
-			} else {
-				fmt.Printf("  Call type not found in lookup\n")
-			}
-		} else {
-			fmt.Printf("  No calls available\n")
-		}
-		fmt.Println()
-	}
 
 	c, err := types.NewCall(meta, "Balances.transfer_keep_alive", recipient, types.NewUCompact(bal))
 	if err != nil {
