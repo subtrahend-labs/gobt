@@ -81,3 +81,68 @@ func PrintExtensionDetails(meta *types.Metadata, out io.Writer, extensionNames .
 		}
 	}
 }
+
+// PrintStorageItemInfo prints detailed information about a specific storage item
+func PrintStorageItemInfo(meta *types.Metadata, out io.Writer, palletName, storageName string) {
+	if out == nil {
+		out = os.Stdout
+	}
+
+	found := false
+	for _, module := range meta.AsMetadataV14.Pallets {
+		if string(module.Name) == palletName {
+			if !module.HasStorage {
+				fmt.Fprintf(out, "Pallet '%s' has no storage items\n", palletName)
+				return
+			}
+
+			for _, storageEntry := range module.Storage.Items {
+				if string(storageEntry.Name) == storageName {
+					found = true
+
+					fmt.Fprintf(out, "Storage Item: %s::%s\n", palletName, storageName)
+					fmt.Fprintf(out, "  Documentation: %s\n", storageEntry.Documentation)
+					fmt.Fprintf(out, "  Type: %v\n", storageEntry.Type)
+
+					if storageEntry.Type.IsMap {
+						fmt.Fprintf(out, "  Storage Type: Map\n")
+						fmt.Fprintf(out, "  Key Type ID: %d\n", storageEntry.Type.AsMap.Key.Int64())
+						fmt.Fprintf(out, "  Value Type ID: %d\n", storageEntry.Type.AsMap.Value.Int64())
+
+						// Get key type info
+						keyTypeId := storageEntry.Type.AsMap.Key.Int64()
+						if keyType, found := meta.AsMetadataV14.EfficientLookup[keyTypeId]; found {
+							fmt.Fprintf(out, "  Key Type Definition: %+v\n", keyType)
+						}
+
+						// Get value type info
+						valueTypeId := storageEntry.Type.AsMap.Value.Int64()
+						if valueType, found := meta.AsMetadataV14.EfficientLookup[valueTypeId]; found {
+							fmt.Fprintf(out, "  Value Type Definition: %+v\n", valueType)
+						}
+					} else if storageEntry.Type.IsPlainType {
+						fmt.Fprintf(out, "  Storage Type: Plain\n")
+						fmt.Fprintf(out, "  Type ID: %d\n", storageEntry.Type.AsPlainType.Int64())
+
+						typeId := storageEntry.Type.AsPlainType.Int64()
+						if typeInfo, found := meta.AsMetadataV14.EfficientLookup[typeId]; found {
+							fmt.Fprintf(out, "  Type Definition: %+v\n", typeInfo)
+						}
+					} else {
+						fmt.Fprintf(out, "  Storage Type: Other/Unknown\n")
+					}
+
+					break
+				}
+			}
+
+			if !found {
+				fmt.Fprintf(out, "Storage item '%s' not found in pallet '%s'\n", storageName, palletName)
+			}
+
+			return
+		}
+	}
+
+	fmt.Fprintf(out, "Pallet '%s' not found\n", palletName)
+}
