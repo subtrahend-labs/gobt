@@ -184,32 +184,32 @@ func main() {
 	}
 
 	// Print all modules and their calls
-	// fmt.Println("\nAVAILABLE MODULES AND CALLS:")
-	// for _, module := range meta.AsMetadataV14.Pallets {
-	// 	fmt.Printf("Module: %s (Index: %d)\n", module.Name, module.Index)
+	fmt.Println("\nAVAILABLE MODULES AND CALLS:")
+	for _, module := range meta.AsMetadataV14.Pallets {
+		fmt.Printf("Module: %s (Index: %d)\n", module.Name, module.Index)
 
-	// 	// Print calls if they exist
-	// 	if module.HasCalls {
-	// 		// Get the call type ID
-	// 		callTypeID := module.Calls.Type.Int64()
-	// 		fmt.Printf("  Call Type ID: %d\n", callTypeID)
+		// Print calls if they exist
+		if module.HasCalls {
+			// Get the call type ID
+			callTypeID := module.Calls.Type.Int64()
+			fmt.Printf("  Call Type ID: %d\n", callTypeID)
 
-	// 		// Find the type in the lookup
-	// 		if callType, ok := meta.AsMetadataV14.EfficientLookup[callTypeID]; ok {
-	// 			if callType.Def.IsVariant {
-	// 				fmt.Println("  Available Calls:")
-	// 				for _, variant := range callType.Def.Variant.Variants {
-	// 					fmt.Printf("    %s (Index: %d)\n", variant.Name, variant.Index)
-	// 				}
-	// 			}
-	// 		} else {
-	// 			fmt.Printf("  Call type not found in lookup\n")
-	// 		}
-	// 	} else {
-	// 		fmt.Printf("  No calls available\n")
-	// 	}
-	// 	fmt.Println()
-	// }
+			// Find the type in the lookup
+			if callType, ok := meta.AsMetadataV14.EfficientLookup[callTypeID]; ok {
+				if callType.Def.IsVariant {
+					fmt.Println("  Available Calls:")
+					for _, variant := range callType.Def.Variant.Variants {
+						fmt.Printf("    %s (Index: %d)\n", variant.Name, variant.Index)
+					}
+				}
+			} else {
+				fmt.Printf("  Call type not found in lookup\n")
+			}
+		} else {
+			fmt.Printf("  No calls available\n")
+		}
+		fmt.Println()
+	}
 
 	c, err := types.NewCall(meta, "Balances.transfer_keep_alive", recipient, types.NewUCompact(bal))
 	if err != nil {
@@ -227,27 +227,6 @@ func main() {
 	if err != nil {
 		log.Fatalf("Error getting runtime version: %s", err)
 	}
-
-	// o := types.SignatureOptions{
-	// 	BlockHash:          currentHash,
-	// 	Era:                types.ExtrinsicEra{IsMortalEra: true, AsMortalEra: mortalEra},
-	// 	GenesisHash:        genesisHash,
-	// 	Nonce:              types.NewUCompactFromUInt(uint64(accountInfo.Nonce)),
-	// 	SpecVersion:        rv.SpecVersion,
-	// 	Tip:                types.NewUCompactFromUInt(1000000),
-	// 	TransactionVersion: rv.TransactionVersion,
-	// }
-
-	// fmt.Printf("Spec Version: %d, Tx Version: %d, Nonce: %d\n", rv.SpecVersion, rv.TransactionVersion, accountInfo.Nonce)
-	// fmt.Printf("Transfer Amount: %v, Tip: %v, Sender Balance: %v\n", bal, o.Tip, accountInfo.Data.Free)
-	// fmt.Printf("Signature Payload Inputs:\n")
-	// fmt.Printf("  Era - IsMortal: %v, First: %d, Second: %d\n", o.Era.IsMortalEra, o.Era.AsMortalEra.First, o.Era.AsMortalEra.Second)
-	// fmt.Printf("  Nonce: %v\n", o.Nonce)
-	// fmt.Printf("  Tip: %v\n", o.Tip)
-	// fmt.Printf("  Spec Version: %d\n", o.SpecVersion)
-	// fmt.Printf("  Tx Version: %d\n", o.TransactionVersion)
-	// fmt.Printf("  Genesis Hash: %x\n", o.GenesisHash)
-	// fmt.Printf("  Block Hash: %x\n", o.BlockHash)
 
 	extrinsic.PayloadMutatorFns[extensions.SignedExtensionName("SubtensorSignedExtension")] = func(payload *extrinsic.Payload) {}
 	extrinsic.PayloadMutatorFns[extensions.SignedExtensionName("CommitmentsSignedExtension")] = func(payload *extrinsic.Payload) {}
