@@ -8,32 +8,15 @@ import (
 	"os"
 	"time"
 
-	gsrpc "github.com/centrifuge/go-substrate-rpc-client/v4"
 	"github.com/centrifuge/go-substrate-rpc-client/v4/signature"
 	"github.com/centrifuge/go-substrate-rpc-client/v4/types"
 	"github.com/centrifuge/go-substrate-rpc-client/v4/types/codec"
 	"github.com/centrifuge/go-substrate-rpc-client/v4/types/extrinsic"
 	"github.com/centrifuge/go-substrate-rpc-client/v4/types/extrinsic/extensions"
 	"github.com/joho/godotenv"
+	"github.com/subtrahend-labs/gobt/client"
 	"github.com/vedhavyas/go-subkey/v2"
 )
-
-type AccountInfo struct {
-	// Nonce       types.UCompact
-	// Consumers   types.UCompact
-	// Providers   types.UCompact
-	// Sufficients types.UCompact
-	Nonce       types.U32
-	Consumers   types.U32
-	Providers   types.U32
-	Sufficients types.U32
-	Data        struct {
-		Free     types.U64
-		Reserved types.U64
-		Frozen   types.U64
-		Flags    types.U128 // Assuming ExtraFlags is u128
-	}
-}
 
 const (
 	network uint16 = 42
@@ -63,34 +46,12 @@ func main() {
 	fmt.Println("sender ss58: ", senderSS58)
 	fmt.Println("recipient ss58: ", recipientSS58)
 
-	api, err := gsrpc.NewSubstrateAPI(endpoint)
+	c, err := client.NewClient(endpoint, client.WithKeyring(&sender))
 	if err != nil {
-		log.Fatalf("Error creating API instance: %s", err)
-	}
-
-	meta, err := api.RPC.State.GetMetadataLatest()
-	if err != nil {
-		log.Fatalf("Error getting metadata: %s", err)
+		log.Fatalf("Error creating client: %s", err)
 	}
 
 	// Dump signed extensions from metadata
-	fmt.Println("Signed Extensions:")
-	for _, ext := range meta.AsMetadataV14.Extrinsic.SignedExtensions {
-		fmt.Printf("- %s (Identifier: %s, Type: %d, AdditionalSigned: %d)\n",
-			ext.Identifier, ext.Identifier, ext.Type, ext.AdditionalSigned)
-	}
-
-	for _, ext := range meta.AsMetadataV14.Extrinsic.SignedExtensions {
-		if ext.Identifier == "SubtensorSignedExtension" || ext.Identifier == "CommitmentsSignedExtension" || ext.Identifier == "CheckMetadataHash" {
-			typeID := ext.Type.Int64()
-			if def, ok := meta.AsMetadataV14.EfficientLookup[typeID]; ok {
-				fmt.Printf("Extension %s Type Definition: %+v\n", ext.Identifier, def)
-			} else {
-				fmt.Printf("Extension %s Type ID %d not found in lookup\n", ext.Identifier, typeID)
-			}
-		}
-	}
-
 	senderKey, err := types.CreateStorageKey(meta, "System", "Account", sender.PublicKey)
 	if err != nil {
 		log.Fatalf("Error creating storage senderKey: %s", err)
@@ -253,39 +214,4 @@ func main() {
 		log.Fatalf("No storage found")
 	}
 	fmt.Println("Sender balance after transfer: ", accountInfo.Data.Free)
-}
-
-func calculateMortalEra(period, currentBlockNumber uint64) types.MortalEra {
-	quantizedPeriod := uint64(4)
-	for quantizedPeriod < period && quantizedPeriod < 65536 {
-		quantizedPeriod *= 2
-	}
-	if quantizedPeriod > 65536 {
-		quantizedPeriod = 65536
-	}
-
-	phase := currentBlockNumber % quantizedPeriod
-	periodBits := uint64(0)
-	switch quantizedPeriod {
-	case 4:
-		periodBits = 1
-	case 8:
-		periodBits = 2
-	case 16:
-		periodBits = 3
-	case 32:
-		periodBits = 4
-	case 64:
-		periodBits = 5
-	case 128:
-		periodBits = 6
-	default:
-		periodBits = 15
-	}
-
-	value := (periodBits << 12) | (phase & 0xFFF)
-	return types.MortalEra{
-		First:  byte(value >> 8),
-		Second: byte(value & 0xFF),
-	}
 }

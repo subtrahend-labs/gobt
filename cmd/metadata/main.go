@@ -14,4 +14,6 @@ func main() {
 	}
 
 	info.PrintModulesAndCalls(c.Meta, nil)
+	info.PrintExtensions(c.Meta, nil)
+	info.PrintExtensionDetails(c.Meta, nil, "SubtensorSignedExtension")
 }
