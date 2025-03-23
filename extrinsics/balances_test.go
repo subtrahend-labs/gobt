@@ -1,0 +1,143 @@
+//go:build integration
+// +build integration
+
+package extrinsics
+
+import (
+	"context"
+	"fmt"
+	"math/big"
+	"testing"
+	"time"
+
+	"github.com/centrifuge/go-substrate-rpc-client/v4/signature"
+	"github.com/centrifuge/go-substrate-rpc-client/v4/types"
+	"github.com/centrifuge/go-substrate-rpc-client/v4/types/extrinsic"
+	"github.com/centrifuge/go-substrate-rpc-client/v4/types/extrinsic/extensions"
+	"github.com/docker/go-connections/nat"
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
+	"github.com/subtrahend-labs/gobt/client"
+	"github.com/subtrahend-labs/gobt/storage"
+	"github.com/testcontainers/testcontainers-go"
+	"github.com/testcontainers/testcontainers-go/wait"
+)
+
+func TestSubstrateExtrinsics(t *testing.T) {
+	ctx := context.Background()
+
+	// Define container request
+	nodePort := "9944/tcp"
+	req := testcontainers.ContainerRequest{
+		Image:        "parity/substrate:latest",
+		ExposedPorts: []string{nodePort},
+		Cmd:          []string{"--dev", "--ws-external"},
+		WaitingFor:   wait.ForLog("Substrate Node").WithStartupTimeout(60 * time.Second),
+	}
+
+	// Start container
+	container, err := testcontainers.GenericContainer(ctx, testcontainers.GenericContainerRequest{
+		ContainerRequest: req,
+		Started:          true,
+	})
+	require.NoError(t, err, "Failed to start container")
+	defer container.Terminate(ctx)
+
+	// Get mapped port
+	mappedPort, err := container.MappedPort(ctx, nat.Port(nodePort))
+	require.NoError(t, err, "Failed to get mapped port")
+
+	// Get host
+	host, err := container.Host(ctx)
+	require.NoError(t, err, "Failed to get host")
+
+	// Build WS URL
+	wsURL := fmt.Sprintf("ws://%s:%s", host, mappedPort.Port())
+
+	// Allow node to initialize
+	time.Sleep(3 * time.Second)
+
+	t.Run("TestTransferKeepAlive", func(t *testing.T) {
+		// Create test keyring pairs
+		keyringAlice := signature.TestKeyringPairAlice
+		keyringBob, err := signature.KeyringPairFromSecret("bottom drive obey lake curtain smoke basket hold race lonely fit walk", 42)
+		require.NoError(t, err, "Failed to create test key")
+
+		// Initialize client with keyring
+		cl, err := client.NewClient(wsURL, client.WithKeyring(&keyringAlice))
+		require.NoError(t, err, "Failed to create client")
+
+		// Get initial balances
+		aliceInitialInfo, err := storage.GetAccountInfo(cl, keyringAlice.PublicKey)
+		require.NoError(t, err, "Failed to get Alice balance")
+
+		bobInitialInfo, err := storage.GetAccountInfo(cl, keyringBob.PublicKey)
+		require.NoError(t, err, "Failed to get Bob balance")
+
+		// Create transfer amount
+		amount := big.NewInt(100000000) // 0.1 unit
+		bobMultiAddress, err := types.NewMultiAddressFromAccountID(keyringBob.PublicKey)
+		require.NoError(t, err, "Failed to create Bob multi address")
+
+		// Create extrinsic
+		ext := NewTransferKeepAlive(cl, bobMultiAddress, amount)
+
+		// Get necessary params for signing
+		genesisHash, err := cl.Api.RPC.Chain.GetBlockHash(0)
+		require.NoError(t, err, "Failed to get genesis hash")
+
+		rv, err := cl.Api.RPC.State.GetRuntimeVersionLatest()
+		require.NoError(t, err, "Failed to get runtime version")
+
+		// Register custom extension mutators if needed in your runtime
+		extrinsic.PayloadMutatorFns[extensions.SignedExtensionName("SubtensorSignedExtension")] = func(payload *extrinsic.Payload) {}
+		extrinsic.PayloadMutatorFns[extensions.SignedExtensionName("CommitmentsSignedExtension")] = func(payload *extrinsic.Payload) {}
+
+		// Sign the extrinsic
+		err = ext.Sign(
+			keyringAlice,
+			cl.Meta,
+			extrinsic.WithEra(types.ExtrinsicEra{IsImmortalEra: true}, genesisHash),
+			extrinsic.WithNonce(types.NewUCompactFromUInt(uint64(aliceInitialInfo.Nonce))),
+			extrinsic.WithTip(types.NewUCompactFromUInt(0)),
+			extrinsic.WithSpecVersion(rv.SpecVersion),
+			extrinsic.WithTransactionVersion(rv.TransactionVersion),
+			extrinsic.WithGenesisHash(genesisHash),
+			extrinsic.WithMetadataMode(extensions.CheckMetadataModeDisabled, extensions.CheckMetadataHash{Hash: types.NewEmptyOption[types.H256]()}),
+		)
+		require.NoError(t, err, "Failed to sign extrinsic")
+
+		// Submit the extrinsic
+		_, err = cl.Api.RPC.Author.SubmitExtrinsic(*ext)
+		require.NoError(t, err, "Failed to submit extrinsic")
+
+		// Wait for transaction to be included in a block
+		time.Sleep(12 * time.Second)
+
+		// Check final balances
+		aliceFinalInfo, err := storage.GetAccountInfo(cl, keyringAlice.PublicKey)
+		require.NoError(t, err, "Failed to get Alice final balance")
+
+		bobFinalInfo, err := storage.GetAccountInfo(cl, keyringBob.PublicKey)
+		require.NoError(t, err, "Failed to get Bob final balance")
+
+		// Verify transfer
+		aliceInitialBalance := new(big.Int).SetUint64(uint64(aliceInitialInfo.Data.Free))
+		aliceFinalBalance := new(big.Int).SetUint64(uint64(aliceFinalInfo.Data.Free))
+		actualAliceDiff := new(big.Int).Sub(aliceInitialBalance, aliceFinalBalance)
+
+		// Alice should have lost at least the transfer amount
+		assert.GreaterOrEqual(t, actualAliceDiff.Cmp(amount), 0,
+			"Alice balance didn't decrease by at least %v: initial=%v, final=%v, diff=%v",
+			amount, aliceInitialBalance, aliceFinalBalance, actualAliceDiff)
+
+		// Bob should have gained exactly the transfer amount
+		bobInitialBalance := new(big.Int).SetUint64(uint64(bobInitialInfo.Data.Free))
+		bobFinalBalance := new(big.Int).SetUint64(uint64(bobFinalInfo.Data.Free))
+		actualBobDiff := new(big.Int).Sub(bobFinalBalance, bobInitialBalance)
+
+		assert.Equal(t, 0, actualBobDiff.Cmp(amount),
+			"Bob balance didn't increase by %v: initial=%v, final=%v, diff=%v",
+			amount, bobInitialBalance, bobFinalBalance, actualBobDiff)
+	})
+}

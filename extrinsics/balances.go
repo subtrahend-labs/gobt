@@ -9,20 +9,6 @@ import (
 	"github.com/subtrahend-labs/gobt/client"
 )
 
-// Module: Balances (Index: 5)
-// Call Type ID: 149
-// Available Calls:
-//
-// - [x]     transfer_allow_death (Index: 0)
-// - [x]     force_transfer (Index: 2)
-// - [x]     transfer_keep_alive (Index: 3)
-// - [x]     transfer_all (Index: 4)
-// - [ ]     force_unreserve (Index: 5)
-// - [ ]     upgrade_accounts (Index: 6)
-// - [ ]     force_set_balance (Index: 8)
-// - [ ]     force_adjust_total_issuance (Index: 9)
-// - [ ]     burn (Index: 10)
-
 func NewTransferAllowDeath(c *client.Client, recipient types.MultiAddress, amount *big.Int) *extrinsic.Extrinsic {
 	call, err := types.NewCall(c.Meta, "Balances.transfer_allow_death", recipient, types.NewUCompact(amount))
 	if err != nil {
