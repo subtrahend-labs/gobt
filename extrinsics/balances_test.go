@@ -52,7 +52,7 @@ func TestSubstrateExtrinsics(t *testing.T) {
 	})
 
 	require.NoError(t, err, "Failed to start container")
-	// defer container.Terminate(ctx)
+	defer container.Terminate(ctx)
 
 	// Get mapped port
 	mappedPort, err := container.MappedPort(ctx, nat.Port(nodePort))
