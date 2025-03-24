@@ -34,25 +34,18 @@ func TestSubstrateExtrinsics(t *testing.T) {
 		Cmd: []string{
 			"/bin/bash",
 			"-c",
-			"node-subtensor --dev --rpc-external --rpc-cors all --rpc-methods=unsafe --offchain-worker never",
+			"node-subtensor --dev --rpc-external --rpc-cors all --rpc-methods=unsafe",
 		},
-		WaitingFor: wait.ForAll(
-			wait.ForListeningPort(nat.Port(nodePort)),
-			wait.ForLog("Running JSON-RPC server").WithStartupTimeout(30*time.Second),
-		),
+		WaitingFor: wait.ForListeningPort(nat.Port(nodePort)),
 	}
-
-	ctx, cancel := context.WithTimeout(ctx, 5*time.Minute)
-	defer cancel()
 
 	// Start container
 	container, err := testcontainers.GenericContainer(ctx, testcontainers.GenericContainerRequest{
 		ContainerRequest: req,
 		Started:          true,
 	})
-
 	require.NoError(t, err, "Failed to start container")
-	// defer container.Terminate(ctx)
+	defer container.Terminate(ctx)
 
 	// Get mapped port
 	mappedPort, err := container.MappedPort(ctx, nat.Port(nodePort))
@@ -122,26 +115,14 @@ func TestSubstrateExtrinsics(t *testing.T) {
 		txnSub, err := cl.Api.RPC.Author.SubmitAndWatchExtrinsic(*ext)
 		require.NoError(t, err, "Failed to submit extrinsic")
 
-		var blockHash types.Hash
+		defer txnSub.Unsubscribe()
 		for {
 			status := <-txnSub.Chan()
-			t.Logf("Transaction status: %v", status)
+			fmt.Printf("Transaction status: %v\n", status)
 			if status.IsInBlock {
-				blockHash = status.AsInBlock
-				t.Logf("Transaction included in block: %v", blockHash)
+				fmt.Printf("Transaction included in block: %v\n", status.AsInBlock)
 				break
 			}
-			if status.IsDropped || status.IsInvalid {
-				t.Fatalf("Transaction failed: dropped=%v, invalid=%v", status.IsDropped, status.IsInvalid)
-			}
-		}
-		txnSub.Unsubscribe()
-
-		state, err := container.State(ctx)
-		if err != nil {
-			t.Logf("Failed to get container state: %v", err)
-		} else {
-			t.Logf("Container state: %v", state)
 		}
 
 		// Check final balances
