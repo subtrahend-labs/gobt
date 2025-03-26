@@ -15,6 +15,7 @@ import (
 	"github.com/stretchr/testify/require"
 	"github.com/subtrahend-labs/gobt/storage"
 	"github.com/subtrahend-labs/gobt/testutils"
+	"github.com/vedhavyas/go-subkey/v2"
 )
 
 var env *testutils.TestEnv
@@ -29,6 +30,37 @@ func TestMain(m *testing.M) {
 	defer env.Teardown()
 
 	os.Exit(m.Run())
+}
+
+func resetState(t *testing.T) {
+	keyringAlice := signature.TestKeyringPairAlice
+	aliceAccID, err := types.NewAccountID(keyringAlice.PublicKey)
+	require.NoError(t, err, "Failed to create Alice account ID")
+	keyringBob, err := signature.KeyringPairFromSecret("//Bob", 0)
+	bobAccID, err := types.NewAccountID(keyringBob.PublicKey)
+	require.NoError(t, err, "Failed to create Bob account ID")
+
+	const initialBalance = 1_000_000
+	bigZero := types.U128{big.NewInt(0)}
+	aliceBalance := types.U128{big.NewInt(1_000_000_000_000)}
+	bobBalance := types.U128{big.NewInt(0)}
+
+	// Use root (or a sudo key if configured) to force-set balances
+	sudoKey := signature.TestKeyringPairAlice // Assuming Alice has sudo in dev mode
+	extAlice := NewForceSetBalance(env.Client, *aliceAccID, aliceBalance, types.U128{big.NewInt(0)})
+	testutils.SignAndSubmit(t, env.Client, extAlice, sudoKey, 0) // Nonce might need adjustment
+
+	extBob := NewForceSetBalance(env.Client, *bobAccID, bobBalance, types.U128{big.NewInt(0)})
+	testutils.SignAndSubmit(t, env.Client, extBob, sudoKey, 0) // Nonce might need adjustment
+
+	// Verify reset
+	aliceInfo, err := storage.GetAccountInfo(env.Client, keyringAlice.PublicKey)
+	require.NoError(t, err, "Failed to get Alice balance after reset")
+	assert.Equal(t, uint64(initialBalance), uint64(aliceInfo.Data.Free), "Alice balance reset failed")
+
+	bobInfo, err := storage.GetAccountInfo(env.Client, keyringBob.PublicKey)
+	require.NoError(t, err, "Failed to get Bob balance after reset")
+	assert.Equal(t, uint64(initialBalance), uint64(bobInfo.Data.Free), "Bob balance reset failed")
 }
 
 func TestBalanceModuleExtrinsics(t *testing.T) {
@@ -55,16 +87,18 @@ func TestBalanceModuleExtrinsics(t *testing.T) {
 		require.NoError(t, err, "Failed to get Alice final balance")
 		bobFinalInfo, err := storage.GetAccountInfo(env.Client, keyringBob.PublicKey)
 		require.NoError(t, err, "Failed to get Bob final balance")
-		aliceInitialBalance := new(big.Int).SetUint64(uint64(aliceInitialInfo.Data.Free))
-		aliceFinalBalance := new(big.Int).SetUint64(uint64(aliceFinalInfo.Data.Free))
-		actualAliceDiff := new(big.Int).Sub(aliceInitialBalance, aliceFinalBalance)
-		assert.GreaterOrEqual(t, actualAliceDiff.Cmp(amount), 0,
+
+		aliceInitialBalance := uint64(aliceInitialInfo.Data.Free)
+		aliceFinalBalance := uint64(aliceFinalInfo.Data.Free)
+		actualAliceDiff := aliceInitialBalance - aliceFinalBalance
+		assert.GreaterOrEqual(t, actualAliceDiff, amountU64,
 			"Alice balance didn't decrease by at least %v: initial=%v, final=%v, diff=%v",
 			amount, aliceInitialBalance, aliceFinalBalance, actualAliceDiff)
-		bobInitialBalance := new(big.Int).SetUint64(uint64(bobInitialInfo.Data.Free))
-		bobFinalBalance := new(big.Int).SetUint64(uint64(bobFinalInfo.Data.Free))
-		actualBobDiff := new(big.Int).Sub(bobFinalBalance, bobInitialBalance)
-		assert.Equal(t, 0, actualBobDiff.Cmp(amount),
+
+		bobInitialBalance := uint64(bobInitialInfo.Data.Free)
+		bobFinalBalance := uint64(bobFinalInfo.Data.Free)
+		actualBobDiff := bobFinalBalance - bobInitialBalance
+		assert.Equal(t, amountU64, actualBobDiff,
 			"Bob balance didn't increase by %v: initial=%v, final=%v, diff=%v",
 			amount, bobInitialBalance, bobFinalBalance, actualBobDiff)
 	})
