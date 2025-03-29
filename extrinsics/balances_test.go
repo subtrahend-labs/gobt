@@ -132,7 +132,8 @@ func TestBalanceModuleExtrinsics(t *testing.T) {
 		amountU64 := uint64(100000000)
 		bobInitial := uint64(bob.accountInfo.Data.Free)
 		charlieInitial := uint64(charlie.accountInfo.Data.Free)
-		ext := NewTransferAllowDeath(env.Client, charlie.address, types.NewUCompact(new(big.Int).SetUint64(amountU64)))
+		ext, err := TransferAllowDeathExt(env.Client, charlie.address, types.NewUCompact(new(big.Int).SetUint64(amountU64)))
+		require.NoError(t, err, "Failed to create extrinsic")
 		testutils.SignAndSubmit(t, env.Client, ext, bob.keyring, uint32(bob.accountInfo.Nonce))
 
 		updateUserInfo(t, &bob)
