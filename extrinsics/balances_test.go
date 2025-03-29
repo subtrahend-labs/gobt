@@ -91,19 +91,20 @@ func TestMain(m *testing.M) {
 func teardown(t *testing.T) {
 	updateUserInfo(t, &alice)
 	aliceNonce := uint32(alice.accountInfo.Nonce)
+	bobCall, err := types.NewCall(env.Client.Meta, "Balances.force_set_balance", bob.address, initialBalanceUCompact)
+	require.NoError(t, err, "Failed to create call")
+	extSudo := NewSudo(env.Client, &bobCall)
+	testutils.SignAndSubmit(t, env.Client, extSudo, alice.keyring, aliceNonce)
 
-	extBob := NewForceSetBalance(env.Client, bob.address, initialBalanceUCompact)
-	testutils.SignAndSubmit(t, env.Client, extBob, alice.keyring, aliceNonce)
-
-	extResetAlice := NewForceSetBalance(env.Client, alice.address, initialBalanceUCompact)
-	testutils.SignAndSubmit(t, env.Client, extResetAlice, alice.keyring, aliceNonce+1)
+	extResetAlice, err := types.NewCall(env.Client.Meta, "Balances.force_set_balance", alice.address, initialBalanceUCompact)
+	require.NoError(t, err, "Failed to create call")
+	extSudo = NewSudo(env.Client, &extResetAlice)
+	testutils.SignAndSubmit(t, env.Client, extSudo, alice.keyring, aliceNonce+1)
 
 	updateUserInfo(t, &alice)
 	updateUserInfo(t, &bob)
-	fmt.Println("Alice final")
-	fmt.Println(alice.accountInfo.Data.Free)
 	assert.Equal(t, initialBalanceU64, bob.accountInfo.Data.Free, "Bob balance reset failed")
-	// assert.Equal(t, initialBalanceU64, alice.accountInfo.Data.Free, "Alice balance reset failed")
+	assert.Equal(t, initialBalanceU64, alice.accountInfo.Data.Free, "Alice balance reset failed")
 }
 
 func TestBalanceModuleExtrinsics(t *testing.T) {

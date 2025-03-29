@@ -123,8 +123,8 @@ func SignAndSubmit(t *testing.T, cl *client.Client, ext *extrinsic.Extrinsic, si
 			t.Logf("Transaction included in block: %v", blockHash)
 			break
 		}
-		if status.IsDropped || status.IsInvalid {
-			t.Fatalf("Transaction failed: dropped=%v, invalid=%v", status.IsDropped, status.IsInvalid)
+		if status.IsDropped || status.IsInvalid || status.IsRetracted {
+			t.Fatalf("Transaction failed: dropped=%v, invalid=%v, retracted=%v", status.IsDropped, status.IsInvalid, status.IsRetracted)
 		}
 	}
 	txnSub.Unsubscribe()

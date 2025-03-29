@@ -8,7 +8,7 @@ import (
 	"github.com/subtrahend-labs/gobt/client"
 )
 
-func NewSudo(c *client.Client, ext *extrinsic.Extrinsic) *extrinsic.Extrinsic {
+func NewSudo(c *client.Client, ext *types.Call) *extrinsic.Extrinsic {
 	call, err := types.NewCall(c.Meta, "Sudo.sudo", *ext)
 	if err != nil {
 		log.Fatalf("Error creating call: %s", err)
