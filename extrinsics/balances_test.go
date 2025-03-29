@@ -21,6 +21,7 @@ var (
 	env                    *testutils.TestEnv
 	alice                  User
 	bob                    User
+	charlie                User
 	initialBalanceUint64   uint64         = 1000000000000000
 	initialBalanceU64      types.U64      = types.NewU64(initialBalanceUint64)
 	initialBalanceUCompact types.UCompact = types.NewUCompactFromUInt(initialBalanceUint64)
@@ -68,6 +69,21 @@ func setup(t *testing.T) {
 		accountInfo: bobInitialInfo,
 		address:     multiAddress,
 	}
+
+	keyringCharlie, err := signature.KeyringPairFromSecret("//Charlie", 0)
+	charlieAccID, err := types.NewAccountID(keyringCharlie.PublicKey)
+	require.NoError(t, err, "Failed to create Charlie account ID")
+	charlieInitialInfo, err := storage.GetAccountInfo(env.Client, keyringCharlie.PublicKey)
+	require.NoError(t, err, "Failed to get Charlie balance")
+	multiAddress, err = types.NewMultiAddressFromAccountID(keyringCharlie.PublicKey)
+	require.NoError(t, err, "Failed to create Charlie multi address")
+	charlie = User{
+		username:    "Charlie",
+		keyring:     keyringCharlie,
+		accID:       charlieAccID,
+		accountInfo: charlieInitialInfo,
+		address:     multiAddress,
+	}
 }
 
 func updateUserInfo(t *testing.T, u *User) {
@@ -96,15 +112,16 @@ func teardown(t *testing.T) {
 	extSudo := NewSudo(env.Client, &bobCall)
 	testutils.SignAndSubmit(t, env.Client, extSudo, alice.keyring, aliceNonce)
 
-	extResetAlice, err := types.NewCall(env.Client.Meta, "Balances.force_set_balance", alice.address, initialBalanceUCompact)
+	charlieCall, err := types.NewCall(env.Client.Meta, "Balances.force_set_balance", charlie.address, initialBalanceUCompact)
 	require.NoError(t, err, "Failed to create call")
-	extSudo = NewSudo(env.Client, &extResetAlice)
+	extSudo = NewSudo(env.Client, &charlieCall)
 	testutils.SignAndSubmit(t, env.Client, extSudo, alice.keyring, aliceNonce+1)
 
-	updateUserInfo(t, &alice)
 	updateUserInfo(t, &bob)
+	updateUserInfo(t, &charlie)
+
 	assert.Equal(t, initialBalanceU64, bob.accountInfo.Data.Free, "Bob balance reset failed")
-	assert.Equal(t, initialBalanceU64, alice.accountInfo.Data.Free, "Alice balance reset failed")
+	assert.Equal(t, initialBalanceU64, charlie.accountInfo.Data.Free, "Charlie balance reset failed")
 }
 
 func TestBalanceModuleExtrinsics(t *testing.T) {
@@ -113,27 +130,25 @@ func TestBalanceModuleExtrinsics(t *testing.T) {
 		defer teardown(t)
 
 		amountU64 := uint64(100000000)
-		aliceInitialBalance := uint64(alice.accountInfo.Data.Free)
-		fmt.Println("Alice init")
-		fmt.Println(aliceInitialBalance)
-		fmt.Println("bob init")
-		bobInitialBalance := uint64(bob.accountInfo.Data.Free)
-		fmt.Println(bobInitialBalance)
-		ext := NewTransferAllowDeath(env.Client, bob.address, types.NewUCompact(new(big.Int).SetUint64(amountU64)))
-		testutils.SignAndSubmit(t, env.Client, ext, alice.keyring, uint32(alice.accountInfo.Nonce))
+		bobInitial := uint64(bob.accountInfo.Data.Free)
+		charlieInitial := uint64(charlie.accountInfo.Data.Free)
+		ext := NewTransferAllowDeath(env.Client, charlie.address, types.NewUCompact(new(big.Int).SetUint64(amountU64)))
+		testutils.SignAndSubmit(t, env.Client, ext, bob.keyring, uint32(bob.accountInfo.Nonce))
 
-		updateUserInfo(t, &alice)
 		updateUserInfo(t, &bob)
-		aliceFinalBalance := uint64(alice.accountInfo.Data.Free)
-		bobFinalBalance := uint64(bob.accountInfo.Data.Free)
-		actualAliceDiff := aliceInitialBalance - aliceFinalBalance
-		assert.GreaterOrEqual(t, actualAliceDiff, amountU64,
-			"Alice balance didn't decrease by at least %v: initial=%v, final=%v, diff=%v",
-			amountU64, aliceInitialBalance, aliceFinalBalance, actualAliceDiff)
-		actualBobDiff := bobFinalBalance - bobInitialBalance
-		assert.Equal(t, amountU64, actualBobDiff,
-			"Bob balance didn't increase by %v: initial=%v, final=%v, diff=%v",
-			amountU64, bobInitialBalance, bobFinalBalance, actualBobDiff)
+		updateUserInfo(t, &charlie)
+
+		bobFinal := uint64(bob.accountInfo.Data.Free)
+		charlieFinal := uint64(charlie.accountInfo.Data.Free)
+		bobDiff := bobInitial - bobFinal
+		assert.GreaterOrEqual(t, bobDiff, amountU64,
+			"Bob balance didn't decrease by at least %v: initial=%v, final=%v, diff=%v",
+			amountU64, bobInitial, bobFinal, bobDiff)
+
+		charlieDiff := charlieFinal - charlieInitial
+		assert.Equal(t, amountU64, charlieDiff,
+			"Charlie balance didn't increase by %v: initial=%v, final=%v, diff=%v",
+			amountU64, charlieInitial, charlieFinal, charlieDiff)
 	})
 
 	//	t.Run("TransferKeepAlive", func(t *testing.T) {
