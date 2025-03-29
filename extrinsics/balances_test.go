@@ -152,43 +152,30 @@ func TestBalanceModuleExtrinsics(t *testing.T) {
 			amountU64, charlieInitial, charlieFinal, charlieDiff)
 	})
 
-	//	t.Run("TransferKeepAlive", func(t *testing.T) {
-	//		keyringAlice := signature.TestKeyringPairAlice
-	//		keyringBob, err := signature.KeyringPairFromSecret("//Bob", 0)
-	//		require.NoError(t, err, "Failed to create Bob key")
-	//
-	//		aliceInitialInfo, err := storage.GetAccountInfo(env.Client, keyringAlice.PublicKey)
-	//		require.NoError(t, err, "Failed to get Alice balance")
-	//
-	//		bobInitialInfo, err := storage.GetAccountInfo(env.Client, keyringBob.PublicKey)
-	//		require.NoError(t, err, "Failed to get Bob balance")
-	//
-	//		amountU64 := uint64(100000000)
-	//		amount := new(big.Int).SetUint64(amountU64)
-	//		bobMultiAddress, err := types.NewMultiAddressFromAccountID(keyringBob.PublicKey)
-	//		require.NoError(t, err, "Failed to create Bob multi address")
-	//
-	//		ext := NewTransferKeepAlive(env.Client, bobMultiAddress, amount)
-	//		testutils.SignAndSubmit(t, env.Client, ext, keyringAlice, uint64(aliceInitialInfo.Nonce))
-	//
-	//		aliceFinalInfo, err := storage.GetAccountInfo(env.Client, keyringAlice.PublicKey)
-	//		require.NoError(t, err, "Failed to get Alice final balance")
-	//		bobFinalInfo, err := storage.GetAccountInfo(env.Client, keyringBob.PublicKey)
-	//		require.NoError(t, err, "Failed to get Bob final balance")
-	//
-	//		aliceInitialBalance := uint64(aliceInitialInfo.Data.Free)
-	//		aliceFinalBalance := uint64(aliceFinalInfo.Data.Free)
-	//		actualAliceDiff := aliceInitialBalance - aliceFinalBalance
-	//		bobInitialBalance := uint64(bobInitialInfo.Data.Free)
-	//		bobFinalBalance := uint64(bobFinalInfo.Data.Free)
-	//		actualBobDiff := bobFinalBalance - bobInitialBalance
-	//
-	//		assert.GreaterOrEqual(t, actualAliceDiff, amountU64,
-	//			"Alice balance didn't decrease by at least %v: initial=%v, final=%v, diff=%v",
-	//			amount, aliceInitialBalance, aliceFinalBalance, actualAliceDiff)
-	//
-	//		assert.Equal(t, amountU64, actualBobDiff,
-	//			"Bob balance didn't increase by %v: initial=%v, final=%v, diff=%v",
-	//			amount, bobInitialBalance, bobFinalBalance, actualBobDiff)
-	//	})
+	t.Run("TransferKeepAlive", func(t *testing.T) {
+		setup(t)
+		defer teardown(t)
+
+		amountU64 := uint64(100000000)
+		bobInitial := uint64(bob.accountInfo.Data.Free)
+		charlieInitial := uint64(charlie.accountInfo.Data.Free)
+		ext, err := TransferKeepAliveExt(env.Client, charlie.address, types.NewUCompact(new(big.Int).SetUint64(amountU64)))
+		require.NoError(t, err, "Failed to create extrinsic")
+		testutils.SignAndSubmit(t, env.Client, ext, bob.keyring, uint32(bob.accountInfo.Nonce))
+
+		updateUserInfo(t, &bob)
+		updateUserInfo(t, &charlie)
+
+		bobFinal := uint64(bob.accountInfo.Data.Free)
+		charlieFinal := uint64(charlie.accountInfo.Data.Free)
+		bobDiff := bobInitial - bobFinal
+		assert.GreaterOrEqual(t, bobDiff, amountU64,
+			"Bob balance didn't decrease by at least %v: initial=%v, final=%v, diff=%v",
+			amountU64, bobInitial, bobFinal, bobDiff)
+
+		charlieDiff := charlieFinal - charlieInitial
+		assert.Equal(t, amountU64, charlieDiff,
+			"Charlie balance didn't increase by %v: initial=%v, final=%v, diff=%v",
+			amountU64, charlieInitial, charlieFinal, charlieDiff)
+	})
 }
