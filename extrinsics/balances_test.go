@@ -178,4 +178,55 @@ func TestBalanceModuleExtrinsics(t *testing.T) {
 			"Charlie balance didn't increase by %v: initial=%v, final=%v, diff=%v",
 			amountU64, charlieInitial, charlieFinal, charlieDiff)
 	})
+
+	t.Run("ForceTransfer", func(t *testing.T) {
+		setup(t)
+		defer teardown(t)
+
+		amountU64 := uint64(100000000)
+		source := bob.address
+		recipient := charlie.address
+		bobInitial := uint64(bob.accountInfo.Data.Free)
+		charlieInitial := uint64(charlie.accountInfo.Data.Free)
+
+		forceTransferCall, err := ForceTransferCall(env.Client, source, recipient, types.NewUCompact(new(big.Int).SetUint64(amountU64)))
+		require.NoError(t, err, "Failed to create Call")
+		ext := NewSudo(env.Client, &forceTransferCall)
+		testutils.SignAndSubmit(t, env.Client, ext, alice.keyring, uint32(alice.accountInfo.Nonce))
+
+		updateUserInfo(t, &bob)
+		updateUserInfo(t, &charlie)
+
+		bobFinal := uint64(bob.accountInfo.Data.Free)
+		charlieFinal := uint64(charlie.accountInfo.Data.Free)
+
+		bobDiff := bobInitial - bobFinal
+		charlieDiff := charlieFinal - charlieInitial
+		assert.GreaterOrEqual(t, bobDiff, amountU64, "Bob balance didn't decrease by at least %v: initial=%v, final=%v, diff=%v")
+		assert.Equal(t, amountU64, charlieDiff, "Charlie balance didn't increase by %v: initial=%v, final=%v, diff=%v")
+
+	})
+
+	t.Run("TransferAll", func(t *testing.T) {
+		setup(t)
+		defer teardown(t)
+
+		bobInitial := uint64(bob.accountInfo.Data.Free)
+		charlieInitial := uint64(charlie.accountInfo.Data.Free)
+		ext, err := TransferAllExt(env.Client, charlie.address, false)
+		require.NoError(t, err, "Failed to create extrinsic")
+		testutils.SignAndSubmit(t, env.Client, ext, bob.keyring, uint32(bob.accountInfo.Nonce))
+
+		updateUserInfo(t, &bob)
+		updateUserInfo(t, &charlie)
+
+		bobFinal := uint64(bob.accountInfo.Data.Free)
+		charlieFinal := uint64(charlie.accountInfo.Data.Free)
+		bobDiff := bobInitial - bobFinal
+		assert.Equal(t, bobDiff, bobInitial,
+			"Bob balance didn't decrease by %v: initial=%v, final=%v, diff=%v",
+			bobInitial, bobInitial, bobFinal, bobDiff)
+
+		//charlieDiff := charlieFinal - charlieInitial
+	})
 }

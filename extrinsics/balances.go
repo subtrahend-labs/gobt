@@ -23,25 +23,6 @@ func TransferAllowDeathExt(c *client.Client, recipient types.MultiAddress, amoun
 	return &ext, nil
 }
 
-// TODO: should include or only through sudo
-func ForceTransferCall(c *client.Client, recipient types.MultiAddress, amount types.UCompact) (types.Call, error) {
-	call, err := types.NewCall(c.Meta, "Balances.transfer", recipient, amount)
-	if err != nil {
-		return types.Call{}, err
-	}
-	return call, nil
-}
-
-// TODO: should include or only through sudo
-func ForceTransferExt(c *client.Client, source types.AccountID, recipient types.MultiAddress, amount types.UCompact) (*extrinsic.Extrinsic, error) {
-	call, err := ForceTransferCall(c, recipient, amount)
-	if err != nil {
-		return nil, err
-	}
-	ext := extrinsic.NewExtrinsic(call)
-	return &ext, nil
-}
-
 func TransferKeepAliveCall(c *client.Client, recipient types.MultiAddress, amount types.UCompact) (types.Call, error) {
 	call, err := types.NewCall(c.Meta, "Balances.transfer_keep_alive", recipient, amount)
 	if err != nil {
@@ -52,6 +33,25 @@ func TransferKeepAliveCall(c *client.Client, recipient types.MultiAddress, amoun
 
 func TransferKeepAliveExt(c *client.Client, recipient types.MultiAddress, amount types.UCompact) (*extrinsic.Extrinsic, error) {
 	call, err := TransferKeepAliveCall(c, recipient, amount)
+	if err != nil {
+		return nil, err
+	}
+	ext := extrinsic.NewExtrinsic(call)
+	return &ext, nil
+}
+
+// TODO: should include or only through sudo
+func ForceTransferCall(c *client.Client, source types.MultiAddress, recipient types.MultiAddress, amount types.UCompact) (types.Call, error) {
+	call, err := types.NewCall(c.Meta, "Balances.force_transfer", source, recipient, amount)
+	if err != nil {
+		return types.Call{}, err
+	}
+	return call, nil
+}
+
+// TODO: should include or only through sudo
+func ForceTransferExt(c *client.Client, source types.MultiAddress, recipient types.MultiAddress, amount types.UCompact) (*extrinsic.Extrinsic, error) {
+	call, err := ForceTransferCall(c, source, recipient, amount)
 	if err != nil {
 		return nil, err
 	}
