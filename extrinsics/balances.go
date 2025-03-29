@@ -9,8 +9,8 @@ import (
 	"github.com/subtrahend-labs/gobt/client"
 )
 
-func NewTransferAllowDeath(c *client.Client, recipient types.MultiAddress, amount *big.Int) *extrinsic.Extrinsic {
-	call, err := types.NewCall(c.Meta, "Balances.transfer_allow_death", recipient, types.NewUCompact(amount))
+func NewTransferAllowDeath(c *client.Client, recipient types.MultiAddress, amount types.UCompact) *extrinsic.Extrinsic {
+	call, err := types.NewCall(c.Meta, "Balances.transfer_allow_death", recipient, amount)
 	if err != nil {
 		log.Fatalf("Error creating call: %s", err)
 	}
@@ -18,8 +18,8 @@ func NewTransferAllowDeath(c *client.Client, recipient types.MultiAddress, amoun
 	return &ext
 }
 
-func NewForceTransfer(c *client.Client, source types.AccountID, recipient types.MultiAddress, amount *big.Int) *extrinsic.Extrinsic {
-	call, err := types.NewCall(c.Meta, "Balances.force_transfer", source, recipient, types.NewUCompact(amount))
+func NewForceTransfer(c *client.Client, source types.AccountID, recipient types.MultiAddress, amount types.U64) *extrinsic.Extrinsic {
+	call, err := types.NewCall(c.Meta, "Balances.force_transfer", source, recipient, amount)
 	if err != nil {
 		log.Fatalf("Error creating call: %s", err)
 	}
@@ -63,8 +63,8 @@ func NewUpgradeAccounts(c *client.Client, newAccount types.AccountID, numSlashin
 	return &ext
 }
 
-func NewForceSetBalance(c *client.Client, who types.AccountID, newFree types.U128, newReserved types.U128) *extrinsic.Extrinsic {
-	call, err := types.NewCall(c.Meta, "Balances.force_set_balance", who, newFree, newReserved)
+func NewForceSetBalance(c *client.Client, who types.MultiAddress, newFree types.UCompact) *extrinsic.Extrinsic {
+	call, err := types.NewCall(c.Meta, "Balances.force_set_balance", who, newFree)
 	if err != nil {
 		log.Fatalf("Error creating call: %s", err)
 	}

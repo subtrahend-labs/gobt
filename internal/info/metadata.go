@@ -8,6 +8,62 @@ import (
 	"github.com/centrifuge/go-substrate-rpc-client/v4/types"
 )
 
+func LookupExtrinsicArgs(meta *types.Metadata, palletName, callName string) {
+	for _, pallet := range meta.AsMetadataV14.Pallets {
+		if string(pallet.Name) != palletName || !pallet.HasCalls {
+			continue
+		}
+
+		callTypeID := pallet.Calls.Type.Int64()
+		callType, ok := meta.AsMetadataV14.EfficientLookup[callTypeID]
+		if !ok {
+			fmt.Printf("Call type not found\n")
+			return
+		}
+
+		if !callType.Def.IsVariant {
+			fmt.Printf("Call type is not a variant\n")
+			return
+		}
+
+		for _, variant := range callType.Def.Variant.Variants {
+			if string(variant.Name) != callName {
+				continue
+			}
+
+			fmt.Printf("Call: %s::%s\n", palletName, callName)
+			for i, field := range variant.Fields {
+				typeID := field.Type.Int64()
+				fieldType, _ := meta.AsMetadataV14.EfficientLookup[typeID]
+
+				name := field.Name
+				if name == "" {
+					name = types.NewText(fmt.Sprintf("arg%d", i))
+				}
+
+				fmt.Printf("  Arg %d: %s (Type: ", i, name)
+				if fieldType != nil && len(fieldType.Path) > 0 {
+					for j, part := range fieldType.Path {
+						if j > 0 {
+							fmt.Printf("::")
+						}
+						fmt.Printf("%s", part)
+					}
+				} else {
+					fmt.Printf("unknown")
+				}
+				fmt.Printf(")\n")
+			}
+			return
+		}
+
+		fmt.Printf("Call '%s' not found in module '%s'\n", callName, palletName)
+		return
+	}
+
+	fmt.Printf("Module '%s' not found\n", palletName)
+}
+
 func PrintModulesAndCalls(meta *types.Metadata, out io.Writer) {
 	if out == nil {
 		out = os.Stdout
@@ -82,7 +138,6 @@ func PrintExtensionDetails(meta *types.Metadata, out io.Writer, extensionNames .
 	}
 }
 
-// PrintStorageItemInfo prints detailed information about a specific storage item
 func PrintStorageItemInfo(meta *types.Metadata, out io.Writer, palletName, storageName string) {
 	if out == nil {
 		out = os.Stdout

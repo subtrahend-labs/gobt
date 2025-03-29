@@ -84,7 +84,7 @@ func (env *TestEnv) Teardown() {
 	env.Container.Terminate(ctx)
 }
 
-func SignAndSubmit(t *testing.T, cl *client.Client, ext *extrinsic.Extrinsic, signer signature.KeyringPair, nonce uint64) types.Hash {
+func SignAndSubmit(t *testing.T, cl *client.Client, ext *extrinsic.Extrinsic, signer signature.KeyringPair, nonce uint32) types.Hash {
 	t.Helper()
 
 	genesisHash, err := cl.Api.RPC.Chain.GetBlockHash(0)
@@ -102,7 +102,7 @@ func SignAndSubmit(t *testing.T, cl *client.Client, ext *extrinsic.Extrinsic, si
 		signer,
 		cl.Meta,
 		extrinsic.WithEra(types.ExtrinsicEra{IsImmortalEra: true}, genesisHash),
-		extrinsic.WithNonce(types.NewUCompactFromUInt(nonce)),
+		extrinsic.WithNonce(types.NewUCompactFromUInt(uint64(nonce))),
 		extrinsic.WithTip(types.NewUCompactFromUInt(0)),
 		extrinsic.WithSpecVersion(rv.SpecVersion),
 		extrinsic.WithTransactionVersion(rv.TransactionVersion),

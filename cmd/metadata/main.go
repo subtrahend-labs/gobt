@@ -13,7 +13,8 @@ func main() {
 		log.Fatalf("Error creating client: %s", err)
 	}
 
-	info.PrintModulesAndCalls(c.Meta, nil)
-	info.PrintExtensions(c.Meta, nil)
-	info.PrintExtensionDetails(c.Meta, nil, "SubtensorSignedExtension")
+	info.LookupExtrinsicArgs(c.Meta, "Balances", "force_set_balance")
+	// info.PrintModulesAndCalls(c.Meta, nil)
+	// info.PrintExtensions(c.Meta, nil)
+	// info.PrintExtensionDetails(c.Meta, nil, "SubtensorSignedExtension")
 }
