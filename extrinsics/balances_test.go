@@ -229,4 +229,27 @@ func TestBalanceModuleExtrinsics(t *testing.T) {
 
 	// 	//charlieDiff := charlieFinal - charlieInitial
 	// })
+
+	t.Run("SetWeights", func(t *testing.T) {
+		setup(t)
+		defer teardown(t)
+
+		netuid := types.NewU16(0)
+		dests := []types.U16{types.NewU16(1), types.NewU16(2)}
+		weights := []types.U16{types.NewU16(10), types.NewU16(20)}
+		versionKey := types.NewU64(843000)
+
+		call, err := SetWeightsCall(env.Client, netuid, dests, weights, versionKey)
+		require.NoError(t, err, "Failed to create call")
+		ext := NewSudo(env.Client, &call)
+		testutils.SignAndSubmit(t, env.Client, ext, alice.keyring, uint32(alice.accountInfo.Nonce))
+
+		updateUserInfo(t, &bob)
+		updateUserInfo(t, &charlie)
+
+		assert.Equal(t, initialBalanceU64, bob.accountInfo.Data.Free,
+			"Bob balance didn't change: initial=%v, final=%v", initialBalanceU64, bob.accountInfo.Data.Free)
+		assert.Equal(t, initialBalanceU64, charlie.accountInfo.Data.Free,
+			"Charlie balance didn't change: initial=%v, final=%v", initialBalanceU64, charlie.accountInfo.Data.Free)
+	})
 }
