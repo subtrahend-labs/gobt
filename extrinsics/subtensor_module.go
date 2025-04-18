@@ -55,16 +55,16 @@ import (
 //     - [ ] swap_stake_limit (Index: 90)
 //     - [ ] try_associate_hotkey (Index: 91)
 
-func SetWeightsCall(c *client.Client, netuid types.U16, dests []types.U16, weights []types.U16, versionKey types.U64) (types.Call, error) {
-	call, err := types.NewCall(c.Meta, "SubtensorModule.set_weights", netuid, dests, weights, versionKey)
+func SetWeightsCall(c *client.Client, netuid types.U16, uids []types.U16, weights []types.U16, versionKey types.U64) (types.Call, error) {
+	call, err := types.NewCall(c.Meta, "SubtensorModule.set_weights", netuid, uids, weights, versionKey)
 	if err != nil {
 		return types.Call{}, err
 	}
 	return call, nil
 }
 
-func SetWeightsExt(c *client.Client, netuid types.U16, dests []types.U16, weights []types.U16, versionKey types.U64) (*extrinsic.Extrinsic, error) {
-	call, err := SetWeightsCall(c, netuid, dests, weights, versionKey)
+func SetWeightsExt(c *client.Client, netuid types.U16, uids []types.U16, weights []types.U16, versionKey types.U64) (*extrinsic.Extrinsic, error) {
+	call, err := SetWeightsCall(c, netuid, uids, weights, versionKey)
 	if err != nil {
 		return nil, err
 	}
