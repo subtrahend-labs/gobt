@@ -6,6 +6,8 @@ import (
 	"testing"
 	"time"
 
+	"github.com/centrifuge/go-substrate-rpc-client/v4/registry/retriever"
+	"github.com/centrifuge/go-substrate-rpc-client/v4/registry/state"
 	"github.com/centrifuge/go-substrate-rpc-client/v4/signature"
 	"github.com/centrifuge/go-substrate-rpc-client/v4/types"
 	"github.com/centrifuge/go-substrate-rpc-client/v4/types/extrinsic"
@@ -123,11 +125,27 @@ func SignAndSubmit(t *testing.T, cl *client.Client, ext *extrinsic.Extrinsic, si
 			t.Logf("Transaction included in block: %v", blockHash)
 			break
 		}
+		if status.IsFinalized {
+			t.Fatalf("Transaction shouldn't be finalized yet: %v", status.AsFinalized)
+		}
 		if status.IsDropped || status.IsInvalid || status.IsRetracted {
 			t.Fatalf("Transaction failed: dropped=%v, invalid=%v, retracted=%v", status.IsDropped, status.IsInvalid, status.IsRetracted)
 		}
 	}
 	txnSub.Unsubscribe()
+	evtr, err := retriever.NewDefaultEventRetriever(
+		state.NewEventProvider(cl.Api.RPC.State),
+		cl.Api.RPC.State,
+	)
+	require.NoError(t, err)
+
+	events, err := evtr.GetEvents(blockHash)
+	require.NoError(t, err)
+
+	if derr := ExtractDispatchError(*cl.Meta, events); derr != nil {
+		t.Fatalf("extrinsic dispatch failed: %v", derr)
+	}
 
 	return blockHash
+
 }

@@ -18,7 +18,7 @@ func TestSubtensorModuleExtrinsics(t *testing.T) {
 		setup(t)
 		defer teardown(t)
 
-		netuid := types.NewU16(0)
+		netuid := types.NewU16(4)
 		uids := []types.U16{types.NewU16(1), types.NewU16(2)}
 		weights := []types.U16{types.NewU16(10), types.NewU16(20)}
 		versionKey := types.NewU64(843000)
