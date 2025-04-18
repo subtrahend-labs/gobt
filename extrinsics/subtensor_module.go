@@ -71,3 +71,20 @@ func SetWeightsExt(c *client.Client, netuid types.U16, uids []types.U16, weights
 	ext := extrinsic.NewExtrinsic(call)
 	return &ext, nil
 }
+
+func RegisterNetworkCall(c *client.Client, hotkey types.AccountID) (types.Call, error) {
+	call, err := types.NewCall(c.Meta, "SubtensorModule.register_network")
+	if err != nil {
+		return types.Call{}, err
+	}
+	return call, nil
+}
+
+func RegisterNetworkExt(c *client.Client, hotkey types.AccountID) (*extrinsic.Extrinsic, error) {
+	call, err := RegisterNetworkCall(c, hotkey)
+	if err != nil {
+		return nil, err
+	}
+	ext := extrinsic.NewExtrinsic(call)
+	return &ext, nil
+}
