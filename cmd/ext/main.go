@@ -9,11 +9,10 @@ import (
 
 	"github.com/centrifuge/go-substrate-rpc-client/v4/signature"
 	"github.com/centrifuge/go-substrate-rpc-client/v4/types"
-	"github.com/centrifuge/go-substrate-rpc-client/v4/types/extrinsic"
-	"github.com/centrifuge/go-substrate-rpc-client/v4/types/extrinsic/extensions"
 	"github.com/joho/godotenv"
 	"github.com/subtrahend-labs/gobt/client"
-	gobtext "github.com/subtrahend-labs/gobt/extrinsics"
+	"github.com/subtrahend-labs/gobt/extrinsics"
+	"github.com/subtrahend-labs/gobt/sigtools"
 	"github.com/subtrahend-labs/gobt/storage"
 	"github.com/vedhavyas/go-subkey/v2"
 )
@@ -58,11 +57,6 @@ func main() {
 		log.Fatalf("Error creating client: %s", err)
 	}
 
-	senderInfo, err := storage.GetAccountInfo(c, sender.PublicKey)
-	if err != nil {
-		log.Fatalf("Error getting storage: %s", err)
-	}
-
 	recipientInfo, err := storage.GetAccountInfo(c, recipient.AsID.ToBytes())
 	if err != nil {
 		log.Fatalf("Error getting storage: %s", err)
@@ -75,30 +69,21 @@ func main() {
 		log.Fatalf("Error converting string to big.Int")
 	}
 
-	ext := gobtext.NewTransferKeepAlive(c, recipient, bal)
-
-	genesisHash, err := c.Api.RPC.Chain.GetBlockHash(0)
+	ext, err := extrinsics.TransferKeepAliveExt(c, recipient, types.NewUCompact(bal))
 	if err != nil {
-		log.Fatalf("Error getting genesis hash: %s", err)
+		log.Fatalf("Error creating transfer ext")
 	}
 
-	rv, err := c.Api.RPC.State.GetRuntimeVersionLatest()
+	tip := types.NewUCompact(big.NewInt(0))
+	sc := sigtools.NewSigningContext(&tip, nil)
+	options, err := sigtools.CreateSigningOptions(c, sender, sc)
 	if err != nil {
-		log.Fatalf("Error getting runtime version: %s", err)
+		log.Fatalf("Error creating signature options")
 	}
-
-	extrinsic.PayloadMutatorFns[extensions.SignedExtensionName("SubtensorSignedExtension")] = func(payload *extrinsic.Payload) {}
-	extrinsic.PayloadMutatorFns[extensions.SignedExtensionName("CommitmentsSignedExtension")] = func(payload *extrinsic.Payload) {}
 	err = ext.Sign(
 		sender,
 		c.Meta,
-		extrinsic.WithEra(types.ExtrinsicEra{IsImmortalEra: true}, genesisHash),
-		extrinsic.WithNonce(types.NewUCompactFromUInt(uint64(senderInfo.Nonce))),
-		extrinsic.WithTip(types.NewUCompactFromUInt(0)),
-		extrinsic.WithSpecVersion(rv.SpecVersion),
-		extrinsic.WithTransactionVersion(rv.TransactionVersion),
-		extrinsic.WithGenesisHash(genesisHash),
-		extrinsic.WithMetadataMode(extensions.CheckMetadataModeDisabled, extensions.CheckMetadataHash{Hash: types.NewEmptyOption[types.H256]()}),
+		options...,
 	)
 	if err != nil {
 		log.Fatalf("Error signing: %s", err)
@@ -113,5 +98,8 @@ func main() {
 	time.Sleep(12 * time.Second)
 
 	recipientInfo, err = storage.GetAccountInfo(c, recipient.AsID.ToBytes())
+	if err != nil {
+		log.Fatalf("Error getting account info: %s", err)
+	}
 	fmt.Println("recipient balance after transfer: ", recipientInfo.Data.Free)
 }
