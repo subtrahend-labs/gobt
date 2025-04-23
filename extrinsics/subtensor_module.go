@@ -184,20 +184,10 @@ func BurnedRegisterExt(c *client.Client, hotkey types.AccountID, netuid types.U1
 }
 
 func RegisterNetworkCall(c *client.Client, hotkey types.AccountID) (types.Call, error) {
-	// var identityArg interface{}
-	// if identity == nil {
-	// 	identityArg = types.NewEmptyOption[SubnetIdentityV2]()
-	// } else {
-	// 	identityArg = types.NewOption(*identity)
-	// }
-
 	call, err := types.NewCall(
 		c.Meta,
 		"SubtensorModule.register_network",
-		//coldkey,
 		hotkey,
-		//mechid,
-		// identityArg,
 	)
 	if err != nil {
 		return types.Call{}, err

@@ -45,7 +45,7 @@ func TestSubtensorModuleExtrinsics(t *testing.T) {
 		testutils.SignAndSubmit(t, env.Client, ext, bob.coldkey.Keypair, uint32(bob.coldkey.AccInfo.Nonce))
 		fmt.Println("Bob's nonce after root_register:", bob.coldkey.AccInfo.Nonce)
 
-		sudoCall, err := SudoSetNetworkRateLimitCall(env.Client, types.NewU64(1000))
+		sudoCall, err := SudoSetNetworkRateLimitCall(env.Client, types.NewU64(0))
 		require.NoError(t, err, "Failed to create sudo_set_network_rate_limit ext")
 		ext, err = NewSudoExt(env.Client, &sudoCall)
 		testutils.SignAndSubmit(t, env.Client, ext, alice.coldkey.Keypair, uint32(alice.coldkey.AccInfo.Nonce))
@@ -54,7 +54,7 @@ func TestSubtensorModuleExtrinsics(t *testing.T) {
 
 		ext, err = RegisterNetworkExt(env.Client, *bob.hotkey.AccID)
 		require.NoError(t, err, "Failed to create register_network ext")
-		testutils.SignAndSubmit(t, env.Client, ext, bob.coldkey.Keypair, uint32(bob.coldkey.AccInfo.Nonce+2))
+		testutils.SignAndSubmit(t, env.Client, ext, bob.coldkey.Keypair, uint32(bob.coldkey.AccInfo.Nonce+1))
 		fmt.Println("Here we are again on my own")
 	})
 
