@@ -3,6 +3,7 @@ package testutils
 import (
 	"context"
 	"fmt"
+	"sync"
 	"testing"
 	"time"
 
@@ -16,30 +17,62 @@ import (
 	"github.com/stretchr/testify/require"
 	"github.com/subtrahend-labs/gobt/client"
 	"github.com/subtrahend-labs/gobt/sigtools"
+	"github.com/subtrahend-labs/gobt/storage"
 	"github.com/testcontainers/testcontainers-go"
 	"github.com/testcontainers/testcontainers-go/wait"
 )
 
-type TestEnv struct {
-	Container testcontainers.Container
-	Client    *client.Client
+type User struct {
+	Username string
+	Coldkey  Key
+	Hotkey   Key
 }
+
+
+type Key struct {
+	Keypair signature.KeyringPair
+	Address types.MultiAddress
+	AccID   *types.AccountID
+	AccInfo *storage.AccountInfo
+}
+
+type TestEnv struct {
+	Container              testcontainers.Container
+	Client                 *client.Client
+	Alice                  User
+	Bob                    User
+	Charlie                User
+	InitialBalanceUint64   uint64
+	InitialBalanceU64      types.U64
+	InitialBalanceUCompact types.UCompact
+	ZeroUint64             uint64
+	ZeroU64                types.U64
+	ZeroUCompact           types.UCompact
+}
+
+var (
+	startPort = 9944
+	mu        = sync.Mutex{}
+)
 
 func Setup() (*TestEnv, error) {
 	ctx := context.Background()
 
 	// Define container request
-	nodePort := "9944/tcp"
+	mu.Lock()
+	startPort += 1
+	nodePort := fmt.Sprintf("%d", startPort)
+	mu.Unlock()
 	req := testcontainers.ContainerRequest{
-		Image:        "subtensor-local:latest",
-		ExposedPorts: []string{nodePort},
+		Image:        "manifoldlabs/subtensor:latest-local",
+		ExposedPorts: []string{nodePort + ":9944"},
 		Cmd: []string{
 			"/bin/bash",
 			"-c",
 			"node-subtensor --dev --rpc-external --rpc-cors all --rpc-methods=unsafe --offchain-worker never",
 		},
 		WaitingFor: wait.ForAll(
-			wait.ForListeningPort(nat.Port(nodePort)),
+			wait.ForListeningPort(nat.Port("9944")),
 			wait.ForLog("Running JSON-RPC server").WithStartupTimeout(30*time.Second),
 		),
 	}
@@ -57,7 +90,7 @@ func Setup() (*TestEnv, error) {
 	}
 
 	// Get mapped port and host
-	mappedPort, err := container.MappedPort(ctx, nat.Port(nodePort))
+	mappedPort, err := container.MappedPort(ctx, nat.Port("9944"))
 	if err != nil {
 		return nil, fmt.Errorf("failed to get mapped port: %v", err)
 	}
@@ -141,5 +174,4 @@ func SignAndSubmit(t *testing.T, cl *client.Client, ext *extrinsic.Extrinsic, si
 	}
 
 	return blockHash
-
 }

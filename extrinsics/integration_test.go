@@ -10,39 +10,25 @@ import (
 
 	"github.com/centrifuge/go-substrate-rpc-client/v4/signature"
 	"github.com/centrifuge/go-substrate-rpc-client/v4/types"
-	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"github.com/subtrahend-labs/gobt/storage"
 	"github.com/subtrahend-labs/gobt/testutils"
 )
 
-var (
-	env                    *testutils.TestEnv
-	alice                  User
-	bob                    User
-	charlie                User
-	initialBalanceUint64   uint64         = 1000000000000000
-	initialBalanceU64      types.U64      = types.NewU64(initialBalanceUint64)
-	initialBalanceUCompact types.UCompact = types.NewUCompactFromUInt(initialBalanceUint64)
-	zeroUint64             uint64         = 0
-	zeroU64                types.U64      = types.NewU64(0)
-	zeroUCompact           types.UCompact = types.NewUCompactFromUInt(zeroUint64)
-)
+func setup(t *testing.T) *testutils.TestEnv {
+	var err error
+	env, err := testutils.Setup()
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Test setup failed: %v\n", err)
+		os.Exit(1)
+	}
+	env.InitialBalanceUint64 = 1000000000000000
+	env.InitialBalanceU64 = types.NewU64(env.InitialBalanceUint64)
+	env.InitialBalanceUCompact = types.NewUCompactFromUInt(env.InitialBalanceUint64)
+	env.ZeroUint64 = 0
+	env.ZeroU64 = types.NewU64(0)
+	env.ZeroUCompact = types.NewUCompactFromUInt(env.ZeroUint64)
 
-type Key struct {
-	Keypair signature.KeyringPair
-	Address types.MultiAddress
-	AccID   *types.AccountID
-	AccInfo *storage.AccountInfo
-}
-
-type User struct {
-	username string
-	coldkey  Key
-	hotkey   Key
-}
-
-func setup(t *testing.T) {
 	// Alice coldkey setup
 	keyringAliceCold := signature.TestKeyringPairAlice
 	aliceColdAccID, err := types.NewAccountID(keyringAliceCold.PublicKey)
@@ -62,15 +48,15 @@ func setup(t *testing.T) {
 	// aliceHotInfo, err := storage.GetAccountInfo(env.Client, keyringAliceHot.PublicKey)
 	// require.NoError(t, err, fmt.Sprintf("Failed to get Alice hotkey account info: %v", err))
 
-	alice = User{
-		username: "Alice",
-		coldkey: Key{
+	env.Alice = testutils.User{
+		Username: "Alice",
+		Coldkey: testutils.Key{
 			Keypair: keyringAliceCold,
 			Address: aliceColdAddress,
 			AccID:   aliceColdAccID,
 			AccInfo: aliceColdInfo,
 		},
-		hotkey: Key{
+		Hotkey: testutils.Key{
 			Keypair: keyringAliceHot,
 			Address: aliceHotAddress,
 			AccID:   aliceHotAccID,
@@ -98,15 +84,15 @@ func setup(t *testing.T) {
 	// bobHotInfo, err := storage.GetAccountInfo(env.Client, keyringBobHot.PublicKey)
 	// require.NoError(t, err, "Failed to get Bob hotkey account info")
 
-	bob = User{
-		username: "Bob",
-		coldkey: Key{
+	env.Bob = testutils.User{
+		Username: "Bob",
+		Coldkey: testutils.Key{
 			Keypair: keyringBobCold,
 			Address: bobColdAddress,
 			AccID:   bobColdAccID,
 			AccInfo: bobColdInfo,
 		},
-		hotkey: Key{
+		Hotkey: testutils.Key{
 			Keypair: keyringBobHot,
 			Address: bobHotAddress,
 			AccID:   bobHotAccID,
@@ -134,75 +120,45 @@ func setup(t *testing.T) {
 	// charlieHotInfo, err := storage.GetAccountInfo(env.Client, keyringCharlieHot.PublicKey)
 	// require.NoError(t, err, "Failed to get Charlie hotkey account info")
 
-	charlie = User{
-		username: "Charlie",
-		coldkey: Key{
+	env.Charlie = testutils.User{
+		Username: "Charlie",
+		Coldkey: testutils.Key{
 			Keypair: keyringCharlieCold,
 			Address: charlieColdAddress,
 			AccID:   charlieColdAccID,
 			AccInfo: charlieColdInfo,
 		},
-		hotkey: Key{
+		Hotkey: testutils.Key{
 			Keypair: keyringCharlieHot,
 			Address: charlieHotAddress,
 			AccID:   charlieHotAccID,
 			AccInfo: nil,
 		},
 	}
-
-	setupSubnet(t)
+	setupSubnet(t, env)
+	return env
 }
 
-func setupSubnet(t *testing.T) {
+func setupSubnet(t *testing.T, env *testutils.TestEnv) {
 	sudoCall, err := SudoSetNetworkRateLimitCall(env.Client, types.NewU64(0))
 	require.NoError(t, err, "Failed to create sudo_set_network_rate_limit ext")
 	ext, err := NewSudoExt(env.Client, &sudoCall)
-	testutils.SignAndSubmit(t, env.Client, ext, alice.coldkey.Keypair, uint32(alice.coldkey.AccInfo.Nonce))
+	testutils.SignAndSubmit(t, env.Client, ext, env.Alice.Coldkey.Keypair, uint32(env.Alice.Coldkey.AccInfo.Nonce))
 	require.NoError(t, err, "Failed to create root_register ext")
-	updateUserInfo(t, &alice)
+	updateUserInfo(t, &env.Alice, env)
 
-	ext, err = RegisterNetworkExt(env.Client, *bob.hotkey.AccID)
+	ext, err = RegisterNetworkExt(env.Client, *env.Bob.Hotkey.AccID)
 	require.NoError(t, err, "Failed to create register_network ext")
-	testutils.SignAndSubmit(t, env.Client, ext, bob.coldkey.Keypair, uint32(bob.coldkey.AccInfo.Nonce))
-	updateUserInfo(t, &bob)
+	testutils.SignAndSubmit(t, env.Client, ext, env.Bob.Coldkey.Keypair, uint32(env.Bob.Coldkey.AccInfo.Nonce))
+	updateUserInfo(t, &env.Bob, env)
 }
 
-func updateUserInfo(t *testing.T, u *User) {
-	info, err := storage.GetAccountInfo(env.Client, u.coldkey.Keypair.PublicKey)
-	require.NoError(t, err, "Failed to get %s coldkey balance", u.username)
-	u.coldkey.AccInfo = info
+func updateUserInfo(t *testing.T, u *testutils.User, env *testutils.TestEnv) {
+	info, err := storage.GetAccountInfo(env.Client, u.Coldkey.Keypair.PublicKey)
+	require.NoError(t, err, "Failed to get %s coldkey balance", u.Username)
+	u.Coldkey.AccInfo = info
 }
 
 func TestMain(m *testing.M) {
-	var err error
-	env, err = testutils.Setup()
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "Test setup failed: %v\n", err)
-		os.Exit(1)
-	}
-	defer env.Teardown()
-
 	os.Exit(m.Run())
-}
-
-func teardown(t *testing.T) {
-	updateUserInfo(t, &alice)
-	aliceNonce := uint32(alice.coldkey.AccInfo.Nonce)
-	bobCall, err := types.NewCall(env.Client.Meta, "Balances.force_set_balance", bob.coldkey.Address, initialBalanceUCompact)
-	require.NoError(t, err, "Failed to create Bob balance call")
-	extSudo, err := NewSudoExt(env.Client, &bobCall)
-	require.NoError(t, err, "Failed to create sudo extrinsic")
-	testutils.SignAndSubmit(t, env.Client, extSudo, alice.coldkey.Keypair, aliceNonce)
-
-	charlieCall, err := types.NewCall(env.Client.Meta, "Balances.force_set_balance", charlie.coldkey.Address, initialBalanceUCompact)
-	require.NoError(t, err, "Failed to create Charlie balance call")
-	extSudo, err = NewSudoExt(env.Client, &charlieCall)
-	require.NoError(t, err, "Failed to create sudo extrinsic")
-	testutils.SignAndSubmit(t, env.Client, extSudo, alice.coldkey.Keypair, aliceNonce+1)
-
-	updateUserInfo(t, &bob)
-	updateUserInfo(t, &charlie)
-
-	assert.Equal(t, initialBalanceU64, bob.coldkey.AccInfo.Data.Free, "Bob balance reset failed")
-	assert.Equal(t, initialBalanceU64, charlie.coldkey.AccInfo.Data.Free, "Charlie balance reset failed")
 }
