@@ -14,6 +14,7 @@ import (
 func TestAdminUtilsModuleExtrinsics(t *testing.T) {
 	t.Parallel()
 	t.Run("SudoSetNetworkRateLimit", func(t *testing.T) {
+		t.Parallel()
 		env := setup(t)
 
 		rateLimit := types.NewU64(1000)

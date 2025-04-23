@@ -135,7 +135,6 @@ func setup(t *testing.T) *testutils.TestEnv {
 			AccInfo: nil,
 		},
 	}
-	setupSubnet(t, env)
 	return env
 }
 

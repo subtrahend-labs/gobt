@@ -28,7 +28,6 @@ type User struct {
 	Hotkey   Key
 }
 
-
 type Key struct {
 	Keypair signature.KeyringPair
 	Address types.MultiAddress
@@ -120,12 +119,16 @@ func (env *TestEnv) Teardown() {
 	env.Container.Terminate(ctx)
 }
 
+var pmu = sync.Mutex{}
+
 func SignAndSubmit(t *testing.T, cl *client.Client, ext *extrinsic.Extrinsic, signer signature.KeyringPair, nonce uint32) types.Hash {
 	t.Helper()
 
 	// Register custom extension mutators
+	pmu.Lock()
 	extrinsic.PayloadMutatorFns[extensions.SignedExtensionName("SubtensorSignedExtension")] = func(payload *extrinsic.Payload) {}
 	extrinsic.PayloadMutatorFns[extensions.SignedExtensionName("CommitmentsSignedExtension")] = func(payload *extrinsic.Payload) {}
+	pmu.Unlock()
 
 	tip := types.NewUCompactFromUInt(0)
 	n := types.NewUCompactFromUInt(uint64(nonce))

@@ -16,6 +16,7 @@ import (
 func TestBalanceModuleExtrinsics(t *testing.T) {
 	t.Parallel()
 	t.Run("TransferAllowDeath", func(t *testing.T) {
+		t.Parallel()
 		env := setup(t)
 
 		amountU64 := uint64(100000000)
@@ -42,6 +43,7 @@ func TestBalanceModuleExtrinsics(t *testing.T) {
 	})
 
 	t.Run("TransferKeepAlive", func(t *testing.T) {
+		t.Parallel()
 		env := setup(t)
 
 		amountU64 := uint64(100000000)
@@ -68,6 +70,7 @@ func TestBalanceModuleExtrinsics(t *testing.T) {
 	})
 
 	t.Run("ForceTransfer", func(t *testing.T) {
+		t.Parallel()
 		env := setup(t)
 
 		amountU64 := uint64(100000000)

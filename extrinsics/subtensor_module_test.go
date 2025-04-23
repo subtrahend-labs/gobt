@@ -15,6 +15,7 @@ import (
 func TestSubtensorModuleExtrinsics(t *testing.T) {
 	t.Parallel()
 	t.Run("RootRegister", func(t *testing.T) {
+		t.Parallel()
 		env := setup(t)
 
 		ext, err := RootRegisterExt(env.Client, *env.Bob.Hotkey.AccID)
@@ -26,7 +27,9 @@ func TestSubtensorModuleExtrinsics(t *testing.T) {
 	t.Skip("Register")
 
 	t.Run("BurnedRegister", func(t *testing.T) {
+		t.Parallel()
 		env := setup(t)
+		setupSubnet(t, env)
 
 		netuid := types.NewU16(1)
 
@@ -38,6 +41,7 @@ func TestSubtensorModuleExtrinsics(t *testing.T) {
 	})
 
 	t.Run("RegisterNetwork", func(t *testing.T) {
+		t.Parallel()
 		env := setup(t)
 
 		ext, err := RootRegisterExt(env.Client, *env.Bob.Hotkey.AccID)
