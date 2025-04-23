@@ -23,18 +23,18 @@ func TestSubtensorModuleExtrinsics(t *testing.T) {
 		updateUserInfo(t, &bob)
 	})
 
-	// t.Run("BurnedRegister", func(t *testing.T) {
-	// 	setup(t)
-	// 	defer teardown(t)
+	t.Run("BurnedRegister", func(t *testing.T) {
+		setup(t)
+		defer teardown(t)
 
-	// 	netuid := types.NewU16(2)
+		netuid := types.NewU16(1)
 
-	// 	// Use BurnedRegisterExt instead of RegisterNetworkExt
-	// 	ext, err := BurnedRegisterExt(env.Client, *bob.hotkey.AccID, netuid)
-	// 	require.NoError(t, err, "Failed to create burned_register ext")
-	// 	testutils.SignAndSubmit(t, env.Client, ext, bob.coldkey.Keypair, uint32(bob.coldkey.AccInfo.Nonce))
-	// 	updateUserInfo(t, &bob)
-	// })
+		// Use BurnedRegisterExt instead of RegisterNetworkExt
+		ext, err := BurnedRegisterExt(env.Client, *bob.hotkey.AccID, netuid)
+		require.NoError(t, err, "Failed to create burned_register ext")
+		testutils.SignAndSubmit(t, env.Client, ext, bob.coldkey.Keypair, uint32(bob.coldkey.AccInfo.Nonce))
+		updateUserInfo(t, &bob)
+	})
 
 	t.Run("RegisterNetwork", func(t *testing.T) {
 		setup(t)

@@ -149,6 +149,24 @@ func setup(t *testing.T) {
 			AccInfo: nil,
 		},
 	}
+
+	setupSubnet(t)
+}
+
+func setupSubnet(t *testing.T) {
+	sudoCall, err := SudoSetNetworkRateLimitCall(env.Client, types.NewU64(0))
+	require.NoError(t, err, "Failed to create sudo_set_network_rate_limit ext")
+	ext, err := NewSudoExt(env.Client, &sudoCall)
+	testutils.SignAndSubmit(t, env.Client, ext, alice.coldkey.Keypair, uint32(alice.coldkey.AccInfo.Nonce))
+	require.NoError(t, err, "Failed to create root_register ext")
+	fmt.Println("Will I ever make progress")
+	updateUserInfo(t, &alice)
+
+	ext, err = RegisterNetworkExt(env.Client, *bob.hotkey.AccID)
+	require.NoError(t, err, "Failed to create register_network ext")
+	testutils.SignAndSubmit(t, env.Client, ext, bob.coldkey.Keypair, uint32(bob.coldkey.AccInfo.Nonce))
+	fmt.Println("Here we are again on my own")
+	updateUserInfo(t, &bob)
 }
 
 func updateUserInfo(t *testing.T, u *User) {
