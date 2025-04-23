@@ -204,7 +204,7 @@
     - [ ] sudo_set_bonds_penalty (Index: 60)
     - [ ] sudo_set_max_registrations_per_block (Index: 27)
     - [ ] sudo_set_subnet_owner_cut (Index: 28)
-    - [ ] sudo_set_network_rate_limit (Index: 29)
+    - [x] sudo_set_network_rate_limit (Index: 29)
     - [ ] sudo_set_tempo (Index: 30)
     - [ ] sudo_set_total_issuance (Index: 33)
     - [ ] sudo_set_network_immunity_period (Index: 35)
