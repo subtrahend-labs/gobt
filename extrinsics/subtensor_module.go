@@ -23,10 +23,12 @@ import (
 //     - [ ] serve_axon (Index: 4)
 //     - [ ] serve_axon_tls (Index: 40)
 //     - [ ] serve_prometheus (Index: 5)
-//     - [ ] register (Index: 6)
+
 //     - [ ] root_register (Index: 62)
-//     - [ ] adjust_senate (Index: 63)
+//     - [ ] register (Index: 6)
 //     - [ ] burned_register (Index: 7)
+
+//     - [ ] adjust_senate (Index: 63)
 //     - [ ] swap_hotkey (Index: 70)
 //     - [ ] swap_coldkey (Index: 71)
 //     - [ ] set_childkey_take (Index: 75)
@@ -54,6 +56,16 @@ import (
 //     - [x] remove_stake_limit (Index: 89)
 //     - [ ] swap_stake_limit (Index: 90)
 //     - [ ] try_associate_hotkey (Index: 91)
+
+type SubnetIdentityV2 struct {
+	SubnetName    types.Bytes
+	GithubRepo    types.Bytes
+	SubnetContact types.Bytes
+	SubnetURL     types.Bytes
+	Discord       types.Bytes
+	Description   types.Bytes
+	Additional    types.Bytes
+}
 
 func AddStakeLimitCall(c *client.Client, hotkey types.AccountID, netuid types.U16, amount_staked types.U64, limit_price types.U64, allow_partial types.Bool) (types.Call, error) {
 	call, err := types.NewCall(c.Meta, "SubtensorModule.add_stake_limit", hotkey, netuid, amount_staked, limit_price, allow_partial)
@@ -106,8 +118,87 @@ func SetWeightsExt(c *client.Client, netuid types.U16, uids []types.U16, weights
 	return &ext, nil
 }
 
+func RootRegisterCall(c *client.Client, hotkey types.AccountID) (types.Call, error) {
+	call, err := types.NewCall(c.Meta, "SubtensorModule.root_register", hotkey)
+	if err != nil {
+		return types.Call{}, err
+	}
+	return call, nil
+}
+
+func RootRegisterExt(c *client.Client, hotkey types.AccountID) (*extrinsic.Extrinsic, error) {
+	call, err := RootRegisterCall(c, hotkey)
+	if err != nil {
+		return nil, err
+	}
+	ext := extrinsic.NewExtrinsic(call)
+	return &ext, nil
+}
+
+func RegisterCall(c *client.Client, netuid types.U16, blockNumber types.U64, nonce types.U64, work types.Bytes, hotkey types.AccountID, coldkey types.AccountID) (types.Call, error) {
+	call, err := types.NewCall(
+		c.Meta,
+		"SubtensorModule.register",
+		netuid,
+		blockNumber,
+		nonce,
+		work,
+		hotkey,
+		coldkey,
+	)
+	if err != nil {
+		return types.Call{}, err
+	}
+	return call, nil
+}
+
+func RegisterExt(c *client.Client, netuid types.U16, blockNumber types.U64, nonce types.U64, work types.Bytes, hotkey types.AccountID, coldkey types.AccountID) (*extrinsic.Extrinsic, error) {
+	call, err := RegisterCall(c, netuid, blockNumber, nonce, work, hotkey, coldkey)
+	if err != nil {
+		return nil, err
+	}
+	ext := extrinsic.NewExtrinsic(call)
+	return &ext, nil
+}
+
+func BurnedRegisterCall(c *client.Client, hotkey types.AccountID, netuid types.U16) (types.Call, error) {
+	call, err := types.NewCall(
+		c.Meta,
+		"SubtensorModule.burned_register",
+		netuid,
+		hotkey,
+	)
+	if err != nil {
+		return types.Call{}, err
+	}
+	return call, nil
+}
+
+func BurnedRegisterExt(c *client.Client, hotkey types.AccountID, netuid types.U16) (*extrinsic.Extrinsic, error) {
+	call, err := BurnedRegisterCall(c, hotkey, netuid)
+	if err != nil {
+		return nil, err
+	}
+	ext := extrinsic.NewExtrinsic(call)
+	return &ext, nil
+}
+
 func RegisterNetworkCall(c *client.Client, hotkey types.AccountID) (types.Call, error) {
-	call, err := types.NewCall(c.Meta, "SubtensorModule.register_network")
+	// var identityArg interface{}
+	// if identity == nil {
+	// 	identityArg = types.NewEmptyOption[SubnetIdentityV2]()
+	// } else {
+	// 	identityArg = types.NewOption(*identity)
+	// }
+
+	call, err := types.NewCall(
+		c.Meta,
+		"SubtensorModule.register_network",
+		//coldkey,
+		hotkey,
+		//mechid,
+		// identityArg,
+	)
 	if err != nil {
 		return types.Call{}, err
 	}

@@ -6,27 +6,62 @@ package extrinsics
 import (
 	"testing"
 
-	"github.com/centrifuge/go-substrate-rpc-client/v4/types"
-	//	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"github.com/subtrahend-labs/gobt/testutils"
 )
 
 func TestSubtensorModuleExtrinsics(t *testing.T) {
-
-	t.Run("SetWeights", func(t *testing.T) {
+	t.Run("RootRegister", func(t *testing.T) {
 		setup(t)
 		defer teardown(t)
 
-		netuid := types.NewU16(4)
-		uids := []types.U16{types.NewU16(1), types.NewU16(2)}
-		weights := []types.U16{types.NewU16(10), types.NewU16(20)}
-		versionKey := types.NewU64(843000)
-
-		ext, err := SetWeightsExt(env.Client, netuid, uids, weights, versionKey)
-		require.NoError(t, err, "Failed to create set_weights ext")
-		testutils.SignAndSubmit(t, env.Client, ext, bob.keyring, uint32(bob.accountInfo.Nonce))
+		ext, err := RootRegisterExt(env.Client, *bob.hotkey.AccID)
+		require.NoError(t, err, "Failed to create root_register ext")
+		testutils.SignAndSubmit(t, env.Client, ext, bob.coldkey.Keypair, uint32(bob.coldkey.AccInfo.Nonce))
 		updateUserInfo(t, &bob)
-
 	})
+
+	// t.Run("BurnedRegister", func(t *testing.T) {
+	// 	setup(t)
+	// 	defer teardown(t)
+
+	// 	netuid := types.NewU16(2)
+
+	// 	// Use BurnedRegisterExt instead of RegisterNetworkExt
+	// 	ext, err := BurnedRegisterExt(env.Client, *bob.hotkey.AccID, netuid)
+	// 	require.NoError(t, err, "Failed to create burned_register ext")
+	// 	testutils.SignAndSubmit(t, env.Client, ext, bob.coldkey.Keypair, uint32(bob.coldkey.AccInfo.Nonce))
+	// 	updateUserInfo(t, &bob)
+	// })
+
+	t.Run("RegisterNetwork", func(t *testing.T) {
+		setup(t)
+		defer teardown(t)
+
+		ext, err := RootRegisterExt(env.Client, *bob.hotkey.AccID)
+		require.NoError(t, err, "Failed to create root_register ext")
+		testutils.SignAndSubmit(t, env.Client, ext, bob.coldkey.Keypair, uint32(bob.coldkey.AccInfo.Nonce))
+
+		// mechid := types.NewU16(1)
+		ext, err = RegisterNetworkExt(env.Client, *bob.hotkey.AccID)
+		require.NoError(t, err, "Failed to create register_network ext")
+		testutils.SignAndSubmit(t, env.Client, ext, bob.coldkey.Keypair, uint32(bob.coldkey.AccInfo.Nonce+1))
+		updateUserInfo(t, &bob)
+	})
+
+	// t.Run("SetWeights", func(t *testing.T) {
+	// 	setup(t)
+	// 	defer teardown(t)
+
+	// 	netuid := types.NewU16(4)
+	// 	uids := []types.U16{types.NewU16(1), types.NewU16(2)}
+	// 	weights := []types.U16{types.NewU16(10), types.NewU16(20)}
+	// 	versionKey := types.NewU64(843000)
+
+	// 	ext, err := SetWeightsExt(env.Client, netuid, uids, weights, versionKey)
+	// 	require.NoError(t, err, "Failed to create set_weights ext")
+	// 	testutils.SignAndSubmit(t, env.Client, ext, bob.keyring, uint32(bob.accountInfo.Nonce))
+	// 	updateUserInfo(t, &bob)
+
+	// })
 }

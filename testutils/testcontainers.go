@@ -15,6 +15,7 @@ import (
 	"github.com/docker/go-connections/nat"
 	"github.com/stretchr/testify/require"
 	"github.com/subtrahend-labs/gobt/client"
+	"github.com/subtrahend-labs/gobt/sigtools"
 	"github.com/testcontainers/testcontainers-go"
 	"github.com/testcontainers/testcontainers-go/wait"
 )
@@ -89,27 +90,20 @@ func (env *TestEnv) Teardown() {
 func SignAndSubmit(t *testing.T, cl *client.Client, ext *extrinsic.Extrinsic, signer signature.KeyringPair, nonce uint32) types.Hash {
 	t.Helper()
 
-	genesisHash, err := cl.Api.RPC.Chain.GetBlockHash(0)
-	require.NoError(t, err, "Failed to get genesis hash")
-
-	rv, err := cl.Api.RPC.State.GetRuntimeVersionLatest()
-	require.NoError(t, err, "Failed to get runtime version")
-
 	// Register custom extension mutators
 	extrinsic.PayloadMutatorFns[extensions.SignedExtensionName("SubtensorSignedExtension")] = func(payload *extrinsic.Payload) {}
 	extrinsic.PayloadMutatorFns[extensions.SignedExtensionName("CommitmentsSignedExtension")] = func(payload *extrinsic.Payload) {}
+
+	tip := types.NewUCompactFromUInt(0)
+	n := types.NewUCompactFromUInt(uint64(nonce))
+	sc := sigtools.NewSigningContext(&tip, &n)
+	ops, err := sigtools.CreateSigningOptions(cl, signer, sc)
 
 	// Sign the extrinsic
 	err = ext.Sign(
 		signer,
 		cl.Meta,
-		extrinsic.WithEra(types.ExtrinsicEra{IsImmortalEra: true}, genesisHash),
-		extrinsic.WithNonce(types.NewUCompactFromUInt(uint64(nonce))),
-		extrinsic.WithTip(types.NewUCompactFromUInt(0)),
-		extrinsic.WithSpecVersion(rv.SpecVersion),
-		extrinsic.WithTransactionVersion(rv.TransactionVersion),
-		extrinsic.WithGenesisHash(genesisHash),
-		extrinsic.WithMetadataMode(extensions.CheckMetadataModeDisabled, extensions.CheckMetadataHash{Hash: types.NewEmptyOption[types.H256]()}),
+		ops...,
 	)
 	require.NoError(t, err, "Failed to sign extrinsic")
 
