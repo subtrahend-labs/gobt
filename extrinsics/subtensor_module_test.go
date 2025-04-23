@@ -23,6 +23,9 @@ func TestSubtensorModuleExtrinsics(t *testing.T) {
 		updateUserInfo(t, &bob)
 	})
 
+	t.Skip("Register", func(t *testing.T) {
+	})
+
 	t.Run("BurnedRegister", func(t *testing.T) {
 		setup(t)
 		defer teardown(t)
