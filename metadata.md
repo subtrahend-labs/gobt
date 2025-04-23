@@ -42,17 +42,17 @@
 
 #### Module: SubtensorModule (Index: 7)
     - [ ] set_weights (Index: 0)
+    - [x] become_delegate (Index: 1) [DEPRECATED]
+    - [ ] add_stake (Index: 2)
     - [ ] batch_set_weights (Index: 80)
     - [ ] commit_weights (Index: 96)
     - [ ] batch_commit_weights (Index: 100)
     - [ ] reveal_weights (Index: 97)
     - [ ] commit_crv3_weights (Index: 99)
     - [ ] batch_reveal_weights (Index: 98)
-    - [ ] set_tao_weights (Index: 8)
-    - [ ] become_delegate (Index: 1)
+    - [x] set_tao_weights (Index: 8) [DEPRECATED]
     - [ ] decrease_take (Index: 65)
     - [ ] increase_take (Index: 66)
-    - [ ] add_stake (Index: 2)
     - [ ] remove_stake (Index: 3)
     - [ ] serve_axon (Index: 4)
     - [ ] serve_axon_tls (Index: 40)
