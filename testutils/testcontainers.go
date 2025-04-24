@@ -129,24 +129,24 @@ func setup() (*TestEnv, error) {
 
 func (env *TestEnv) Teardown() {
 	ctx := context.Background()
-	env.Container.Terminate(ctx)
+	err := env.Container.Terminate(ctx)
+	if err != nil {
+		fmt.Printf("failed to terminate container: %v", err)
+	}
 }
-
-var pmu = sync.Mutex{}
 
 func SignAndSubmit(t *testing.T, cl *client.Client, ext *extrinsic.Extrinsic, signer signature.KeyringPair, nonce uint32) types.Hash {
 	t.Helper()
 
 	// Register custom extension mutators
-	pmu.Lock()
 	extrinsic.PayloadMutatorFns[extensions.SignedExtensionName("SubtensorSignedExtension")] = func(payload *extrinsic.Payload) {}
 	extrinsic.PayloadMutatorFns[extensions.SignedExtensionName("CommitmentsSignedExtension")] = func(payload *extrinsic.Payload) {}
-	pmu.Unlock()
 
 	tip := types.NewUCompactFromUInt(0)
 	n := types.NewUCompactFromUInt(uint64(nonce))
 	sc := sigtools.NewSigningContext(&tip, &n)
 	ops, err := sigtools.CreateSigningOptions(cl, signer, sc)
+	require.NoError(t, err, "Failed to create signing options")
 
 	// Sign the extrinsic
 	err = ext.Sign(

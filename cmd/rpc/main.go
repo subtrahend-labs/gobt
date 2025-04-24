@@ -30,7 +30,7 @@ func main() {
 	}
 
 	netuid := 4
-	// getNeurons(client, uint16(netuid), &blockHash)
+	getNeurons(client, uint16(netuid), &blockHash)
 	getMetagraph(client, uint16(netuid), &blockHash)
 }
 
