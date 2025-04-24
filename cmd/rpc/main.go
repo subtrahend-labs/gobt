@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"log"
+	"net/rpc"
 	"os"
 
 	"github.com/centrifuge/go-substrate-rpc-client/v4/types"
