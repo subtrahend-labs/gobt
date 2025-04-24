@@ -147,6 +147,7 @@ func SignAndSubmit(t *testing.T, cl *client.Client, ext *extrinsic.Extrinsic, si
 	n := types.NewUCompactFromUInt(uint64(nonce))
 	sc := sigtools.NewSigningContext(&tip, &n)
 	ops, err := sigtools.CreateSigningOptions(cl, signer, sc)
+	require.NoError(t, err, "Failed to create signing options")
 
 	// Sign the extrinsic
 	err = ext.Sign(

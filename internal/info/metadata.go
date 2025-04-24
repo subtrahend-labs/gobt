@@ -34,7 +34,7 @@ func LookupExtrinsicArgs(meta *types.Metadata, palletName, callName string) {
 			fmt.Printf("Call: %s::%s\n", palletName, callName)
 			for i, field := range variant.Fields {
 				typeID := field.Type.Int64()
-				fieldType, _ := meta.AsMetadataV14.EfficientLookup[typeID]
+				fieldType := meta.AsMetadataV14.EfficientLookup[typeID]
 
 				name := field.Name
 				if name == "" {
