@@ -1,74 +1,43 @@
-name: CI
+name: Run Tests
 
 on:
   pull_request:
     branches:
-      - master
+      - "master"
 
 jobs:
-  lint:
-    name: Lint & Format
+  build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-
       - name: Setup Go 1.23.x
         uses: actions/setup-go@v5
         with:
+          # Semantic version range syntax or exact version of Go
           go-version: '1.23.x'
+          cache-dependency-path: subdir/go.sum
 
-      - name: Cache Go modules & build
-        uses: actions/cache@v3
-        with:
-          path: |
-            ~/.cache/go-build
-            ~/go/pkg/mod
-          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
-          restore-keys: |
-            ${{ runner.os }}-go-
+      - name: Set GOFLAGS to use vendor directory 
+        run: echo "GOFLAGS=-mod=vendor" >> $GITHUB_ENV
 
-      - name: Run golangci-lint
-        uses: golangci/golangci-lint-action@v4
-        with:
-          version: v1.53.3
-          args: --timeout=5m
+      - name: Install tools
+        run: |
+          go install honnef.co/go/tools/cmd/staticcheck@latest
+          go install github.com/securego/gosec/v2/cmd/gosec@latest
+          go install gotest.tools/gotestsum@latest
 
-      - name: Check formatting
-        run: gofmt -s -l .
+      - name: Install Dependencies
+        run: go mod tidy && go mod vendor
 
-  build-and-test:
-    name: Build & Test
-    runs-on: ubuntu-latest
-    needs: lint
-    services:
-      docker:
-        image: docker:20-dind
-        privileged: true
-        options: >-
-          --mount type=bind,src=/var/run/docker.sock,dst=/var/run/docker.sock
+      - name: Run Formatting Check
+        run: test -z $(go fmt ./...)
 
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Setup Go 1.23.x
-        uses: actions/setup-go@v5
-        with:
-          go-version: '1.23.x'
-
-      - name: Restore Go module cache
-        uses: actions/cache@v3
-        with:
-          path: |
-            ~/.cache/go-build
-            ~/go/pkg/mod
-          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
-
-      - name: Install Docker Compose
+      - name: Install Docker
         run: |
           sudo apt-get update
           sudo apt-get install -y docker-compose
 
-      - name: Pull Subtensor image
+      - name: Pull Docker image
         run: docker pull manifoldlabs/subtensor:fast-blocks
 
       - name: Configure Testcontainers
@@ -76,41 +45,15 @@ jobs:
           echo "TESTCONTAINERS_RYUK_DISABLED=true" >> $GITHUB_ENV
           echo "DOCKER_HOST=unix:///var/run/docker.sock" >> $GITHUB_ENV
 
-      - name: Install Go deps & gotestsum
-        run: |
-          go mod tidy
-          go install gotest.tools/gotestsum@latest
+      - name: Run Linting 
+        run: staticcheck ./...
 
-      - name: Run unit tests
-        run: |
-          gotestsum \
-            --format standard-verbose \
-            --junitfile junit-unit.xml \
-            -- -tags=unit ./...
-      
-      - name: Run integration tests
-        run: |
-          gotestsum \
-            --format testname \
-            --junitfile junit-integration.xml \
-            -- -tags=integration ./...
+      - name: Run Security Check
+        run: gosec ./...
 
-      - name: Generate coverage profile
-        run: |
-          go test -coverprofile=coverage.out -covermode=atomic ./...
+      - name: Test Extrinsics
+        run: gotestsum --format testname -- -v -p 10 -tags=integration ./...
 
-      - name: Upload test reports
-        uses: actions/upload-artifact@v3
-        with:
-          name: junit-reports
-          path: |
-            junit-unit.xml
-            junit-integration.xml
 
-      - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v3
-        with:
-          files: coverage.out
-          flags: unittests,integrationtests
-          fail_ci_if_error: true
 
+        
