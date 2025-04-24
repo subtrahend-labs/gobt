@@ -55,6 +55,18 @@ var (
 )
 
 func Setup() (*TestEnv, error) {
+	var err error
+	for range 10 {
+		v, err := setup()
+		if err != nil {
+			continue
+		}
+		return v, nil
+	}
+	return nil, err
+}
+
+func setup() (*TestEnv, error) {
 	ctx := context.Background()
 
 	// Define container request
@@ -63,7 +75,7 @@ func Setup() (*TestEnv, error) {
 	nodePort := fmt.Sprintf("%d", startPort)
 	mu.Unlock()
 	req := testcontainers.ContainerRequest{
-		Image:        "manifoldlabs/subtensor:latest-local",
+		Image:        "manifoldlabs/subtensor:fast-blocks",
 		ExposedPorts: []string{nodePort + ":9944"},
 		Cmd: []string{
 			"/bin/bash",

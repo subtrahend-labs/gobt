@@ -1,0 +1,24 @@
+name: Run Tests
+
+on:
+  pull_request:
+    branches:
+      - "main"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Go 1.23.x
+        uses: actions/setup-go@v5
+        with:
+          # Semantic version range syntax or exact version of Go
+          go-version: '1.23.x'
+          cache-dependency-path: subdir/go.sum
+      - name: Install dependencies
+        run: |
+          go get .
+          go install gotest.tools/gotestsum@latest
+      - name: Test Extrinsics
+        run: gotestsum --format testname -- -v -p 10 -tags=integration ./...
