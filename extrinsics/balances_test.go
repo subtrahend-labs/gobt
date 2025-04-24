@@ -26,8 +26,8 @@ func TestBalanceModuleExtrinsics(t *testing.T) {
 		require.NoError(t, err, "Failed to create extrinsic")
 		testutils.SignAndSubmit(t, env.Client, ext, env.Bob.Coldkey.Keypair, uint32(env.Bob.Coldkey.AccInfo.Nonce))
 
-		updateUserInfo(t, &env.Bob, env)
-		updateUserInfo(t, &env.Charlie, env)
+		updateUserInfo(t, &env.Bob, env, false)
+		updateUserInfo(t, &env.Charlie, env, false)
 
 		bobFinal := uint64(env.Bob.Coldkey.AccInfo.Data.Free)
 		charlieFinal := uint64(env.Charlie.Coldkey.AccInfo.Data.Free)
@@ -53,8 +53,8 @@ func TestBalanceModuleExtrinsics(t *testing.T) {
 		require.NoError(t, err, "Failed to create extrinsic")
 		testutils.SignAndSubmit(t, env.Client, ext, env.Bob.Coldkey.Keypair, uint32(env.Bob.Coldkey.AccInfo.Nonce))
 
-		updateUserInfo(t, &env.Bob, env)
-		updateUserInfo(t, &env.Charlie, env)
+		updateUserInfo(t, &env.Bob, env, false)
+		updateUserInfo(t, &env.Charlie, env, false)
 
 		bobFinal := uint64(env.Bob.Coldkey.AccInfo.Data.Free)
 		charlieFinal := uint64(env.Charlie.Coldkey.AccInfo.Data.Free)
@@ -85,8 +85,8 @@ func TestBalanceModuleExtrinsics(t *testing.T) {
 		require.NoError(t, err, "Failed to create extrinsic")
 		testutils.SignAndSubmit(t, env.Client, ext, env.Alice.Coldkey.Keypair, uint32(env.Alice.Coldkey.AccInfo.Nonce))
 
-		updateUserInfo(t, &env.Bob, env)
-		updateUserInfo(t, &env.Charlie, env)
+		updateUserInfo(t, &env.Bob, env, false)
+		updateUserInfo(t, &env.Charlie, env, false)
 
 		bobFinal := uint64(env.Bob.Coldkey.AccInfo.Data.Free)
 		charlieFinal := uint64(env.Charlie.Coldkey.AccInfo.Data.Free)
@@ -107,8 +107,8 @@ func TestBalanceModuleExtrinsics(t *testing.T) {
 	// 	require.NoError(t, err, "Failed to create extrinsic")
 	// 	testutils.SignAndSubmit(t, env.Client, ext, bob.keyring, uint32(bob.coldkey.AccInfo.Nonce))
 
-	// 	updateUserInfo(t, &bob)
-	// 	updateUserInfo(t, &charlie)
+	// 	updateUserInfo(t, &bob, false)
+	// 	updateUserInfo(t, &charlie, false)
 
 	// 	bobFinal := uint64(bob.coldkey.AccInfo.Data.Free)
 	// 	charlieFinal := uint64(charlie.coldkey.AccInfo.Data.Free)

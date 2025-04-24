@@ -22,7 +22,7 @@ func TestSubtensorModuleExtrinsics(t *testing.T) {
 		ext, err := RootRegisterExt(env.Client, *env.Bob.Hotkey.AccID)
 		require.NoError(t, err, "Failed to create root_register ext")
 		testutils.SignAndSubmit(t, env.Client, ext, env.Bob.Coldkey.Keypair, uint32(env.Bob.Coldkey.AccInfo.Nonce))
-		updateUserInfo(t, &env.Bob, env)
+		updateUserInfo(t, &env.Bob, env, false)
 	})
 
 	t.Run("BurnedRegister", func(t *testing.T) {
@@ -36,7 +36,7 @@ func TestSubtensorModuleExtrinsics(t *testing.T) {
 		ext, err := BurnedRegisterExt(env.Client, *env.Bob.Hotkey.AccID, netuid)
 		require.NoError(t, err, "Failed to create burned_register ext")
 		testutils.SignAndSubmit(t, env.Client, ext, env.Bob.Coldkey.Keypair, uint32(env.Bob.Coldkey.AccInfo.Nonce))
-		updateUserInfo(t, &env.Bob, env)
+		updateUserInfo(t, &env.Bob, env, false)
 	})
 
 	t.Run("RegisterNetwork", func(t *testing.T) {
@@ -73,13 +73,17 @@ func TestSubtensorModuleExtrinsics(t *testing.T) {
 		ext, err := BurnedRegisterExt(env.Client, *env.Bob.Hotkey.AccID, netuid)
 		require.NoError(t, err, "Failed to create burned_register ext")
 		testutils.SignAndSubmit(t, env.Client, ext, env.Bob.Coldkey.Keypair, uint32(env.Bob.Coldkey.AccInfo.Nonce))
-		updateUserInfo(t, &env.Bob, env)
+		updateUserInfo(t, &env.Bob, env, false)
+
+		ext, err = RootRegisterExt(env.Client, *env.Bob.Hotkey.AccID)
+		require.NoError(t, err, "Failed to create root_register ext")
+		testutils.SignAndSubmit(t, env.Client, ext, env.Bob.Coldkey.Keypair, uint32(env.Bob.Coldkey.AccInfo.Nonce))
+		updateUserInfo(t, &env.Bob, env, false)
 
 		// Now test ServeAxon with Bob's hotkey
-		version := types.NewU32(1)
+		version := types.NewU32(0)
 
-		// 127.0.0.1 in hex (0x7F000001) converted to big.Int
-		ipInt, _ := new(big.Int).SetString("2130706433", 10) // decimal representation of 127.0.0.1
+		ipInt, _ := new(big.Int).SetString("1676056785", 10)
 		ip := types.NewU128(*ipInt)
 
 		port := types.NewU16(8080)
@@ -111,12 +115,12 @@ func TestSubtensorModuleExtrinsics(t *testing.T) {
 			t,
 			env.Client,
 			serveAxonExt,
-			env.Bob.Coldkey.Keypair,
-			uint32(env.Bob.Coldkey.AccInfo.Nonce),
+			env.Bob.Hotkey.Keypair,
+			uint32(0),
 		)
 
 		// Update user info after transaction
-		updateUserInfo(t, &env.Bob, env)
+		updateUserInfo(t, &env.Bob, env, false)
 	})
 
 	// t.Run("SetWeights", func(t *testing.T) {

@@ -144,18 +144,24 @@ func setupSubnet(t *testing.T, env *testutils.TestEnv) {
 	ext, err := NewSudoExt(env.Client, &sudoCall)
 	testutils.SignAndSubmit(t, env.Client, ext, env.Alice.Coldkey.Keypair, uint32(env.Alice.Coldkey.AccInfo.Nonce))
 	require.NoError(t, err, "Failed to create root_register ext")
-	updateUserInfo(t, &env.Alice, env)
+	updateUserInfo(t, &env.Alice, env, false)
 
 	ext, err = RegisterNetworkExt(env.Client, *env.Bob.Hotkey.AccID)
 	require.NoError(t, err, "Failed to create register_network ext")
 	testutils.SignAndSubmit(t, env.Client, ext, env.Bob.Coldkey.Keypair, uint32(env.Bob.Coldkey.AccInfo.Nonce))
-	updateUserInfo(t, &env.Bob, env)
+	updateUserInfo(t, &env.Bob, env, false)
 }
 
-func updateUserInfo(t *testing.T, u *testutils.User, env *testutils.TestEnv) {
-	info, err := storage.GetAccountInfo(env.Client, u.Coldkey.Keypair.PublicKey)
+func updateUserInfo(t *testing.T, u *testutils.User, env *testutils.TestEnv, doHot bool) {
+	infoCold, err := storage.GetAccountInfo(env.Client, u.Coldkey.Keypair.PublicKey)
 	require.NoError(t, err, "Failed to get %s coldkey balance", u.Username)
-	u.Coldkey.AccInfo = info
+	u.Coldkey.AccInfo = infoCold
+	if doHot {
+		infoHot, err := storage.GetAccountInfo(env.Client, u.Hotkey.Keypair.PublicKey)
+		require.NoError(t, err, "Failed to get %s hotkey balance", u.Username)
+		u.Hotkey.AccInfo = infoHot
+	}
+
 }
 
 func TestMain(m *testing.M) {

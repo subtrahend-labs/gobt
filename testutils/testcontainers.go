@@ -178,3 +178,59 @@ func SignAndSubmit(t *testing.T, cl *client.Client, ext *extrinsic.Extrinsic, si
 
 	return blockHash
 }
+
+var dualMu sync.Mutex
+
+func SignAndSubmitDual(
+	t *testing.T,
+	cl *client.Client,
+	ext *extrinsic.Extrinsic,
+	hotKey signature.KeyringPair,
+	coldKey signature.KeyringPair,
+	nonce uint32,
+) types.Hash {
+	t.Helper()
+
+	// 1) register no-op mutators for the two extensions
+	dualMu.Lock()
+	extrinsic.PayloadMutatorFns["SubtensorSignedExtension"] = func(_ *extrinsic.Payload) {}
+	extrinsic.PayloadMutatorFns["CommitmentsSignedExtension"] = func(_ *extrinsic.Payload) {}
+	dualMu.Unlock()
+
+	// 2) build our SigningContext (same tip & nonce for both)
+	tip := types.NewUCompactFromUInt(0)
+	n := types.NewUCompactFromUInt(uint64(nonce))
+
+	// 3) hotkey signature (origin)
+	hotCtx, err := sigtools.NewSigningContext(&tip, &n), error(nil)
+	hotOps, err := sigtools.CreateSigningOptions(cl, hotKey, hotCtx)
+	require.NoError(t, err, "build hotkey signing options")
+	err = ext.Sign(hotKey, cl.Meta, hotOps...)
+	require.NoError(t, err, "hotkey Sign failed")
+
+	// 4) coldkey signature (commitment)
+	coldCtx, err := sigtools.NewSigningContext(&tip, &n), error(nil)
+	coldOps, err := sigtools.CreateSigningOptions(cl, coldKey, coldCtx)
+	require.NoError(t, err, "build coldkey signing options")
+	err = ext.Sign(coldKey, cl.Meta, coldOps...)
+	require.NoError(t, err, "coldkey Sign failed")
+
+	// 5) submit & watch
+	sub, err := cl.Api.RPC.Author.SubmitAndWatchExtrinsic(*ext)
+	require.NoError(t, err)
+	defer sub.Unsubscribe()
+
+	var blockHash types.Hash
+	for status := range sub.Chan() {
+		t.Logf("dual-signed status: %v", status)
+		if status.IsInBlock {
+			blockHash = status.AsInBlock
+			break
+		}
+		if status.IsDropped || status.IsInvalid {
+			t.Fatalf("dual-sign submit failed: dropped=%v invalid=%v",
+				status.IsDropped, status.IsInvalid)
+		}
+	}
+	return blockHash
+}

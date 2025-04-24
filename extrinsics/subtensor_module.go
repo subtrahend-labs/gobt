@@ -209,14 +209,14 @@ func ServeAxonCall(c *client.Client, netuid types.U16, version types.U32, ip typ
 	placeholder2 types.U8, certificate []byte) (types.Call, error) {
 
 	// build a generic Option[Bytes]
-	var certOption types.Option[types.Bytes]
-	if len(certificate) > 0 {
-		// wrap raw []byte in the Bytes type, then in an Option
-		certOption = types.NewOption(types.NewBytes(certificate))
-	} else {
-		certOption = types.NewEmptyOption[types.Bytes]()
-	}
-
+	//	var certOption types.Option[types.Bytes]
+	//	if len(certificate) > 0 {
+	//		// wrap raw []byte in the Bytes type, then in an Option
+	//		certOption = types.NewOption(types.NewBytes(certificate))
+	//	} else {
+	//		certOption = types.NewEmptyOption[types.Bytes]()
+	//	}
+	//
 	call, err := types.NewCall(
 		c.Meta,
 		"SubtensorModule.serve_axon",
@@ -228,7 +228,6 @@ func ServeAxonCall(c *client.Client, netuid types.U16, version types.U32, ip typ
 		protocol,
 		placeholder1,
 		placeholder2,
-		certOption,
 	)
 
 	if err != nil {
