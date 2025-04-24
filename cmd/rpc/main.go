@@ -46,7 +46,7 @@ func getMetagraph(c *client.Client, netuid uint16, blockHash *types.Hash) {
 		return
 	}
 
-	fmt.Printf("%+V\n", metagraph)
+	fmt.Printf("%+v\n", metagraph)
 }
 
 func getNeurons(c *client.Client, netuid uint16, blockHash *types.Hash) {

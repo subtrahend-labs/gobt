@@ -10,6 +10,7 @@ import (
 
 	"github.com/centrifuge/go-substrate-rpc-client/v4/signature"
 	"github.com/centrifuge/go-substrate-rpc-client/v4/types"
+	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"github.com/subtrahend-labs/gobt/storage"
 	"github.com/subtrahend-labs/gobt/testutils"
@@ -19,8 +20,7 @@ func setup(t *testing.T) *testutils.TestEnv {
 	var err error
 	env, err := testutils.Setup()
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "Test setup failed: %v\n", err)
-		os.Exit(1)
+		assert.FailNow(t, "Failed creating test setup")
 	}
 	env.InitialBalanceUint64 = 1000000000000000
 	env.InitialBalanceU64 = types.NewU64(env.InitialBalanceUint64)
@@ -161,7 +161,6 @@ func updateUserInfo(t *testing.T, u *testutils.User, env *testutils.TestEnv, doH
 		require.NoError(t, err, "Failed to get %s hotkey balance", u.Username)
 		u.Hotkey.AccInfo = infoHot
 	}
-
 }
 
 func TestMain(m *testing.M) {
