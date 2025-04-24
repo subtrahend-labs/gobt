@@ -251,3 +251,43 @@ func ServeAxonExt(c *client.Client, netuid types.U16, version types.U32, ip type
 	ext := extrinsic.NewExtrinsic(call)
 	return &ext, nil
 }
+
+func ServeAxonTLSCall(c *client.Client, netuid types.U16, version types.U32, ip types.U128,
+	port types.U16, ipType types.U8, protocol types.U8, placeholder1 types.U8,
+	placeholder2 types.U8, certificate types.Bytes) (types.Call, error) {
+
+	call, err := types.NewCall(
+		c.Meta,
+		"SubtensorModule.serve_axon_tls",
+		netuid,
+		version,
+		ip,
+		port,
+		ipType,
+		protocol,
+		placeholder1,
+		placeholder2,
+		certificate,
+	)
+
+	if err != nil {
+		return types.Call{}, err
+	}
+
+	return call, nil
+}
+
+func ServeAxonTLSExt(c *client.Client, netuid types.U16, version types.U32, ip types.U128,
+	port types.U16, ipType types.U8, protocol types.U8, placeholder1 types.U8,
+	placeholder2 types.U8, certificate types.Bytes) (*extrinsic.Extrinsic, error) {
+
+	call, err := ServeAxonTLSCall(c, netuid, version, ip, port, ipType, protocol,
+		placeholder1, placeholder2, certificate)
+
+	if err != nil {
+		return nil, err
+	}
+
+	ext := extrinsic.NewExtrinsic(call)
+	return &ext, nil
+}
