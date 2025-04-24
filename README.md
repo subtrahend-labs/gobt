@@ -16,3 +16,8 @@ All gets
 ### Questions 
 Should I have a service based structure to avoid passing the client 
 around so much
+
+
+[-] wontfix
+[x] implemented and tested
+[o] in not tested
