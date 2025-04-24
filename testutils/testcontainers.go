@@ -57,7 +57,7 @@ var (
 
 func Setup() (*TestEnv, error) {
 	err := errors.New("failed setup")
-	for range 10 {
+	for i := 0; i < 10; i++ {
 		v, err := setup()
 		if err != nil {
 			continue
