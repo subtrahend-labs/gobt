@@ -12,7 +12,7 @@
 - [Features](#features)
 - [Contributing](#contributing)  
 - [License](#license)  
-- [Disclaimer](#-disclaimer)
+- [Disclaimer](#disclaimer)
 
 ---
 
