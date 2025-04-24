@@ -37,19 +37,19 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y docker-compose
 
-      - name: Pull Docker image
-        run: docker pull manifoldlabs/subtensor:fast-blocks
+      - name: Run Linting 
+        run: staticcheck ./...
+
+      - name: Run Security Check
+        run: gosec ./...
 
       - name: Configure Testcontainers
         run: |
           echo "TESTCONTAINERS_RYUK_DISABLED=true" >> $GITHUB_ENV
           echo "DOCKER_HOST=unix:///var/run/docker.sock" >> $GITHUB_ENV
 
-      - name: Run Linting 
-        run: staticcheck ./...
-
-      - name: Run Security Check
-        run: gosec ./...
+      - name: Pull Docker image
+        run: docker pull manifoldlabs/subtensor:fast-blocks
 
       - name: Test Extrinsics
         run: gotestsum --format testname -- -v -p 10 -tags=integration ./...
