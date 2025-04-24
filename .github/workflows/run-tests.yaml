@@ -21,6 +21,12 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y docker-compose
+      - name: Pull Docker image
+        run: docker pull manifoldlabs/subtensor:fast-blocks
+      - name: Configure Testcontainers
+        run: |
+          echo "TESTCONTAINERS_RYUK_DISABLED=true" >> $GITHUB_ENV
+          echo "DOCKER_HOST=unix:///var/run/docker.sock" >> $GITHUB_ENV
       - name: Install dependencies
         run: |
           go mod tidy
