@@ -17,7 +17,6 @@ import (
 )
 
 func setup(t *testing.T) *testutils.TestEnv {
-	var err error
 	env, err := testutils.Setup()
 	if err != nil {
 		assert.FailNow(t, "Failed creating test setup")

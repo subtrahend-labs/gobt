@@ -2,6 +2,7 @@ package testutils
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"sync"
 	"testing"
@@ -55,7 +56,7 @@ var (
 )
 
 func Setup() (*TestEnv, error) {
-	var err error
+	err := errors.New("failed setup")
 	for range 10 {
 		v, err := setup()
 		if err != nil {
