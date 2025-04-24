@@ -5,6 +5,7 @@ package extrinsics
 
 import (
 	"fmt"
+	"math/big"
 	"testing"
 
 	"github.com/centrifuge/go-substrate-rpc-client/v4/types"
@@ -23,8 +24,6 @@ func TestSubtensorModuleExtrinsics(t *testing.T) {
 		testutils.SignAndSubmit(t, env.Client, ext, env.Bob.Coldkey.Keypair, uint32(env.Bob.Coldkey.AccInfo.Nonce))
 		updateUserInfo(t, &env.Bob, env)
 	})
-
-	t.Skip("Register")
 
 	t.Run("BurnedRegister", func(t *testing.T) {
 		t.Parallel()

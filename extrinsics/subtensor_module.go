@@ -203,3 +203,52 @@ func RegisterNetworkExt(c *client.Client, hotkey types.AccountID) (*extrinsic.Ex
 	ext := extrinsic.NewExtrinsic(call)
 	return &ext, nil
 }
+
+func ServeAxonCall(c *client.Client, netuid types.U16, version types.U32, ip types.U128,
+	port types.U16, ipType types.U8, protocol types.U8, placeholder1 types.U8,
+	placeholder2 types.U8, certificate []byte) (types.Call, error) {
+
+	// build a generic Option[Bytes]
+	var certOption types.Option[types.Bytes]
+	if len(certificate) > 0 {
+		// wrap raw []byte in the Bytes type, then in an Option
+		certOption = types.NewOption(types.NewBytes(certificate))
+	} else {
+		certOption = types.NewEmptyOption[types.Bytes]()
+	}
+
+	call, err := types.NewCall(
+		c.Meta,
+		"SubtensorModule.serve_axon",
+		netuid,
+		version,
+		ip,
+		port,
+		ipType,
+		protocol,
+		placeholder1,
+		placeholder2,
+		certOption,
+	)
+
+	if err != nil {
+		return types.Call{}, err
+	}
+
+	return call, nil
+}
+
+func ServeAxonExt(c *client.Client, netuid types.U16, version types.U32, ip types.U128,
+	port types.U16, ipType types.U8, protocol types.U8, placeholder1 types.U8,
+	placeholder2 types.U8, certificate []byte) (*extrinsic.Extrinsic, error) {
+
+	call, err := ServeAxonCall(c, netuid, version, ip, port, ipType, protocol,
+		placeholder1, placeholder2, certificate)
+
+	if err != nil {
+		return nil, err
+	}
+
+	ext := extrinsic.NewExtrinsic(call)
+	return &ext, nil
+}
