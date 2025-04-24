@@ -4,7 +4,7 @@ on:
   push:
   pull_request:
     branches:
-      - "main"
+      - "master"
 
 jobs:
   build:
@@ -17,9 +17,13 @@ jobs:
           # Semantic version range syntax or exact version of Go
           go-version: '1.23.x'
           cache-dependency-path: subdir/go.sum
+      - name: Install Docker
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y docker-compose
       - name: Install dependencies
         run: |
-          go get .
+          go mod tidy
           go install gotest.tools/gotestsum@latest
       - name: Test Extrinsics
         run: gotestsum --format testname -- -v -p 10 -tags=integration ./...
