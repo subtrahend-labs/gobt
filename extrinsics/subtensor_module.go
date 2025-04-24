@@ -8,6 +8,13 @@ import (
 
 // #### Module: SubtensorModule (Index: 7)
 //     - [x] set_weights (Index: 0)
+//     - [x] serve_axon (Index: 4)
+//     - [x] serve_axon_tls (Index: 40)
+//     - [x] register_network (Index: 59)
+//     - [x] root_register (Index: 62)
+//     - [x] register (Index: 6)
+//     - [x] burned_register (Index: 7)
+
 //     - [ ] batch_set_weights (Index: 80)
 //     - [ ] commit_weights (Index: 96)
 //     - [ ] batch_commit_weights (Index: 100)
@@ -20,13 +27,7 @@ import (
 //     - [ ] increase_take (Index: 66)
 //     - [ ] add_stake (Index: 2)
 //     - [ ] remove_stake (Index: 3)
-//     - [ ] serve_axon (Index: 4)
-//     - [ ] serve_axon_tls (Index: 40)
 //     - [ ] serve_prometheus (Index: 5)
-
-//     - [ ] root_register (Index: 62)
-//     - [ ] register (Index: 6)
-//     - [ ] burned_register (Index: 7)
 
 //     - [ ] adjust_senate (Index: 63)
 //     - [ ] swap_hotkey (Index: 70)
@@ -38,7 +39,6 @@ import (
 //     - [ ] sudo (Index: 51)
 //     - [ ] sudo_unchecked_weight (Index: 52)
 //     - [ ] vote (Index: 55)
-//     - [x] register_network (Index: 59)
 //     - [ ] faucet (Index: 60)
 //     - [ ] dissolve_network (Index: 61)
 //     - [ ] set_children (Index: 67)
