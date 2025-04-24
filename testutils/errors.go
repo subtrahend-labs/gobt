@@ -3,6 +3,7 @@ package testutils
 import (
 	"encoding/binary"
 	"fmt"
+	"math"
 
 	"github.com/centrifuge/go-substrate-rpc-client/v4/registry"
 	"github.com/centrifuge/go-substrate-rpc-client/v4/registry/parser"
@@ -69,7 +70,12 @@ func ExtractDispatchError(
 							case uint8:
 								palletIndex = v
 							case uint64:
-								palletIndex = uint8(v)
+								if v > math.MaxUint8 {
+									return fmt.Errorf("pallet index %d exceeds maximum uint8 value", v)
+								} else {
+									palletIndex = uint8(v)
+								}
+
 							case types.U8:
 								palletIndex = uint8(v)
 							}
