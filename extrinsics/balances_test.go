@@ -14,6 +14,7 @@ import (
 )
 
 func TestBalanceModuleExtrinsics(t *testing.T) {
+
 	t.Parallel()
 	t.Run("TransferAllowDeath", func(t *testing.T) {
 		t.Parallel()
