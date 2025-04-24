@@ -76,7 +76,7 @@ This project is licensed under the MIT License.
 
 --- 
 
-## ⚠️ Disclaimer
+## ⚠️ Disclaimer {#disclaimer}
 
 **USE AT YOUR OWN RISK.** This library is provided “as-is,” with **no warranties** of any kind, express or implied, including but not limited to merchantability, fitness for a particular purpose, or non-infringement. The authors, contributors, and maintainers of this project **expressly disclaim all liability** for any direct, indirect, incidental, special, consequential, or punitive damages arising out of your use of, or inability to use, this software—even if advised of the possibility of such damages.  
 
