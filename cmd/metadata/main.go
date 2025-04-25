@@ -13,7 +13,7 @@ func main() {
 		log.Fatalf("Error creating client: %s", err)
 	}
 
-	info.LookupExtrinsicArgs(c.Meta, "AdminUtils", "sudo_set_network_rate_limit")
+	info.LookupExtrinsicArgs(c.Meta, "SubtensorModule", "commit_crv3_weights")
 	// info.PrintModulesAndCalls(c.Meta, nil)
 	// info.PrintExtensions(c.Meta, nil)
 	// info.PrintExtensionDetails(c.Meta, nil, "SubtensorSignedExtension")
