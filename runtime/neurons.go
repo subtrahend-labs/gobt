@@ -72,8 +72,7 @@ func GetNeurons(c *client.Client, netuid uint16, blockHash *types.Hash) ([]Neuro
 	}
 
 	if len(encodedResponse) == 0 {
-		fmt.Printf("No neurons found for netuid %d\n", netuid)
-		return []NeuronInfo{}, nil
+		return nil, fmt.Errorf("no neurons found for netuid %d", netuid)
 	}
 
 	var neurons []NeuronInfo

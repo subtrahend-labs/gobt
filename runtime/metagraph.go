@@ -2,6 +2,7 @@ package runtime
 
 import (
 	"fmt"
+
 	"github.com/centrifuge/go-substrate-rpc-client/v4/types"
 	"github.com/centrifuge/go-substrate-rpc-client/v4/types/codec"
 	"github.com/subtrahend-labs/gobt/client"
@@ -155,14 +156,7 @@ func GetMetagraph(c *client.Client, netuid uint16, blockHash *types.Hash) (*Meta
 	}
 
 	if len(encodedResponse) == 0 {
-		fmt.Printf("No metagraph found for netuid %d\n", netuid)
-		return nil, nil
-	}
-
-	// Debug information to help diagnose the issue
-	fmt.Printf("Received %d bytes of encoded data\n", len(encodedResponse))
-	if len(encodedResponse) > 10 {
-		fmt.Printf("First 10 bytes: %v\n", encodedResponse[:10])
+		return nil, fmt.Errorf("no metagraph found for netuid %d", netuid)
 	}
 
 	// Try to decode as a Vec<u8> first
