@@ -19,7 +19,9 @@ import (
 //     - [ ] commit_weights (Index: 96)
 //     - [ ] batch_commit_weights (Index: 100)
 //     - [ ] reveal_weights (Index: 97)
+
 //     - [ ] commit_crv3_weights (Index: 99)
+
 //     - [ ] batch_reveal_weights (Index: 98)
 //     - [ ] set_tao_weights (Index: 8)
 //     - [ ] become_delegate (Index: 1)
@@ -206,17 +208,8 @@ func RegisterNetworkExt(c *client.Client, hotkey types.AccountID) (*extrinsic.Ex
 
 func ServeAxonCall(c *client.Client, netuid types.U16, version types.U32, ip types.U128,
 	port types.U16, ipType types.U8, protocol types.U8, placeholder1 types.U8,
-	placeholder2 types.U8, certificate []byte) (types.Call, error) {
+	placeholder2 types.U8) (types.Call, error) {
 
-	// build a generic Option[Bytes]
-	//	var certOption types.Option[types.Bytes]
-	//	if len(certificate) > 0 {
-	//		// wrap raw []byte in the Bytes type, then in an Option
-	//		certOption = types.NewOption(types.NewBytes(certificate))
-	//	} else {
-	//		certOption = types.NewEmptyOption[types.Bytes]()
-	//	}
-	//
 	call, err := types.NewCall(
 		c.Meta,
 		"SubtensorModule.serve_axon",
@@ -239,10 +232,10 @@ func ServeAxonCall(c *client.Client, netuid types.U16, version types.U32, ip typ
 
 func ServeAxonExt(c *client.Client, netuid types.U16, version types.U32, ip types.U128,
 	port types.U16, ipType types.U8, protocol types.U8, placeholder1 types.U8,
-	placeholder2 types.U8, certificate []byte) (*extrinsic.Extrinsic, error) {
+	placeholder2 types.U8) (*extrinsic.Extrinsic, error) {
 
 	call, err := ServeAxonCall(c, netuid, version, ip, port, ipType, protocol,
-		placeholder1, placeholder2, certificate)
+		placeholder1, placeholder2)
 
 	if err != nil {
 		return nil, err
@@ -288,6 +281,31 @@ func ServeAxonTLSExt(c *client.Client, netuid types.U16, version types.U32, ip t
 		return nil, err
 	}
 
+	ext := extrinsic.NewExtrinsic(call)
+	return &ext, nil
+}
+
+func CommitCRV3WeightsCall(c *client.Client, netuid types.U16, commit types.Bytes, revealRound types.U64) (types.Call, error) {
+	call, err := types.NewCall(
+		c.Meta,
+		"SubtensorModule.commit_crv3_weights",
+		netuid,
+		commit,
+		revealRound,
+	)
+
+	if err != nil {
+		return types.Call{}, err
+	}
+
+	return call, nil
+}
+
+func CommitCRV3WeightsExt(c *client.Client, netuid types.U16, commit types.Bytes, revealRound types.U64) (*extrinsic.Extrinsic, error) {
+	call, err := CommitCRV3WeightsCall(c, netuid, commit, revealRound)
+	if err != nil {
+		return nil, err
+	}
 	ext := extrinsic.NewExtrinsic(call)
 	return &ext, nil
 }

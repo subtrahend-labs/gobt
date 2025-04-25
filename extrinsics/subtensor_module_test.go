@@ -87,9 +87,6 @@ func TestSubtensorModuleExtrinsics(t *testing.T) {
 		placeholder1 := types.NewU8(0)
 		placeholder2 := types.NewU8(0)
 
-		// Create an empty certificate for this test
-		certificate := []byte{}
-
 		// Create and submit the ServeAxon extrinsic
 		serveAxonExt, err := ServeAxonExt(
 			env.Client,
@@ -101,7 +98,6 @@ func TestSubtensorModuleExtrinsics(t *testing.T) {
 			protocol,
 			placeholder1,
 			placeholder2,
-			certificate,
 		)
 		require.NoError(t, err, "Failed to create serve_axon ext")
 
@@ -143,9 +139,6 @@ func TestSubtensorModuleExtrinsics(t *testing.T) {
 		placeholder1 := types.NewU8(0)
 		placeholder2 := types.NewU8(0)
 
-		// Create an empty certificate for this test
-		certificate := types.NewBytes([]byte("CERT"))
-
 		// Create and submit the ServeAxon extrinsic
 		serveAxonExt, err := ServeAxonExt(
 			env.Client,
@@ -157,7 +150,6 @@ func TestSubtensorModuleExtrinsics(t *testing.T) {
 			protocol,
 			placeholder1,
 			placeholder2,
-			certificate,
 		)
 		require.NoError(t, err, "Failed to create serve_axon ext")
 

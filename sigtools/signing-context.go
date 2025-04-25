@@ -20,7 +20,7 @@ func NewSigningContext(t *types.UCompact, n *types.UCompact) *SigningContext {
 
 func CreateSigningOptions(c *client.Client, keypair signature.KeyringPair, sc *SigningContext) ([]extrinsic.SigningOption, error) {
 	extrinsic.PayloadMutatorFns[extensions.SignedExtensionName("SubtensorSignedExtension")] = func(payload *extrinsic.Payload) {}
-	// extrinsic.PayloadMutatorFns[extensions.SignedExtensionName("CommitmentsSignedExtension")] = func(payload *extrinsic.Payload) {}
+	extrinsic.PayloadMutatorFns[extensions.SignedExtensionName("CommitmentsSignedExtension")] = func(payload *extrinsic.Payload) {}
 	var options []extrinsic.SigningOption
 
 	// tip
