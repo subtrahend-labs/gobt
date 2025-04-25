@@ -20,7 +20,7 @@ func TestAdminUtilsModuleExtrinsics(t *testing.T) {
 		rateLimit := types.NewU64(1000)
 		sudoCall, err := SudoSetNetworkRateLimitCall(env.Client, rateLimit)
 		require.NoError(t, err, "Failed to create sudo_set_network_rate_limit ext")
-		ext, err := NewSudoExt(env.Client, &sudoCall)
+		ext, _ := NewSudoExt(env.Client, &sudoCall)
 		testutils.SignAndSubmit(t, env.Client, ext, env.Alice.Coldkey.Keypair, uint32(env.Alice.Coldkey.AccInfo.Nonce))
 		updateUserInfo(t, &env.Alice, env, false)
 	})
