@@ -25,10 +25,12 @@ func main() {
 		log.Fatalf("Error creating client: %s", err)
 	}
 
-	res, err := storage.GetSubnetTaoInEmission(client, types.NewU16(4), nil)
+	res, err := storage.GetValidatorPermits(client, types.NewU16(4), nil)
 	if err != nil {
 		log.Fatal(err.Error())
 	}
 
-	fmt.Printf("%v\n", *res)
+	for i, v := range *res {
+		fmt.Printf("%d: %v\n", i, v)
+	}
 }

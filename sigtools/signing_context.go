@@ -38,7 +38,7 @@ func CreateSigningOptions(c *client.Client, keypair signature.KeyringPair, sc *S
 			extrinsic.WithNonce(*sc.Nonce),
 		)
 	} else {
-		s, err := storage.GetAccountInfo(c, keypair.PublicKey)
+		s, err := storage.GetAccountInfo(c, keypair.PublicKey, nil)
 		if err != nil {
 			return nil, err
 		}

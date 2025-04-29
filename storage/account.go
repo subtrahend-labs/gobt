@@ -20,7 +20,7 @@ type AccountInfo struct {
 	}
 }
 
-func GetAccountInfo(c *client.Client, accountID []byte) (*AccountInfo, error) {
+func GetAccountInfo(c *client.Client, accountID []byte, block *types.Hash) (*AccountInfo, error) {
 	meta, err := c.Api.RPC.State.GetMetadataLatest()
 	if err != nil {
 		return nil, fmt.Errorf("failed to get metadata: %v", err)
@@ -31,15 +31,11 @@ func GetAccountInfo(c *client.Client, accountID []byte) (*AccountInfo, error) {
 		return nil, fmt.Errorf("failed to create storage key: %v", err)
 	}
 
-	var accountInfo AccountInfo
-	ok, err := c.Api.RPC.State.GetStorageLatest(storageKey, &accountInfo)
+	var res AccountInfo
+	err = getStorageOptionalBlock(c, storageKey, &res, block)
 	if err != nil {
-		return nil, fmt.Errorf("failed to get storage: %v", err)
+		return nil, err
 	}
 
-	if !ok {
-		return nil, fmt.Errorf("no account found")
-	}
-
-	return &accountInfo, nil
+	return &res, nil
 }

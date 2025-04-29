@@ -21,20 +21,32 @@ func GetSubnetTaoInEmission(c *client.Client, netuid types.U16, block *types.Has
 		return nil, fmt.Errorf("failed to create storage key: %v", err)
 	}
 
-	var emission types.U64
-	var ok bool
-	if block == nil {
-		ok, err = c.Api.RPC.State.GetStorageLatest(storageKey, &emission)
-	} else {
-		ok, err = c.Api.RPC.State.GetStorage(storageKey, &emission, *block)
-	}
+	var res types.U64
+	err = getStorageOptionalBlock(c, storageKey, &res, block)
 	if err != nil {
-		return nil, fmt.Errorf("failed to get storage: %v", err)
+		return nil, err
 	}
 
-	if !ok {
-		return nil, fmt.Errorf("storage not found")
+	return &res, nil
+}
+
+// Validator permits per uid
+func GetValidatorPermits(c *client.Client, netuid types.U16, block *types.Hash) (*[]types.Bool, error) {
+	meta, err := c.Api.RPC.State.GetMetadataLatest()
+	if err != nil {
+		return nil, fmt.Errorf("failed to get metadata: %v", err)
 	}
 
-	return &emission, nil
+	storageKey, err := types.CreateStorageKey(meta, "SubtensorModule", "ValidatorPermit", typetools.Uint16ToBytes(uint16(netuid)))
+	if err != nil {
+		return nil, fmt.Errorf("failed to create storage key: %v", err)
+	}
+
+	var res []types.Bool
+	err = getStorageOptionalBlock(c, storageKey, &res, block)
+	if err != nil {
+		return nil, err
+	}
+
+	return &res, nil
 }

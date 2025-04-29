@@ -34,7 +34,7 @@ func setup(t *testing.T) *testutils.TestEnv {
 	require.NoError(t, err, "Failed to get Alice coldkey account ID")
 	aliceColdAddress, err := types.NewMultiAddressFromAccountID(keyringAliceCold.PublicKey)
 	require.NoError(t, err, "Failed to create Alice coldkey multi address")
-	aliceColdInfo, err := storage.GetAccountInfo(env.Client, keyringAliceCold.PublicKey)
+	aliceColdInfo, err := storage.GetAccountInfo(env.Client, keyringAliceCold.PublicKey, nil)
 	require.NoError(t, err, "Failed to get Alice coldkey account info")
 
 	// Alice hotkey setup
@@ -70,7 +70,7 @@ func setup(t *testing.T) *testutils.TestEnv {
 	require.NoError(t, err, "Failed to create Bob coldkey account ID")
 	bobColdAddress, err := types.NewMultiAddressFromAccountID(keyringBobCold.PublicKey)
 	require.NoError(t, err, "Failed to create Bob coldkey multi address")
-	bobColdInfo, err := storage.GetAccountInfo(env.Client, keyringBobCold.PublicKey)
+	bobColdInfo, err := storage.GetAccountInfo(env.Client, keyringBobCold.PublicKey, nil)
 	require.NoError(t, err, "Failed to get Bob coldkey balance")
 
 	// bob hotkey setup
@@ -106,7 +106,7 @@ func setup(t *testing.T) *testutils.TestEnv {
 	require.NoError(t, err, "Failed to create Charlie coldkey account ID")
 	charlieColdAddress, err := types.NewMultiAddressFromAccountID(keyringCharlieCold.PublicKey)
 	require.NoError(t, err, "Failed to create Charlie coldkey multi address")
-	charlieColdInfo, err := storage.GetAccountInfo(env.Client, keyringCharlieCold.PublicKey)
+	charlieColdInfo, err := storage.GetAccountInfo(env.Client, keyringCharlieCold.PublicKey, nil)
 	require.NoError(t, err, "Failed to get Charlie coldkey balance")
 
 	// charlie hotkey setup
@@ -152,11 +152,11 @@ func setupSubnet(t *testing.T, env *testutils.TestEnv) {
 }
 
 func updateUserInfo(t *testing.T, u *testutils.User, env *testutils.TestEnv, doHot bool) {
-	infoCold, err := storage.GetAccountInfo(env.Client, u.Coldkey.Keypair.PublicKey)
+	infoCold, err := storage.GetAccountInfo(env.Client, u.Coldkey.Keypair.PublicKey, nil)
 	require.NoError(t, err, "Failed to get %s coldkey balance", u.Username)
 	u.Coldkey.AccInfo = infoCold
 	if doHot {
-		infoHot, err := storage.GetAccountInfo(env.Client, u.Hotkey.Keypair.PublicKey)
+		infoHot, err := storage.GetAccountInfo(env.Client, u.Hotkey.Keypair.PublicKey, nil)
 		require.NoError(t, err, "Failed to get %s hotkey balance", u.Username)
 		u.Hotkey.AccInfo = infoHot
 	}
