@@ -20,7 +20,7 @@ func TestAdminUtilsModuleExtrinsics(t *testing.T) {
 		msg := []byte("Hello World")
 		headers, _ := boilerplate.GetEpistulaHeaders(alice, bob.Address, msg)
 		res := boilerplate.VerifyEpistulaHeaders(
-			bob,
+			bob.Address,
 			headers["Epistula-Request-Signature"],
 			msg,
 			headers["Epistula-Timestamp"],
@@ -33,7 +33,7 @@ func TestAdminUtilsModuleExtrinsics(t *testing.T) {
 		}
 		msg = []byte("Hello-World")
 		res = boilerplate.VerifyEpistulaHeaders(
-			bob,
+			bob.Address,
 			headers["Epistula-Request-Signature"],
 			msg,
 			headers["Epistula-Timestamp"],

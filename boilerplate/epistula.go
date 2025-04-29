@@ -90,7 +90,7 @@ func VerfySignature(signed_by string, msg []byte, sig []byte) bool {
 	return true
 }
 
-func VerifyEpistulaHeaders(kp signature.KeyringPair, sig string, body []byte, timestamp, uuid, signed_for, signed_by string) error {
+func VerifyEpistulaHeaders(self_ss58 string, sig string, body []byte, timestamp, uuid, signed_for, signed_by string) error {
 	i, err := strconv.ParseInt(timestamp, 10, 64)
 	if err != nil {
 		panic(err)
@@ -110,7 +110,7 @@ func VerifyEpistulaHeaders(kp signature.KeyringPair, sig string, body []byte, ti
 	if err != nil {
 		return errors.New("failed decoding hex string")
 	}
-	message := fmt.Sprintf("%s.%s.%s.%s", bodyHash, uuid, timestamp, kp.Address)
+	message := fmt.Sprintf("%s.%s.%s.%s", bodyHash, uuid, timestamp, self_ss58)
 
 	ok = VerfySignature(signed_by, []byte(message), bytes)
 	if !ok {
