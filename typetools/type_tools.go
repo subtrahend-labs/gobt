@@ -8,4 +8,3 @@ func Uint16ToBytes(n uint16) []byte {
 	binary.LittleEndian.PutUint16(b, n)
 	return b
 }
-
