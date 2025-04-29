@@ -57,7 +57,7 @@ func main() {
 		log.Fatalf("Error creating client: %s", err)
 	}
 
-	recipientInfo, err := storage.GetAccountInfo(c, recipient.AsID.ToBytes())
+	recipientInfo, err := storage.GetAccountInfo(c, recipient.AsID.ToBytes(), nil)
 	if err != nil {
 		log.Fatalf("Error getting storage: %s", err)
 	}
@@ -97,7 +97,7 @@ func main() {
 	fmt.Println("Extrinsic submitted")
 	time.Sleep(12 * time.Second)
 
-	recipientInfo, err = storage.GetAccountInfo(c, recipient.AsID.ToBytes())
+	recipientInfo, err = storage.GetAccountInfo(c, recipient.AsID.ToBytes(), nil)
 	if err != nil {
 		log.Fatalf("Error getting account info: %s", err)
 	}
