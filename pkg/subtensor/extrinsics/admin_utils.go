@@ -26,3 +26,25 @@ func SudoSetNetworkRateLimitExt(c *client.Client, rateLimit types.U64) (*extrins
 	ext := extrinsic.NewExtrinsic(call)
 	return &ext, nil
 }
+
+func SudoSetCommitRevealWeightsEnabledCall(c *client.Client, netuid types.U16, enabled bool) (types.Call, error) {
+	call, err := types.NewCall(
+		c.Meta,
+		"AdminUtils.sudo_set_commit_reveal_weights_enabled",
+		netuid,
+		enabled,
+	)
+	if err != nil {
+		return types.Call{}, err
+	}
+	return call, nil
+}
+
+func SudoSetCommitRevealWeightsEnabledExt(c *client.Client, netuid types.U16, enabled bool) (*extrinsic.Extrinsic, error) {
+	call, err := SudoSetCommitRevealWeightsEnabledCall(c, netuid, enabled)
+	if err != nil {
+		return nil, err
+	}
+	ext := extrinsic.NewExtrinsic(call)
+	return &ext, nil
+}

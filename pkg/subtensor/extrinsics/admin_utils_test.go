@@ -24,4 +24,19 @@ func TestAdminUtilsModuleExtrinsics(t *testing.T) {
 		testutils.SignAndSubmit(t, env.Client, ext, env.Alice.Coldkey.Keypair, uint32(env.Alice.Coldkey.AccInfo.Nonce))
 		updateUserInfo(t, &env.Alice, env, false)
 	})
+
+	t.Run("SudoSetCommitRevealWeightsEnabled", func(t *testing.T) {
+		t.Parallel()
+		env := setup(t)
+		setupSubnet(t, env)
+
+		netuid := types.NewU16(1)
+		enabled := true
+		sudoCall, err := SudoSetCommitRevealWeightsEnabledCall(env.Client, netuid, enabled)
+		require.NoError(t, err, "Failed to create sudo_set_commit_reveal_weights_enabled ext")
+		ext, err := NewSudoExt(env.Client, &sudoCall)
+		require.NoError(t, err, "Failed to create sudo ext")
+		testutils.SignAndSubmit(t, env.Client, ext, env.Alice.Coldkey.Keypair, uint32(env.Alice.Coldkey.AccInfo.Nonce))
+		updateUserInfo(t, &env.Alice, env, false)
+	})
 }

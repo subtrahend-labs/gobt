@@ -180,6 +180,13 @@ func TestSubtensorModuleExtrinsics(t *testing.T) {
 		testutils.SignAndSubmit(t, env.Client, ext, env.Bob.Coldkey.Keypair, uint32(env.Bob.Coldkey.AccInfo.Nonce))
 		updateUserInfo(t, &env.Bob, env, false)
 
+		call, err := SudoSetCommitRevealWeightsEnabledCall(env.Client, netuidU16, true)
+		require.NoError(t, err)
+		sudoExt, err := NewSudoExt(env.Client, &call)
+		require.NoError(t, err)
+		testutils.SignAndSubmit(t, env.Client, sudoExt, env.Alice.Coldkey.Keypair, uint32(env.Alice.Coldkey.AccInfo.Nonce))
+		updateUserInfo(t, &env.Alice, env, false)
+
 		// 1) get current block number
 		blockHash, err := env.Client.Api.RPC.Chain.GetBlockHashLatest()
 		require.NoError(t, err)
@@ -224,7 +231,7 @@ func TestSubtensorModuleExtrinsics(t *testing.T) {
 		// 6) submit the commit_crv3_weights extrinsic
 		commitExt, err := CommitCRV3WeightsExt(env.Client, netuidU16, types.Bytes(commitBytes), types.NewU64(revealRound))
 		require.NoError(t, err)
-		testutils.SignAndSubmit(t, env.Client, commitExt, env.Bob.Coldkey.Keypair, uint32(env.Bob.Coldkey.AccInfo.Nonce))
+		testutils.SignAndSubmit(t, env.Client, commitExt, env.Bob.Hotkey.Keypair, uint32(0))
 		updateUserInfo(t, &env.Bob, env, false)
 	})
 
