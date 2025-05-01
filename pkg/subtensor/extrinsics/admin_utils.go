@@ -48,3 +48,25 @@ func SudoSetCommitRevealWeightsEnabledExt(c *client.Client, netuid types.U16, en
 	ext := extrinsic.NewExtrinsic(call)
 	return &ext, nil
 }
+
+func SudoSetWeightsSetRateLimitCall(c *client.Client, netuid types.U16, weights_set_rate_limit types.U64) (types.Call, error) {
+	call, err := types.NewCall(
+		c.Meta,
+		"AdminUtils.sudo_set_weights_set_rate_limit",
+		netuid,
+		weights_set_rate_limit,
+	)
+	if err != nil {
+		return types.Call{}, err
+	}
+	return call, nil
+}
+
+func SudoSetWeightsSetRateLimitExt(c *client.Client, netuid types.U16, weights_set_rate_limit types.U64) (*extrinsic.Extrinsic, error) {
+	call, err := SudoSetWeightsSetRateLimitCall(c, netuid, weights_set_rate_limit)
+	if err != nil {
+		return nil, err
+	}
+	ext := extrinsic.NewExtrinsic(call)
+	return &ext, nil
+}

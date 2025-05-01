@@ -187,6 +187,13 @@ func TestSubtensorModuleExtrinsics(t *testing.T) {
 		testutils.SignAndSubmit(t, env.Client, sudoExt, env.Alice.Coldkey.Keypair, uint32(env.Alice.Coldkey.AccInfo.Nonce))
 		updateUserInfo(t, &env.Alice, env, false)
 
+		call, err = SudoSetWeightsSetRateLimitCall(env.Client, netuidU16, types.NewU64(0))
+		require.NoError(t, err)
+		sudoExt, err = NewSudoExt(env.Client, &call)
+		require.NoError(t, err)
+		testutils.SignAndSubmit(t, env.Client, sudoExt, env.Alice.Coldkey.Keypair, uint32(env.Alice.Coldkey.AccInfo.Nonce))
+		updateUserInfo(t, &env.Alice, env, false)
+
 		// 1) get current block number
 		blockHash, err := env.Client.Api.RPC.Chain.GetBlockHashLatest()
 		require.NoError(t, err)
