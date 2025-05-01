@@ -10,10 +10,10 @@ import (
 	"github.com/centrifuge/go-substrate-rpc-client/v4/signature"
 	"github.com/centrifuge/go-substrate-rpc-client/v4/types"
 	"github.com/joho/godotenv"
-	"github.com/subtrahend-labs/gobt/client"
-	"github.com/subtrahend-labs/gobt/extrinsics"
-	"github.com/subtrahend-labs/gobt/sigtools"
-	"github.com/subtrahend-labs/gobt/storage"
+	"github.com/subtrahend-labs/gobt/pkg/client"
+	"github.com/subtrahend-labs/gobt/pkg/subtensor/extrinsics"
+	"github.com/subtrahend-labs/gobt/pkg/subtensor/sigtools"
+	"github.com/subtrahend-labs/gobt/pkg/subtensor/storage"
 	"github.com/vedhavyas/go-subkey/v2"
 )
 

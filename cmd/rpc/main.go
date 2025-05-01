@@ -7,8 +7,8 @@ import (
 
 	"github.com/centrifuge/go-substrate-rpc-client/v4/types"
 	"github.com/joho/godotenv"
-	"github.com/subtrahend-labs/gobt/client"
-	"github.com/subtrahend-labs/gobt/runtime"
+	"github.com/subtrahend-labs/gobt/pkg/client"
+	"github.com/subtrahend-labs/gobt/pkg/subtensor/runtime"
 )
 
 func main() {
@@ -30,8 +30,8 @@ func main() {
 	}
 
 	netuid := 4
-	// getNeurons(client, uint16(netuid), &blockHash)
-	// getMetagraph(client, uint16(netuid), &blockHash)
+	getNeurons(client, uint16(netuid), &blockHash)
+	getMetagraph(client, uint16(netuid), &blockHash)
 	getHyperparams(client, uint16(netuid), &blockHash)
 }
 

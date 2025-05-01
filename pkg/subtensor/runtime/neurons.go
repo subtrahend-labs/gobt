@@ -5,7 +5,7 @@ import (
 
 	"github.com/centrifuge/go-substrate-rpc-client/v4/types"
 	"github.com/centrifuge/go-substrate-rpc-client/v4/types/codec"
-	"github.com/subtrahend-labs/gobt/client"
+	"github.com/subtrahend-labs/gobt/pkg/client"
 )
 
 type AxonInfo struct {

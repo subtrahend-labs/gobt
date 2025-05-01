@@ -5,40 +5,8 @@ import (
 
 	"github.com/centrifuge/go-substrate-rpc-client/v4/types"
 	"github.com/centrifuge/go-substrate-rpc-client/v4/types/codec"
-	"github.com/subtrahend-labs/gobt/client"
+	"github.com/subtrahend-labs/gobt/pkg/client"
 )
-
-// #[freeze_struct("7b506df55bd44646")]
-// #[derive(Decode, Encode, PartialEq, Eq, Clone, Debug, TypeInfo)]
-// pub struct SubnetHyperparams {
-//     rho: Compact<u16>,
-//     kappa: Compact<u16>,
-//     immunity_period: Compact<u16>,
-//     min_allowed_weights: Compact<u16>,
-//     max_weights_limit: Compact<u16>,
-//     tempo: Compact<u16>,
-//     min_difficulty: Compact<u64>,
-//     max_difficulty: Compact<u64>,
-//     weights_version: Compact<u64>,
-//     weights_rate_limit: Compact<u64>,
-//     adjustment_interval: Compact<u16>,
-//     activity_cutoff: Compact<u16>,
-//     pub registration_allowed: bool,
-//     target_regs_per_interval: Compact<u16>,
-//     min_burn: Compact<u64>,
-//     max_burn: Compact<u64>,
-//     bonds_moving_avg: Compact<u64>,
-//     max_regs_per_block: Compact<u16>,
-//     serving_rate_limit: Compact<u64>,
-//     max_validators: Compact<u16>,
-//     adjustment_alpha: Compact<u64>,
-//     difficulty: Compact<u64>,
-//     commit_reveal_period: Compact<u64>,
-//     commit_reveal_weights_enabled: bool,
-//     alpha_high: Compact<u16>,
-//     alpha_low: Compact<u16>,
-//     liquid_alpha_enabled: bool,
-// }
 
 type Hyperparameters struct {
 	Rho                        types.UCompact // Compact<u16>

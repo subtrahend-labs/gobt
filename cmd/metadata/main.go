@@ -3,8 +3,8 @@ package main
 import (
 	"log"
 
-	"github.com/subtrahend-labs/gobt/client"
 	"github.com/subtrahend-labs/gobt/internal/info"
+	"github.com/subtrahend-labs/gobt/pkg/client"
 )
 
 func main() {

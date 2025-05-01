@@ -3,7 +3,7 @@ package extrinsics
 import (
 	"github.com/centrifuge/go-substrate-rpc-client/v4/types"
 	"github.com/centrifuge/go-substrate-rpc-client/v4/types/extrinsic"
-	"github.com/subtrahend-labs/gobt/client"
+	"github.com/subtrahend-labs/gobt/pkg/client"
 )
 
 func NewSudoCall(c *client.Client, ext *types.Call) (types.Call, error) {

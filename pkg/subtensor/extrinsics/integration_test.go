@@ -12,7 +12,7 @@ import (
 	"github.com/centrifuge/go-substrate-rpc-client/v4/types"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	"github.com/subtrahend-labs/gobt/storage"
+	"github.com/subtrahend-labs/gobt/pkg/subtensor/storage"
 	"github.com/subtrahend-labs/gobt/testutils"
 )
 

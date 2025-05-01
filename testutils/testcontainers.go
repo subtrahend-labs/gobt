@@ -2,7 +2,6 @@ package testutils
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"sync"
 	"testing"
@@ -16,9 +15,9 @@ import (
 	"github.com/centrifuge/go-substrate-rpc-client/v4/types/extrinsic/extensions"
 	"github.com/docker/go-connections/nat"
 	"github.com/stretchr/testify/require"
-	"github.com/subtrahend-labs/gobt/client"
-	"github.com/subtrahend-labs/gobt/sigtools"
-	"github.com/subtrahend-labs/gobt/storage"
+	"github.com/subtrahend-labs/gobt/pkg/client"
+	"github.com/subtrahend-labs/gobt/pkg/subtensor/sigtools"
+	"github.com/subtrahend-labs/gobt/pkg/subtensor/storage"
 	"github.com/testcontainers/testcontainers-go"
 	"github.com/testcontainers/testcontainers-go/wait"
 )
@@ -56,15 +55,17 @@ var (
 )
 
 func Setup() (*TestEnv, error) {
-	err := errors.New("failed setup")
+	var lastErr error
 	for i := 0; i < 10; i++ {
-		v, err := setup()
-		if err != nil {
-			continue
+		env, err := setup()
+		if err == nil {
+			return env, nil
 		}
-		return v, nil
+		lastErr = err
+		// log each attempt’s error so you can see why it failed
+		fmt.Printf("testutils.Setup attempt %d/10 failed: %v", i+1, err)
 	}
-	return nil, err
+	return nil, fmt.Errorf("testutils.Setup failed after 10 attempts: %w", lastErr)
 }
 
 func setup() (*TestEnv, error) {
@@ -76,8 +77,9 @@ func setup() (*TestEnv, error) {
 	nodePort := fmt.Sprintf("%d", startPort)
 	mu.Unlock()
 	req := testcontainers.ContainerRequest{
-		Image:        "manifoldlabs/subtensor:fast-blocks",
-		ExposedPorts: []string{nodePort + ":9944"},
+		Image:           "manifoldlabs/subtensor:fast-blocks",
+		AlwaysPullImage: true,
+		ExposedPorts:    []string{nodePort + ":9944"},
 		Cmd: []string{
 			"/bin/bash",
 			"-c",

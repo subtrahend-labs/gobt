@@ -1,9 +1,8 @@
-// crv3.go
 package extrinsics
 
 /*
-#cgo CFLAGS: -I${SRCDIR}/../third_party/bittensor-drand
-#cgo LDFLAGS: -L${SRCDIR}/../third_party/bittensor-drand/target/release -lbittensor_drand -ldl
+#cgo CFLAGS: -I${SRCDIR}/../../../third_party/bittensor-drand
+#cgo LDFLAGS: -L${SRCDIR}/../../../third_party/bittensor-drand/target/release -lbittensor_drand -ldl
 #include "bindings.h"
 */
 import "C"

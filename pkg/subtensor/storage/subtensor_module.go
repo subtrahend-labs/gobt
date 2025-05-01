@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	"github.com/centrifuge/go-substrate-rpc-client/v4/types"
-	"github.com/subtrahend-labs/gobt/client"
+	"github.com/subtrahend-labs/gobt/pkg/client"
 	"github.com/subtrahend-labs/gobt/typetools"
 )
 
