@@ -285,7 +285,7 @@ func ServeAxonTLSExt(c *client.Client, netuid types.U16, version types.U32, ip t
 	return &ext, nil
 }
 
-func CommitCRV4WeightsCall(c *client.Client, netuid types.U16, commit types.Bytes, revealRound types.U64) (types.Call, error) {
+func CommitCRV3WeightsCall(c *client.Client, netuid types.U16, commit types.Bytes, revealRound types.U64) (types.Call, error) {
 	call, err := types.NewCall(
 		c.Meta,
 		"SubtensorModule.commit_crv3_weights",

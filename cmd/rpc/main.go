@@ -30,8 +30,24 @@ func main() {
 	}
 
 	netuid := 4
-	getNeurons(client, uint16(netuid), &blockHash)
-	getMetagraph(client, uint16(netuid), &blockHash)
+	// getNeurons(client, uint16(netuid), &blockHash)
+	// getMetagraph(client, uint16(netuid), &blockHash)
+	getHyperparams(client, uint16(netuid), &blockHash)
+}
+
+func getHyperparams(c *client.Client, netuid uint16, blockHash *types.Hash) {
+	fmt.Printf("\nTesting netuid %d:\n", netuid)
+	hypeParams, err := runtime.GetHyperparameters(c, uint16(netuid), blockHash)
+	if err != nil {
+		log.Printf("Error fetching metagraph for netuid %d: %s", netuid, err)
+	}
+
+	if hypeParams == nil {
+		fmt.Printf("No metagraph found for netuid %d\n", netuid)
+		return
+	}
+
+	fmt.Printf("%+v\n", hypeParams)
 }
 
 func getMetagraph(c *client.Client, netuid uint16, blockHash *types.Hash) {
