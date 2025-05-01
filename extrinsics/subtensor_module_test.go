@@ -166,4 +166,88 @@ func TestSubtensorModuleExtrinsics(t *testing.T) {
 		updateUserInfo(t, &env.Bob, env, false)
 	})
 
+	t.Run("CommitCRV3Weights", func(t *testing.T) {
+		t.Parallel()
+		env := setup(t)
+		setupSubnet(t, env)
+		netuid := types.NewU16(1)
+
+		ext, err := RootRegisterExt(env.Client, *env.Bob.Hotkey.AccID)
+		require.NoError(t, err)
+		testutils.SignAndSubmit(t, env.Client, ext, env.Bob.Coldkey.Keypair, uint32(env.Bob.Coldkey.AccInfo.Nonce))
+		updateUserInfo(t, &env.Bob, env, false)
+
+		ext, err = BurnedRegisterExt(env.Client, *env.Bob.Hotkey.AccID, netuid)
+		require.NoError(t, err)
+		testutils.SignAndSubmit(t, env.Client, ext, env.Bob.Coldkey.Keypair, uint32(env.Bob.Coldkey.AccInfo.Nonce))
+		updateUserInfo(t, &env.Bob, env, false)
+
+		// 3) pick a trivial self‐weight to commit & reveal
+		uids := []types.U16{types.NewU16(1)}
+		weights := []types.U16{types.NewU16(1)}
+
+		// convert to raw uint16 slices for the FFI
+		uidsRaw := make([]uint16, len(uids))
+		valsRaw := make([]uint16, len(weights))
+		for i := range uids {
+			uidsRaw[i] = uint16(uids[i])
+			valsRaw[i] = uint16(weights[i])
+		}
+
+		// 4) grab on‐chain params
+		currentBlock, err := env.Client.GetBlockNumber()
+		require.NoError(t, err)
+
+		// these must match your network’s hyperparams;
+		// adjust or fetch them programmatically if they differ
+		versionKey := uint64(env.VersionKey)
+		tempo := uint64(1)
+		revealEpochs := uint64(1)
+		blockTime := float64(6)
+
+		// 5) call into Rust to get the encrypted commit + reveal round
+		commitBytes, revealRound, err := GenerateCommit(
+			uidsRaw, valsRaw,
+			versionKey,
+			tempo,
+			currentBlock,
+			uint16(netuid),
+			revealEpochs,
+			blockTime,
+		)
+		require.NoError(t, err)
+		require.NotEmpty(t, commitBytes, "encrypted commit should not be empty")
+		require.Greater(t, revealRound, currentBlock, "reveal round must be in the future")
+
+		// 6) submit the commit_crv3_weights extrinsic
+		commitExt, err := CommitCRV3WeightsExt(env.Client, netuid, types.Bytes(commitBytes), types.NewU64(revealRound))
+		require.NoError(t, err)
+		testutils.SignAndSubmit(t, env.Client, commitExt, env.Bob.Coldkey.Keypair, uint32(env.Bob.Coldkey.AccInfo.Nonce))
+		updateUserInfo(t, &env.Bob, env, false)
+
+		// 7) wait until we reach the reveal round
+		for i := 0; i < 20; i++ {
+			blk, err := env.Client.GetBlockNumber()
+			require.NoError(t, err)
+			if blk >= revealRound {
+				break
+			}
+			time.Sleep(6 * time.Second)
+		}
+
+		// 8) submit the reveal_weights extrinsic
+		revealExt, err := RevealWeightsExt(
+			env.Client,
+			netuid,
+			uids,
+			weights,
+			types.NewU64(versionKey),
+			types.NewU64(revealRound),
+		)
+		require.NoError(t, err)
+		testutils.SignAndSubmit(t, env.Client, revealExt, env.Bob.Coldkey.Keypair, uint32(env.Bob.Coldkey.AccInfo.Nonce))
+		updateUserInfo(t, &env.Bob, env, false)
+
+	})
+
 }
