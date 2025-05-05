@@ -35,7 +35,7 @@ func CreateSigningOptions(c *client.Client, keypair signature.KeyringPair, sc *S
 	)
 
 	// Nonce
-	nonce := types.NewUCompact(big.NewInt(1))
+	nonce := types.NewUCompact(big.NewInt(0))
 	if sc != nil && sc.Nonce != nil {
 		nonce = *sc.Nonce
 	} else if s, err := storage.GetAccountInfo(c, keypair.PublicKey, nil); err == nil {
