@@ -8,7 +8,7 @@ import (
 	"github.com/subtrahend-labs/gobt/typetools"
 )
 
-// Returns sn tao emission percentage * 1e7
+// Returns sn tao emission percentage * 1e9
 // block is optional, but more performant if already subscribed to chain
 func GetSubnetTaoInEmission(c *client.Client, netuid types.U16, block *types.Hash) (*types.U64, error) {
 	meta, err := c.Api.RPC.State.GetMetadataLatest()

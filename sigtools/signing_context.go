@@ -1,6 +1,8 @@
 package sigtools
 
 import (
+	"math/big"
+
 	"github.com/centrifuge/go-substrate-rpc-client/v4/signature"
 	"github.com/centrifuge/go-substrate-rpc-client/v4/types"
 	"github.com/centrifuge/go-substrate-rpc-client/v4/types/extrinsic"
@@ -33,19 +35,17 @@ func CreateSigningOptions(c *client.Client, keypair signature.KeyringPair, sc *S
 	)
 
 	// Nonce
+	nonce := types.NewUCompact(big.NewInt(1))
 	if sc != nil && sc.Nonce != nil {
-		options = append(options,
-			extrinsic.WithNonce(*sc.Nonce),
-		)
-	} else {
-		s, err := storage.GetAccountInfo(c, keypair.PublicKey, nil)
-		if err != nil {
-			return nil, err
-		}
+		nonce = *sc.Nonce
+	} else if s, err := storage.GetAccountInfo(c, keypair.PublicKey, nil); err == nil {
 		options = append(options,
 			extrinsic.WithNonce(types.NewUCompactFromUInt(uint64(s.Nonce))),
 		)
 	}
+	options = append(options,
+		extrinsic.WithNonce(nonce),
+	)
 
 	// Spec & transaction Version
 	rv, err := c.Api.RPC.State.GetRuntimeVersionLatest()
