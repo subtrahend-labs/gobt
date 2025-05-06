@@ -1,6 +1,7 @@
 package runtime
 
 import (
+	"errors"
 	"fmt"
 
 	"github.com/centrifuge/go-substrate-rpc-client/v4/types"
@@ -101,11 +102,14 @@ func GetNeuron(c *client.Client, netuid uint16, uid uint16, blockHash *types.Has
 		return nil, fmt.Errorf("no neurons found for netuid %d", netuid)
 	}
 
-	var neuron NeuronInfo
+	var neuron types.Option[NeuronInfo]
 	err = codec.Decode(encodedResponse, &neuron)
 	if err != nil {
 		return nil, fmt.Errorf("failed to decode neurons: %v", err)
 	}
-
-	return &neuron, nil
+	ok, n := neuron.Unwrap()
+	if ok {
+		return &n, nil
+	}
+	return nil, errors.New("no neuron found")
 }
