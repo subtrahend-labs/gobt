@@ -83,3 +83,29 @@ func GetNeurons(c *client.Client, netuid uint16, blockHash *types.Hash) ([]Neuro
 
 	return neurons, nil
 }
+
+func GetNeuron(c *client.Client, netuid uint16, uid uint16, blockHash *types.Hash) (*NeuronInfo, error) {
+	var encodedResponse []byte
+	err := c.Api.Client.Call(
+		&encodedResponse,
+		"neuronInfo_getNeuron",
+		netuid,
+		uid,
+		*blockHash,
+	)
+	if err != nil {
+		return nil, fmt.Errorf("failed to call neuronInfo_getNeurons: %v", err)
+	}
+
+	if len(encodedResponse) == 0 {
+		return nil, fmt.Errorf("no neurons found for netuid %d", netuid)
+	}
+
+	var neuron NeuronInfo
+	err = codec.Decode(encodedResponse, &neuron)
+	if err != nil {
+		return nil, fmt.Errorf("failed to decode neurons: %v", err)
+	}
+
+	return &neuron, nil
+}
