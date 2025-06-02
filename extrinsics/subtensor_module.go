@@ -69,6 +69,26 @@ type SubnetIdentityV2 struct {
 	Additional    types.Bytes
 }
 
+// writing code for add stake here (first time)
+// do i need comments for future reference? 
+func AddStakeCall(c *client.Client, hotkey types.AccountID, netuid types.U16, amount_staked types.U64, limit_price types.U64, allow_partial types.Bool) (types.Call, error) {
+	call, err := types.NewCall(c.Meta, "SubtensorModule.add_stake", hotkey, netuid, amount_staked, limit_price, allow_partial)
+	if err != nil {
+		return types.Call{}, err
+	}
+	return call, nil
+}
+
+func AddStakeExt(c *client.Client, hotkey types.AccountID, netuid types.U16, amount_staked types.U64, limit_price types.U64, allow_partial types.Bool) (*extrinsic.Extrinsic, error) {
+	call, err := AddStakeCall(c, hotkey, netuid, amount_staked, limit_price, allow_partial)
+	if err != nil {
+		return nil, err
+	}
+	ext := extrinsic.NewExtrinsic(call)
+	return &ext, nil
+}
+
+// original code here below
 func AddStakeLimitCall(c *client.Client, hotkey types.AccountID, netuid types.U16, amount_staked types.U64, limit_price types.U64, allow_partial types.Bool) (types.Call, error) {
 	call, err := types.NewCall(c.Meta, "SubtensorModule.add_stake_limit", hotkey, netuid, amount_staked, limit_price, allow_partial)
 	if err != nil {
