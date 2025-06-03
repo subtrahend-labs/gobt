@@ -166,4 +166,50 @@ func TestSubtensorModuleExtrinsics(t *testing.T) {
 		updateUserInfo(t, &env.Bob, env, false)
 	})
 
+	// there seem to be no tests for add_stake_limit and remove_stake_limit
+	// (though its marked as x on the comments of the subtensor_module_test.go file)
+
+	// new test for add_stake
+	t.Run("AddStake", func(t *testing.T) {
+		t.Parallel()
+		env := setup(t)
+
+		// First, set up a subnet
+		setupSubnet(t, env)
+
+		// Register Bob's hotkey
+		netuid := types.NewU16(1)
+		ext, err := RootRegisterExt(env.Client, *env.Bob.Hotkey.AccID)
+		require.NoError(t, err, "Failed to create root_register ext")
+		testutils.SignAndSubmit(t, env.Client, ext, env.Bob.Coldkey.Keypair, uint32(env.Bob.Coldkey.AccInfo.Nonce))
+		updateUserInfo(t, &env.Bob, env, false)
+
+		initialBalance := uint64(env.Bob.Coldkey.AccInfo.Data.Free)
+		t.Logf("Bob's initial balance: %v TAO", initialBalance)
+
+		// Define the amount to stake
+		amount_staked := types.NewU64(1000000000)
+
+		// Create and submit the AddStake extrinsic
+		addStakeExt, err := AddStakeExt(
+			env.Client,
+			*env.Bob.Hotkey.AccID,
+			netuid,
+			amount_staked,
+		)
+		require.NoError(t, err, "Failed to create add_stake ext")
+
+		// Sign and submit the extrinsic
+		testutils.SignAndSubmit(
+			t,
+			env.Client,
+			addStakeExt,
+			env.Bob.Coldkey.Keypair,
+			uint32(env.Bob.Coldkey.AccInfo.Nonce),
+		)
+
+		// Update user info after transaction
+		updateUserInfo(t, &env.Bob, env, false)
+	})
+
 }
