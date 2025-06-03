@@ -25,16 +25,16 @@ import (
 //     - [ ] batch_reveal_weights (Index: 98)
 //     - [ ] set_tao_weights (Index: 8)
 //     - [ ] become_delegate (Index: 1)
-//     - [ ] decrease_take (Index: 65)
-//     - [ ] increase_take (Index: 66)
-//     - [ ] add_stake (Index: 2)
-//     - [ ] remove_stake (Index: 3)
+//     - [o] decrease_take (Index: 65)
+//     - [o] increase_take (Index: 66)
+//     - [o] add_stake (Index: 2)	
+//     - [o] remove_stake (Index: 3)
 //     - [ ] serve_prometheus (Index: 5)
 
 //     - [ ] adjust_senate (Index: 63)
 //     - [ ] swap_hotkey (Index: 70)
 //     - [ ] swap_coldkey (Index: 71)
-//     - [ ] set_childkey_take (Index: 75)
+//     - [o] set_childkey_take (Index: 75)
 //     - [ ] sudo_set_tx_childkey_take_rate_limit (Index: 69)
 //     - [ ] sudo_set_min_childkey_take (Index: 76)
 //     - [ ] sudo_set_max_childkey_take (Index: 77)
@@ -71,22 +71,101 @@ type SubnetIdentityV2 struct {
 
 // writing code for add stake here (first time)
 // do i need comments for future reference? 
-func AddStakeCall(c *client.Client, hotkey types.AccountID, netuid types.U16, amount_staked types.U64, limit_price types.U64, allow_partial types.Bool) (types.Call, error) {
-	call, err := types.NewCall(c.Meta, "SubtensorModule.add_stake", hotkey, netuid, amount_staked, limit_price, allow_partial)
+func AddStakeCall(c *client.Client, hotkey types.AccountID, netuid types.U16, amount_staked types.U64) (types.Call, error) {
+	call, err := types.NewCall(c.Meta, "SubtensorModule.add_stake", hotkey, netuid, amount_staked)
 	if err != nil {
 		return types.Call{}, err
 	}
 	return call, nil
 }
 
-func AddStakeExt(c *client.Client, hotkey types.AccountID, netuid types.U16, amount_staked types.U64, limit_price types.U64, allow_partial types.Bool) (*extrinsic.Extrinsic, error) {
-	call, err := AddStakeCall(c, hotkey, netuid, amount_staked, limit_price, allow_partial)
+func AddStakeExt(c *client.Client, hotkey types.AccountID, netuid types.U16, amount_staked types.U64) (*extrinsic.Extrinsic, error) {
+	call, err := AddStakeCall(c, hotkey, netuid, amount_staked)
 	if err != nil {
 		return nil, err
 	}
 	ext := extrinsic.NewExtrinsic(call)
 	return &ext, nil
 }
+
+// // increase take
+// func IncreaseTakeCall(c *client.Client, hotkey types.AccountID, take types.U16) (types.Call, error) {
+//     call, err := types.NewCall(c.Meta, "SubtensorModule.increase_take", hotkey, take)
+//     if err != nil {
+//         return types.Call{}, err
+//     }
+//     return call, nil
+// }
+
+// func IncreaseTakeExt(c *client.Client, hotkey types.AccountID, take types.U16) (*types.Extrinsic, error) {
+//     call, err := IncreaseTakeCall(c, hotkey, take)
+//     if err != nil {
+//         return nil, err
+//     }
+//     return NewExtrinsic(c, call)
+// }
+
+// // decrease take
+// func DecreaseTakeCall(c *client.Client, hotkey types.AccountID, take types.U16) (types.Call, error) {
+//     call, err := types.NewCall(c.Meta, "SubtensorModule.decrease_take", hotkey, take)
+//     if err != nil {
+//         return types.Call{}, err
+//     }
+//     return call, nil
+// }
+
+// func DecreaseTakeExt(c *client.Client, hotkey types.AccountID, take types.U16) (*types.Extrinsic, error) {
+//     call, err := DecreaseTakeCall(c, hotkey, take)
+//     if err != nil {
+//         return nil, err
+//     }
+//     return NewExtrinsic(c, call)
+// }
+
+// // remove stake 
+// func RemoveStakeCall(c *client.Client, hotkey types.AccountID, netuid types.U16, amount_unstaked types.U64) (types.Call, error) {
+// 	call, err := types.NewCall(c.Meta, "SubtensorModule.remove_stake", hotkey, netuid, amount_unstaked)
+// 	if err != nil {
+// 		return types.Call{}, err
+// 	}
+// 	return call, nil
+// }
+
+// func RemoveStakeExt(c *client.Client, hotkey types.AccountID, netuid types.U16, amount_unstaked types.U64) (*types.Extrinsic, error) {
+// 	call, err := RemoveStakeCall(c, hotkey, netuid, amount_unstaked)
+// 	if err != nil {
+// 		return nil, err
+// 	}
+// 	return NewExtrinsic(c, call)
+// }
+
+// // SetChildkeyTakeCall creates a call to set the childkey take value
+// func SetChildkeyTakeCall(c *client.Client, coldkey types.AccountID, hotkey types.AccountID, netuid types.U16, take types.U16) (types.Call, error) {
+//     call, err := types.NewCall(
+//         c.Meta,
+//         "SubtensorModule.set_childkey_take",
+//         coldkey,
+//         hotkey,
+//         netuid,
+//         take,
+//     )
+//     if err != nil {
+//         return types.Call{}, err
+//     }
+//     return call, nil
+// }
+
+// // SetChildkeyTakeExt creates an extrinsic to set the childkey take value
+// func SetChildkeyTakeExt(c *client.Client, coldkey types.AccountID, hotkey types.AccountID, netuid types.U16, take types.U16) (*extrinsic.Extrinsic, error) {
+//     call, err := SetChildkeyTakeCall(c, coldkey, hotkey, netuid, take)
+//     if err != nil {
+//         return nil, err
+//     }
+//     ext := extrinsic.NewExtrinsic(call)
+//     return &ext, nil
+// }
+
+
 
 // original code here below
 func AddStakeLimitCall(c *client.Client, hotkey types.AccountID, netuid types.U16, amount_staked types.U64, limit_price types.U64, allow_partial types.Bool) (types.Call, error) {

@@ -181,8 +181,11 @@ func TestSubtensorModuleExtrinsics(t *testing.T) {
         netuid := types.NewU16(1)
         ext, err := RootRegisterExt(env.Client, *env.Bob.Hotkey.AccID)
         require.NoError(t, err, "Failed to create root_register ext")
-        testutils.SignAndSubmit(t, env.Client, ext, env.Bob.Coldkey.Keypair, uint32(env.Bob.Coldkey.AccInfo.Nonce))
+		testutils.SignAndSubmit(t, env.Client, ext, env.Bob.Coldkey.Keypair, uint32(env.Bob.Coldkey.AccInfo.Nonce))
         updateUserInfo(t, &env.Bob, env, false)
+
+		initialBalance := uint64(env.Bob.Coldkey.AccInfo.Data.Free)
+		t.Logf("Bob's initial balance: %v TAO", initialBalance)
 
         // Define the amount to stake
         amount_staked := types.NewU64(1000)
@@ -197,14 +200,14 @@ func TestSubtensorModuleExtrinsics(t *testing.T) {
         require.NoError(t, err, "Failed to create add_stake ext")
 
         // Sign and submit the extrinsic
-        testutils.SignAndSubmit(
-            t,
-            env.Client,
-            addStakeExt,
-            env.Bob.Coldkey.Keypair,
-            uint32(env.Bob.Coldkey.AccInfo.Nonce+1),
-        )
-
+		testutils.SignAndSubmit(
+			t,
+			env.Client,
+			addStakeExt,
+			env.Bob.Hotkey.Keypair,
+			uint32(env.Bob.Coldkey.AccInfo.Nonce),
+		)
+	
         // Update user info after transaction
         updateUserInfo(t, &env.Bob, env, false)
     })
