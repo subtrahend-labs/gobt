@@ -11,7 +11,7 @@
 - [x] get_subnet_hyperparams
 - [x] get_all_dynamic_info
 - [x] get_dynamic_info
-- [ ] get_all_metagraphs
+- [x] get_all_metagraphs
 - [x] get_metagraph
 - [x] get_subnet_state
 - [ ] get_network_lock_cost
