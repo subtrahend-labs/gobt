@@ -1,7 +1,7 @@
 - [x] get_delegates 
 - [x] get-delegated
-- [ ] get_neurons_lite 
-- [ ] get_neuron_lite
+- [x] get_neurons_lite 
+- [x] get_neuron_lite
 - [x] get_neurons
 - [x] get_neuron
 - [x] get_subnet_info
