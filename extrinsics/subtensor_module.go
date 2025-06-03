@@ -27,7 +27,7 @@ import (
 //     - [ ] become_delegate (Index: 1)
 //     - [o] decrease_take (Index: 65)
 //     - [o] increase_take (Index: 66)
-//     - [o] add_stake (Index: 2)	
+//     - [o] add_stake (Index: 2)
 //     - [o] remove_stake (Index: 3)
 //     - [ ] serve_prometheus (Index: 5)
 
@@ -70,7 +70,7 @@ type SubnetIdentityV2 struct {
 }
 
 // writing code for add stake here (first time)
-// do i need comments for future reference? 
+// do i need comments for future reference?
 func AddStakeCall(c *client.Client, hotkey types.AccountID, netuid types.U16, amount_staked types.U64) (types.Call, error) {
 	call, err := types.NewCall(c.Meta, "SubtensorModule.add_stake", hotkey, netuid, amount_staked)
 	if err != nil {
@@ -122,7 +122,7 @@ func AddStakeExt(c *client.Client, hotkey types.AccountID, netuid types.U16, amo
 //     return NewExtrinsic(c, call)
 // }
 
-// // remove stake 
+// // remove stake
 // func RemoveStakeCall(c *client.Client, hotkey types.AccountID, netuid types.U16, amount_unstaked types.U64) (types.Call, error) {
 // 	call, err := types.NewCall(c.Meta, "SubtensorModule.remove_stake", hotkey, netuid, amount_unstaked)
 // 	if err != nil {
@@ -164,8 +164,6 @@ func AddStakeExt(c *client.Client, hotkey types.AccountID, netuid types.U16, amo
 //     ext := extrinsic.NewExtrinsic(call)
 //     return &ext, nil
 // }
-
-
 
 // original code here below
 func AddStakeLimitCall(c *client.Client, hotkey types.AccountID, netuid types.U16, amount_staked types.U64, limit_price types.U64, allow_partial types.Bool) (types.Call, error) {
