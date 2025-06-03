@@ -144,28 +144,26 @@ type SubnetState struct {
 }
 
 type SelectiveMetagraph struct {
-	// Subnet index
-	Netuid types.UCompact // Compact<u16>
+	Netuid types.UCompact
 
-	// Selected fields based on metagraph_indexes
-	Hotkeys         []types.AccountID // Vec<AccountId>
+	Hotkeys         []types.AccountID
 	Coldkeys        []types.AccountID
 	Active          []types.Bool
 	ValidatorPermit []types.Bool
 
-	PruningScore []types.UCompact // Vec<Compact<u16>>
-	LastUpdate   []types.UCompact // Vec<Compact<u64>>
-	Emission     []types.UCompact // Vec<Compact<u64>>
-	Dividends    []types.UCompact // Vec<Compact<u16>>
-	Incentives   []types.UCompact // Vec<Compact<u16>>
-	Consensus    []types.UCompact // Vec<Compact<u16>>
-	Trust        []types.UCompact // Vec<Compact<u16>>
-	Rank         []types.UCompact // Vec<Compact<u16>>
+	PruningScore []types.UCompact
+	LastUpdate   []types.UCompact
+	Emission     []types.UCompact
+	Dividends    []types.UCompact
+	Incentives   []types.UCompact
+	Consensus    []types.UCompact
+	Trust        []types.UCompact
+	Rank         []types.UCompact
 
-	BlockAtRegistration []types.UCompact // Vec<Compact<u64>>
-	AlphaStake          []types.UCompact // Vec<Compact<u64>>
-	TaoStake            []types.UCompact // Vec<Compact<u64>>
-	TotalStake          []types.UCompact // Vec<Compact<u64>>
+	BlockAtRegistration []types.UCompact
+	AlphaStake          []types.UCompact
+	TaoStake            []types.UCompact
+	TotalStake          []types.UCompact
 }
 
 func GetSubnetInfo(c *client.Client, netuid uint16, blockHash *types.Hash) (*SubnetInfo, error) {
@@ -459,7 +457,6 @@ func GetSelectiveMetagraph(c *client.Client, netuid uint16, metagraphIndexes []u
 		return nil, fmt.Errorf("block hash cannot be nil")
 	}
 
-	// Convert []uint16 to []types.U16 for the API call
 	indexes := make([]types.U16, len(metagraphIndexes))
 	for i, idx := range metagraphIndexes {
 		indexes[i] = types.NewU16(idx)

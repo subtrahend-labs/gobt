@@ -13,7 +13,6 @@ import (
 )
 
 func TestSubnetRuntimeAPIs(t *testing.T) {
-	// Skip if running in CI or if Docker is not available
 	if testing.Short() {
 		t.Skip("Skipping integration test in short mode")
 	}
@@ -32,10 +31,8 @@ func TestSubnetRuntimeAPIs(t *testing.T) {
 		blockHash, err := env.Client.Api.RPC.Chain.GetBlockHashLatest()
 		require.NoError(t, err, "Failed to get latest block hash")
 
-		// Test for subnet 0 (root subnet should exist)
 		subnet, err := runtime.GetSubnetInfo(env.Client, 0, &blockHash)
 		if err != nil {
-			// Accept various types of errors that can occur in test environment
 			errorMsg := err.Error()
 			isExpectedError := strings.Contains(errorMsg, "no subnet info found") ||
 				strings.Contains(errorMsg, "Method not found") ||
@@ -43,7 +40,6 @@ func TestSubnetRuntimeAPIs(t *testing.T) {
 				strings.Contains(errorMsg, "Invalid params")
 			assert.True(t, isExpectedError, "Expected subnet-related error, got: %v", err)
 		} else {
-			// If subnet exists, verify structure
 			assert.NotNil(t, subnet, "Subnet should not be nil")
 			assert.Equal(t, types.U16(0), subnet.NetUID, "NetUID should be 0")
 			assert.GreaterOrEqual(t, uint64(subnet.Difficulty), uint64(0), "Difficulty should be non-negative")
@@ -57,12 +53,10 @@ func TestSubnetRuntimeAPIs(t *testing.T) {
 			t.Logf("  ImmunityPeriod: %d", subnet.ImmunityPeriod)
 		}
 
-		// Test for non-existent subnet
 		subnet, err = runtime.GetSubnetInfo(env.Client, 999, &blockHash)
 		assert.Error(t, err, "Should error for non-existent subnet")
 		assert.Nil(t, subnet, "Subnet should be nil on error")
 
-		// Test with nil block hash
 		subnet, err = runtime.GetSubnetInfo(env.Client, 0, nil)
 		assert.Error(t, err, "Should error with nil block hash")
 		assert.Contains(t, err.Error(), "block hash cannot be nil")

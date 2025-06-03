@@ -143,7 +143,6 @@ type Metagraph struct {
 
 // GetMetagraph retrieves the metagraph for a specific subnet
 func GetMetagraph(c *client.Client, netuid uint16, blockHash *types.Hash) (*Metagraph, error) {
-	// First, try to see what's being returned from the API call
 	var encodedResponse []byte
 	err := c.Api.Client.Call(
 		&encodedResponse,
@@ -159,7 +158,6 @@ func GetMetagraph(c *client.Client, netuid uint16, blockHash *types.Hash) (*Meta
 		return nil, fmt.Errorf("no metagraph found for netuid %d", netuid)
 	}
 
-	// Try to decode as a Vec<u8> first
 	var m Metagraph
 	if err := codec.Decode(encodedResponse, &m); err != nil {
 		return nil, fmt.Errorf("failed to decode metagraph: %v", err)

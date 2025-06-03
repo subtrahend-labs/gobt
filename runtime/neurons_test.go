@@ -12,7 +12,6 @@ import (
 )
 
 func TestNeuronRuntimeAPIs(t *testing.T) {
-	// Skip if running in CI or if Docker is not available
 	if testing.Short() {
 		t.Skip("Skipping integration test in short mode")
 	}
@@ -31,10 +30,8 @@ func TestNeuronRuntimeAPIs(t *testing.T) {
 		blockHash, err := env.Client.Api.RPC.Chain.GetBlockHashLatest()
 		require.NoError(t, err, "Failed to get latest block hash")
 
-		// Test for subnet 0 (root subnet should exist)
 		neurons, err := runtime.GetNeurons(env.Client, 0, &blockHash)
 		if err != nil {
-			// Accept various types of errors that can occur in test environment
 			errorMsg := err.Error()
 			isExpectedError := strings.Contains(errorMsg, "no neurons found") ||
 				strings.Contains(errorMsg, "Method not found") ||
@@ -42,7 +39,6 @@ func TestNeuronRuntimeAPIs(t *testing.T) {
 				strings.Contains(errorMsg, "Invalid params")
 			assert.True(t, isExpectedError, "Expected neurons-related error, got: %v", err)
 		} else {
-			// If neurons exist, verify structure
 			t.Logf("Found %d neurons in subnet 0", len(neurons))
 
 			for i, neuron := range neurons {
@@ -51,19 +47,17 @@ func TestNeuronRuntimeAPIs(t *testing.T) {
 				assert.NotNil(t, neuron.Hotkey, "Neuron %d hotkey should not be nil", i)
 				assert.NotNil(t, neuron.Coldkey, "Neuron %d coldkey should not be nil", i)
 
-				if i < 3 { // Log first few neurons
+				if i < 3 {
 					t.Logf("Neuron %d: UID=%d, Hotkey=%x", i, neuron.UID.Int64(), neuron.Hotkey.ToBytes()[:8])
 				}
 			}
 		}
 
-		// Test for non-existent subnet
 		neurons, err = runtime.GetNeurons(env.Client, 999, &blockHash)
 		if err != nil {
 			assert.Error(t, err, "Should error for non-existent subnet")
 			assert.Nil(t, neurons, "Neurons should be nil on error")
 		} else {
-			// Empty slice is also valid for non-existent subnet
 			assert.Equal(t, 0, len(neurons), "Should have 0 neurons for non-existent subnet")
 			t.Logf("Got empty neurons slice for non-existent subnet (valid behavior)")
 		}
@@ -211,16 +205,11 @@ func TestNeuronRuntimeAPIs(t *testing.T) {
 	t.Run("ErrorHandling", func(t *testing.T) {
 		t.Parallel()
 
-		// Create a dummy client for testing nil block hash errors
 		env, err := testutils.Setup()
 		if err != nil {
 			t.Skipf("Failed to setup test environment: %v", err)
 		}
 		defer env.Teardown()
-
-		// Test all functions with nil block hash - they should panic or have issues
-		// since the existing functions don't check for nil block hash
-		// This test documents the current behavior
 
 		func() {
 			defer func() {
@@ -286,7 +275,6 @@ func TestNeuronRuntimeAPIs(t *testing.T) {
 	t.Run("StructValidation", func(t *testing.T) {
 		t.Parallel()
 
-		// Test struct field types and validations
 		var neuron runtime.NeuronInfo
 		assert.Equal(t, int64(0), neuron.UID.Int64(), "Default UID should be 0")
 		assert.Equal(t, int64(0), neuron.NetUID.Int64(), "Default NetUID should be 0")

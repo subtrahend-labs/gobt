@@ -113,7 +113,6 @@ func GetDelegated(c *client.Client, delegateeAccount types.AccountID, blockHash 
 		return nil, fmt.Errorf("failed to decode delegated info: %v", err)
 	}
 
-	// Return empty array instead of nil when no delegations exist
 	if delegated == nil {
 		delegated = []DelegatedInfo{}
 	}
