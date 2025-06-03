@@ -15,7 +15,7 @@
 - [x] get_metagraph
 - [x] get_subnet_state
 - [ ] get_network_lock_cost
-- [ ] get_selective_metagraph
+- [x] get_selective_metagraph
 
     #[method(name = "subnetInfo_getAllMetagraphs")]
     fn get_all_metagraphs(&self, at: Option<BlockHash>) -> RpcResult<Vec<u8>>;
