@@ -12,7 +12,7 @@
 - [ ] get_all_dynamic_info
 - [ ] get_dynamic_info
 - [ ] get_all_metagraphs
-- [ ] get_metagraph
+- [x] get_metagraph
 - [ ] get_subnet_state
 - [ ] get_network_lock_cost
 - [ ] get_selective_metagraph
