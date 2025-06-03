@@ -4,16 +4,16 @@
 - [ ] get_neuron_lite
 - [x] get_neurons
 - [x] get_neuron
-- [ ] get_subnet_info
-- [ ] get_subnets_info
-- [ ] get_subnet_info_v2
-- [ ] get_subnets_info_v2
-- [ ] get_subnet_hyperparams
-- [ ] get_all_dynamic_info
-- [ ] get_dynamic_info
+- [x] get_subnet_info
+- [x] get_subnets_info
+- [x] get_subnet_info_v2
+- [x] get_subnets_info_v2
+- [x] get_subnet_hyperparams
+- [x] get_all_dynamic_info
+- [x] get_dynamic_info
 - [ ] get_all_metagraphs
 - [x] get_metagraph
-- [ ] get_subnet_state
+- [x] get_subnet_state
 - [ ] get_network_lock_cost
 - [ ] get_selective_metagraph
 
