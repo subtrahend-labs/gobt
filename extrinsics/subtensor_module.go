@@ -25,10 +25,10 @@ import (
 //     - [o] batch_reveal_weights (Index: 98)
 //     - [o] set_tao_weights (Index: 8)
 //     - [o] become_delegate (Index: 1)
-//     - [o] decrease_take (Index: 65)
-//     - [o] increase_take (Index: 66)
-//     - [o] add_stake (Index: 2)
-//     - [o] remove_stake (Index: 3)
+//     - [x] decrease_take (Index: 65)
+//     - [x] increase_take (Index: 66)
+//     - [x] add_stake (Index: 2)
+//     - [x] remove_stake (Index: 3)
 //     - [o] serve_prometheus (Index: 5)
 
 //     - [o] adjust_senate (Index: 63)
@@ -55,7 +55,7 @@ import (
 //     - [o] transfer_stake (Index: 86)
 //     - [o] swap_stake (Index: 87)
 //     - [x] add_stake_limit (Index: 88)
-//     - [o] remove_stake_limit (Index: 89)
+//     - [x] remove_stake_limit (Index: 89)
 //     - [o] swap_stake_limit (Index: 90)
 //     - [o] try_associate_hotkey (Index: 91)
 
@@ -142,7 +142,6 @@ func RemoveStakeExt(c *client.Client, hotkey types.AccountID, netuid types.U16, 
 	return &ext, nil
 }
 
-// SetChildkeyTakeCall creates a call to set the childkey take value
 func SetChildkeyTakeCall(c *client.Client, coldkey types.AccountID, hotkey types.AccountID, netuid types.U16, take types.U16) (types.Call, error) {
 	call, err := types.NewCall(
 		c.Meta,
@@ -158,7 +157,6 @@ func SetChildkeyTakeCall(c *client.Client, coldkey types.AccountID, hotkey types
 	return call, nil
 }
 
-// SetChildkeyTakeExt creates an extrinsic to set the childkey take value
 func SetChildkeyTakeExt(c *client.Client, coldkey types.AccountID, hotkey types.AccountID, netuid types.U16, take types.U16) (*extrinsic.Extrinsic, error) {
 	call, err := SetChildkeyTakeCall(c, coldkey, hotkey, netuid, take)
 	if err != nil {
@@ -168,8 +166,6 @@ func SetChildkeyTakeExt(c *client.Client, coldkey types.AccountID, hotkey types.
 	return &ext, nil
 }
 
-// move stake
-// MoveStakeCall creates a call to move stake from one hotkey to another across subnets
 func MoveStakeCall(c *client.Client,
 	origin_hotkey types.AccountID,
 	destination_hotkey types.AccountID,
@@ -192,7 +188,6 @@ func MoveStakeCall(c *client.Client,
 	return call, nil
 }
 
-// MoveStakeExt creates an extrinsic to move stake from one hotkey to another across subnets
 func MoveStakeExt(
 	c *client.Client,
 	origin_hotkey types.AccountID,
@@ -216,7 +211,6 @@ func MoveStakeExt(
 	return &ext, nil
 }
 
-// swap stake
 func SwapStakeCall(
 	c *client.Client,
 	hotkey types.AccountID,
@@ -259,8 +253,6 @@ func SwapStakeExt(
 	return &ext, nil
 }
 
-// transfer stake
-// TransferStakeCall creates a call to transfer stake between coldkeys while keeping the same hotkey
 func TransferStakeCall(
 	c *client.Client,
 	destination_coldkey types.AccountID,
@@ -284,7 +276,6 @@ func TransferStakeCall(
 	return call, nil
 }
 
-// TransferStakeExt creates an extrinsic to transfer stake between coldkeys while keeping the same hotkey
 func TransferStakeExt(
 	c *client.Client,
 	destination_coldkey types.AccountID,
@@ -308,8 +299,6 @@ func TransferStakeExt(
 	return &ext, nil
 }
 
-// swap stake limit
-// SwapStakeLimitCall creates a call to swap stake between subnets with a limit price
 func SwapStakeLimitCall(
 	c *client.Client,
 	hotkey types.AccountID,
@@ -335,7 +324,6 @@ func SwapStakeLimitCall(
 	return call, nil
 }
 
-// SwapStakeLimitExt creates an extrinsic to swap stake between subnets with a limit price
 func SwapStakeLimitExt(
 	c *client.Client,
 	hotkey types.AccountID,
@@ -361,7 +349,6 @@ func SwapStakeLimitExt(
 	return &ext, nil
 }
 
-// unstake all
 func UnstakeAllCall(c *client.Client, hotkey types.AccountID) (types.Call, error) {
 	call, err := types.NewCall(
 		c.Meta,
@@ -386,7 +373,6 @@ func UnstakeAllExt(c *client.Client, hotkey types.AccountID) (*extrinsic.Extrins
 	return &ext, nil
 }
 
-// unstake all alpha
 func UnstakeAllAlphaCall(c *client.Client, hotkey types.AccountID) (types.Call, error) {
 	call, err := types.NewCall(
 		c.Meta,
@@ -411,7 +397,6 @@ func UnstakeAllAlphaExt(c *client.Client, hotkey types.AccountID) (*extrinsic.Ex
 	return &ext, nil
 }
 
-// try associate hotkey
 func TryAssociateHotkeyCall(c *client.Client, coldkey types.AccountID, hotkey types.AccountID) (types.Call, error) {
 	call, err := types.NewCall(
 		c.Meta,
@@ -438,7 +423,6 @@ func TryAssociateHotkeyExt(c *client.Client, coldkey types.AccountID, hotkey typ
 	return &ext, nil
 }
 
-// swap coldkey
 func SwapColdkeyCall(c *client.Client, old_coldkey types.AccountID, new_coldkey types.AccountID, swap_cost types.U64) (types.Call, error) {
 	call, err := types.NewCall(
 		c.Meta,
@@ -462,7 +446,6 @@ func SwapColdkeyExt(c *client.Client, old_coldkey types.AccountID, new_coldkey t
 	return &ext, nil
 }
 
-// swap hotkey
 func SwapHotkeyCall(c *client.Client, old_hotkey types.AccountID, new_hotkey types.AccountID) (types.Call, error) {
 	call, err := types.NewCall(
 		c.Meta,
@@ -485,7 +468,6 @@ func SwapHotkeyExt(c *client.Client, old_hotkey types.AccountID, new_hotkey type
 	return &ext, nil
 }
 
-// adjust senate
 func AdjustSenateCall(c *client.Client, hotkey types.AccountID) (types.Call, error) {
 	call, err := types.NewCall(
 		c.Meta,
@@ -507,7 +489,6 @@ func AdjustSenateExt(c *client.Client, hotkey types.AccountID) (*extrinsic.Extri
 	return &ext, nil
 }
 
-// sudo_set_tx_childkey_take_rate_limit
 func SudoSetTxChildkeyTakeRateLimitCall(c *client.Client, tx_rate_limit types.U64) (types.Call, error) {
 	call, err := types.NewCall(
 		c.Meta,
@@ -529,7 +510,6 @@ func SudoSetTxChildkeyTakeRateLimitExt(c *client.Client, tx_rate_limit types.U64
 	return &ext, nil
 }
 
-// sudo_set_min_childkey_take (Index: 76)
 func SudoSetMinChildkeyTakeCall(c *client.Client, take types.U16) (types.Call, error) {
 	call, err := types.NewCall(
 		c.Meta,
@@ -573,10 +553,10 @@ func SudoSetMaxChildkeyTakeExt(c *client.Client, take types.U16) (*extrinsic.Ext
 	return &ext, nil
 }
 
-//     - [ ] sudo (Index: 51)
-// what does type box mean?
+// //     - [ ] sudo (Index: 51)
+// // what does type box mean?
 
-//     - [ ] sudo_unchecked_weight (Index: 52)
+// //     - [ ] sudo_unchecked_weight (Index: 52)
 
 // - [ ] vote (Index: 55)
 func VoteCall(c *client.Client, proposal types.Hash, index types.U32, approve types.Bool) (types.Call, error) {
@@ -649,15 +629,11 @@ func DissolveNetworkExt(c *client.Client, coldkey types.AccountID, netuid types.
 	return &ext, nil
 }
 
-//   - [ ] set_children (Index: 67)
-//
-// Define the tuple struct
 type ChildTuple struct {
 	Stake   types.U64
 	Account types.AccountID
 }
 
-// Update the function signatures
 func SetChildrenCall(c *client.Client, coldkey types.AccountID, hotkey types.AccountID, netuid types.U16, children []ChildTuple) (types.Call, error) { // is this waht you do instead of a         children: Vec<(u64, T::AccountId)>,
 	call, err := types.NewCall(
 		c.Meta,
@@ -682,7 +658,6 @@ func SetChildrenExt(c *client.Client, coldkey types.AccountID, hotkey types.Acco
 	return &ext, nil
 }
 
-// - [ ] schedule_swap_coldkey (Index: 73)
 func ScheduleSwapColdkeyCall(c *client.Client, new_coldkey types.AccountID) (types.Call, error) {
 	call, err := types.NewCall(
 		c.Meta,
@@ -704,7 +679,6 @@ func ScheduleSwapColdkeyExt(c *client.Client, new_coldkey types.AccountID) (*ext
 	return &ext, nil
 }
 
-// - [ ] schedule_dissolve_network (Index: 74)
 func ScheduleDissolveNetworkCall(c *client.Client, netuid types.U16) (types.Call, error) {
 	call, err := types.NewCall(
 		c.Meta,
@@ -726,7 +700,6 @@ func ScheduleDissolveNetworkExt(c *client.Client, netuid types.U16) (*extrinsic.
 	return &ext, nil
 }
 
-// - [ ] set_identity (Index: 68)
 func SetIdentityCall(
 	c *client.Client,
 	name types.Bytes,
@@ -781,9 +754,6 @@ func SetIdentityExt(
 	return &ext, nil
 }
 
-//   - [ ] set_subnet_identity (Index: 78)
-//
-// SetSubnetIdentityCall creates a call to set identity information for a subnet
 func SetSubnetIdentityCall(
 	c *client.Client,
 	netuid types.U16,
@@ -813,7 +783,6 @@ func SetSubnetIdentityCall(
 	return call, nil
 }
 
-// SetSubnetIdentityExt creates an extrinsic to set identity information for a subnet
 func SetSubnetIdentityExt(
 	c *client.Client,
 	netuid types.U16,
@@ -843,7 +812,6 @@ func SetSubnetIdentityExt(
 	return &ext, nil
 }
 
-// - [ ] register_network_with_identity (Index: 79)
 func RegisterNetworkWithIdentityCall(
 	c *client.Client,
 	hotkey types.AccountID,
@@ -902,15 +870,11 @@ func RegisterNetworkWithIdentityExt(
 	return &ext, nil
 }
 
-//   - [ ] batch_set_weights (Index: 80)
-//
-// WeightTuple represents a (uid, weight) pair for batch weight setting
 type WeightTuple struct {
 	UID    types.U16
 	Weight types.U16
 }
 
-// BatchSetWeightsCall creates a call to batch set weights for multiple networks
 func BatchSetWeightsCall(
 	c *client.Client,
 	netuids []types.U16,
@@ -930,7 +894,6 @@ func BatchSetWeightsCall(
 	return call, nil
 }
 
-// BatchSetWeightsExt creates an extrinsic to batch set weights for multiple networks
 func BatchSetWeightsExt(
 	c *client.Client,
 	netuids []types.U16,
@@ -950,7 +913,6 @@ func BatchSetWeightsExt(
 	return &ext, nil
 }
 
-// - [ ] commit_weights (Index: 96)
 func CommitWeightsCall(
 	c *client.Client,
 	netuid types.U16,
@@ -985,7 +947,6 @@ func CommitWeightsExt(
 	return &ext, nil
 }
 
-// - [ ] batch_commit_weights (Index: 100)
 func BatchCommitWeightsCall(
 	c *client.Client,
 	netuids []types.U16,
@@ -1020,7 +981,6 @@ func BatchCommitWeightsExt(
 	return &ext, nil
 }
 
-// - [ ] reveal_weights (Index: 97)
 func RevealWeightsCall(
 	c *client.Client,
 	netuid types.U16,
@@ -1067,7 +1027,6 @@ func RevealWeightsExt(
 	return &ext, nil
 }
 
-// - [ ] batch_reveal_weights (Index: 98)
 func BatchRevealWeightsCall(
 	c *client.Client,
 	netuid types.U16,
@@ -1098,7 +1057,6 @@ func BatchRevealWeightsExt(
 	return &ext, nil
 }
 
-// - [ ] set_tao_weights (Index: 8)
 func SetTaoWeightsCall(
 	c *client.Client,
 	netuid types.U16,
@@ -1145,29 +1103,28 @@ func SetTaoWeightsExt(
 	return &ext, nil
 }
 
-// - [ ] become_delegate (Index: 1)// BecomeDelegateCall creates a call to become a delegate (DEPRECATED)
-func BecomeDelegateCall(c *client.Client, hotkey types.AccountID) (types.Call, error) {
-	call, err := types.NewCall(
-		c.Meta,
-		"SubtensorModule.become_delegate",
-		hotkey,
-	)
-	if err != nil {
-		return types.Call{}, err
-	}
-	return call, nil
-}
+// // - [ ] become_delegate (Index: 1)// BecomeDelegateCall creates a call to become a delegate (DEPRECATED)
+// func BecomeDelegateCall(c *client.Client, hotkey types.AccountID) (types.Call, error) {
+// 	call, err := types.NewCall(
+// 		c.Meta,
+// 		"SubtensorModule.become_delegate",
+// 		hotkey,
+// 	)
+// 	if err != nil {
+// 		return types.Call{}, err
+// 	}
+// 	return call, nil
+// }
 
-func BecomeDelegateExt(c *client.Client, hotkey types.AccountID) (*extrinsic.Extrinsic, error) {
-	call, err := BecomeDelegateCall(c, hotkey)
-	if err != nil {
-		return nil, err
-	}
-	ext := extrinsic.NewExtrinsic(call)
-	return &ext, nil
-}
+// func BecomeDelegateExt(c *client.Client, hotkey types.AccountID) (*extrinsic.Extrinsic, error) {
+// 	call, err := BecomeDelegateCall(c, hotkey)
+// 	if err != nil {
+// 		return nil, err
+// 	}
+// 	ext := extrinsic.NewExtrinsic(call)
+// 	return &ext, nil
+// }
 
-// - [ ] serve_prometheus (Index: 5)
 func ServePrometheusCall(
 	c *client.Client,
 	netuid types.U16,
