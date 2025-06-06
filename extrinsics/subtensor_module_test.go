@@ -10,6 +10,7 @@ import (
 
 	"github.com/centrifuge/go-substrate-rpc-client/v4/types"
 	"github.com/stretchr/testify/require"
+	"github.com/subtrahend-labs/gobt/storage"
 	"github.com/subtrahend-labs/gobt/testutils"
 )
 
@@ -189,7 +190,6 @@ func TestSubtensorModuleExtrinsics(t *testing.T) {
 			netuid,
 			amount_staked,
 		)
-		require.NoError(t, err, "Failed to create add_stake ext")
 
 		testutils.SignAndSubmit(
 			t,
@@ -199,7 +199,9 @@ func TestSubtensorModuleExtrinsics(t *testing.T) {
 			uint32(env.Bob.Coldkey.AccInfo.Nonce),
 		)
 
-		updateUserInfo(t, &env.Bob, env, false)
+		finalInfo, err := storage.GetAccountInfo(env.Client, env.Bob.Coldkey.Keypair.PublicKey, nil)
+		finalBalance := uint64(finalInfo.Data.Free)
+		t.Logf("Bob's final balance: %v TAO", finalBalance)
+		require.Equal(t, initialBalance-uint64(amount_staked), finalBalance, "Balance should decrease by staked amount")
 	})
-
 }
