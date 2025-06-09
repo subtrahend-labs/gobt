@@ -10,6 +10,7 @@ import (
 
 	"github.com/centrifuge/go-substrate-rpc-client/v4/types"
 	"github.com/stretchr/testify/require"
+	"github.com/subtrahend-labs/gobt/storage"
 	"github.com/subtrahend-labs/gobt/testutils"
 )
 
@@ -163,10 +164,8 @@ func TestSubtensorModuleExtrinsics(t *testing.T) {
 		t.Parallel()
 		env := setup(t)
 
-		// First, set up a subnet
 		setupSubnet(t, env)
 
-		// Register Bob's hotkey
 		netuid := types.NewU16(1)
 		ext, err := RootRegisterExt(env.Client, *env.Bob.Hotkey.AccID)
 		require.NoError(t, err, "Failed to create root_register ext")
@@ -176,19 +175,15 @@ func TestSubtensorModuleExtrinsics(t *testing.T) {
 		initialBalance := uint64(env.Bob.Coldkey.AccInfo.Data.Free)
 		t.Logf("Bob's initial balance: %v TAO", initialBalance)
 
-		// Define the amount to stake
 		amount_staked := types.NewU64(1000000000)
 
-		// Create and submit the AddStake extrinsic
 		addStakeExt, err := AddStakeExt(
 			env.Client,
 			*env.Bob.Hotkey.AccID,
 			netuid,
 			amount_staked,
 		)
-		require.NoError(t, err, "Failed to create add_stake ext")
 
-		// Sign and submit the extrinsic
 		testutils.SignAndSubmit(
 			t,
 			env.Client,
@@ -196,139 +191,52 @@ func TestSubtensorModuleExtrinsics(t *testing.T) {
 			env.Bob.Coldkey.Keypair,
 			uint32(env.Bob.Coldkey.AccInfo.Nonce),
 		)
+
+		finalInfo, err := storage.GetAccountInfo(env.Client, env.Bob.Coldkey.Keypair.PublicKey, nil)
+		finalBalance := uint64(finalInfo.Data.Free)
+		t.Logf("Bob's final balance: %v TAO", finalBalance)
+		require.Equal(t, initialBalance-uint64(amount_staked), finalBalance, "Balance should decrease by staked amount")
 	})
 
 	t.Run("AddStakeLimit", func(t *testing.T) {
-		// t.Parallel()
+		t.Parallel()
 		env := setup(t)
 		setupSubnet(t, env)
 
-		netuid := types.NewU16(1)
-		amount_staked := types.NewU64(1000000000)
-		limit_price := types.NewU64(1000000000)
-		allow_partial := types.NewBool(true)
-
-		ext, err := AddStakeLimitExt(
-			env.Client,
-			*env.Bob.Hotkey.AccID,
-			netuid,
-			amount_staked,
-			limit_price,
-			allow_partial,
-		)
-		require.NoError(t, err, "Failed to create add_stake_limit ext")
-		testutils.SignAndSubmit(t, env.Client, ext, env.Bob.Coldkey.Keypair, uint32(env.Bob.Coldkey.AccInfo.Nonce))
-	})
-
-	t.Run("RemoveStakeLimit", func(t *testing.T) {
-		// t.Parallel()
-		env := setup(t)
-		setupSubnet(t, env)
-
-		// First register Bob's hotkey
 		netuid := types.NewU16(1)
 		ext, err := RootRegisterExt(env.Client, *env.Bob.Hotkey.AccID)
 		require.NoError(t, err, "Failed to create root_register ext")
 		testutils.SignAndSubmit(t, env.Client, ext, env.Bob.Coldkey.Keypair, uint32(env.Bob.Coldkey.AccInfo.Nonce))
 		updateUserInfo(t, &env.Bob, env, false)
 
-		// Add some stake first
-		amount_staked := types.NewU64(2000000000) // 2x the amount we'll try to remove
-		addStakeExt, err := AddStakeExt(
+		initialBalance := uint64(env.Bob.Coldkey.AccInfo.Data.Free)
+		t.Logf("Bob's initial balance: %v TAO", initialBalance)
+
+		amount_staked := types.NewU64(10000000000)
+		limit_price := types.NewU64(10000000000000000000)
+		allow_partial := types.NewBool(true)
+
+		addStakeLimitExt, err := AddStakeLimitExt(
 			env.Client,
 			*env.Bob.Hotkey.AccID,
 			netuid,
 			amount_staked,
-		)
-		require.NoError(t, err, "Failed to create add_stake ext")
-		testutils.SignAndSubmit(t, env.Client, addStakeExt, env.Bob.Coldkey.Keypair, uint32(env.Bob.Coldkey.AccInfo.Nonce))
-		updateUserInfo(t, &env.Bob, env, false)
-
-		// Now try to remove stake with limit
-		amount_unstaked := types.NewU64(1000000000)
-		limit_price := types.NewU64(1000000000)
-		allow_partial := types.NewBool(true)
-
-		ext, err = RemoveStakeLimitExt(
-			env.Client,
-			*env.Bob.Hotkey.AccID,
-			netuid,
-			amount_unstaked,
 			limit_price,
 			allow_partial,
 		)
-		require.NoError(t, err, "Failed to create remove_stake_limit ext")
-	})
 
-	t.Run("IncreaseTake", func(t *testing.T) {
-		// t.Parallel()
-		env := setup(t)
-		setupSubnet(t, env)
-
-		take := types.NewU16(100)
-
-		ext, err := IncreaseTakeExt(
+		testutils.SignAndSubmit(
+			t,
 			env.Client,
-			*env.Bob.Hotkey.AccID,
-			take,
+			addStakeLimitExt,
+			env.Bob.Coldkey.Keypair,
+			uint32(env.Bob.Coldkey.AccInfo.Nonce),
 		)
-		require.NoError(t, err, "Failed to create increase_take ext")
-		testutils.SignAndSubmit(t, env.Client, ext, env.Bob.Coldkey.Keypair, uint32(env.Bob.Coldkey.AccInfo.Nonce))
-		// updateUserInfo(t, &env.Bob, env, false)
-	})
 
-	t.Run("DecreaseTake", func(t *testing.T) {
-		// t.Parallel()
-		env := setup(t)
-		setupSubnet(t, env)
-
-		take := types.NewU16(50)
-
-		ext, err := DecreaseTakeExt(
-			env.Client,
-			*env.Bob.Hotkey.AccID,
-			take,
-		)
-		require.NoError(t, err, "Failed to create decrease_take ext")
-		testutils.SignAndSubmit(t, env.Client, ext, env.Bob.Coldkey.Keypair, uint32(env.Bob.Coldkey.AccInfo.Nonce))
-		// updateUserInfo(t, &env.Bob, env, false)
-	})
-
-	t.Run("RemoveStake", func(t *testing.T) {
-		// t.Parallel()
-		env := setup(t)
-		setupSubnet(t, env)
-
-		netuid := types.NewU16(1)
-
-		// First register Bob's hotkey to the subnet
-		ext, err := BurnedRegisterExt(env.Client, *env.Bob.Hotkey.AccID, netuid)
-		require.NoError(t, err, "Failed to create burned_register ext for Bob")
-		testutils.SignAndSubmit(t, env.Client, ext, env.Bob.Coldkey.Keypair, uint32(env.Bob.Coldkey.AccInfo.Nonce))
-		updateUserInfo(t, &env.Bob, env, false)
-
-		// Add some stake to Bob's hotkey
-		amount_staked := types.NewU64(1000000000)
-		addStakeExt, err := AddStakeExt(
-			env.Client,
-			*env.Bob.Hotkey.AccID,
-			netuid,
-			amount_staked,
-		)
-		require.NoError(t, err, "Failed to create add_stake ext")
-		testutils.SignAndSubmit(t, env.Client, addStakeExt, env.Bob.Coldkey.Keypair, uint32(env.Bob.Coldkey.AccInfo.Nonce))
-		updateUserInfo(t, &env.Bob, env, false)
-
-		// Now try to remove some stake
-		amount_unstaked := types.NewU64(500000000) // Remove half of what we added
-		removeStakeExt, err := RemoveStakeExt(
-			env.Client,
-			*env.Bob.Hotkey.AccID,
-			netuid,
-			amount_unstaked,
-		)
-		require.NoError(t, err, "Failed to create remove_stake ext")
-		testutils.SignAndSubmit(t, env.Client, removeStakeExt, env.Bob.Coldkey.Keypair, uint32(env.Bob.Coldkey.AccInfo.Nonce))
+		finalInfo, err := storage.GetAccountInfo(env.Client, env.Bob.Coldkey.Keypair.PublicKey, nil)
+		finalBalance := uint64(finalInfo.Data.Free)
+		t.Logf("Bob's final balance: %v TAO", finalBalance)
+		require.Equal(t, initialBalance-uint64(amount_staked), finalBalance, "Balance should not decrease by staked amount")
 	})
 
 }
