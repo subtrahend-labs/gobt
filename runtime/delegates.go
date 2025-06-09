@@ -1,7 +1,6 @@
 package runtime
 
 import (
-	"errors"
 	"fmt"
 
 	"github.com/centrifuge/go-substrate-rpc-client/v4/types"
@@ -30,15 +29,22 @@ type DelegatedInfo struct {
 }
 
 func GetDelegates(c *client.Client, blockHash *types.Hash) ([]DelegateInfo, error) {
+	var targetBlockHash types.Hash
 	if blockHash == nil {
-		return nil, fmt.Errorf("block hash cannot be nil")
+		latestHash, err := c.Api.RPC.Chain.GetBlockHashLatest()
+		if err != nil {
+			return nil, fmt.Errorf("failed to get latest block hash: %v", err)
+		}
+		targetBlockHash = latestHash
+	} else {
+		targetBlockHash = *blockHash
 	}
 
 	var encodedResponse []byte
 	err := c.Api.Client.Call(
 		&encodedResponse,
 		"delegateInfo_getDelegates",
-		*blockHash,
+		targetBlockHash,
 	)
 	if err != nil {
 		return nil, fmt.Errorf("failed to call delegateInfo_getDelegates: %v", err)
@@ -50,7 +56,6 @@ func GetDelegates(c *client.Client, blockHash *types.Hash) ([]DelegateInfo, erro
 		return nil, fmt.Errorf("failed to decode delegates: %v", err)
 	}
 
-	// Return empty array instead of nil when no delegates exist
 	if delegates == nil {
 		delegates = []DelegateInfo{}
 	}
@@ -58,9 +63,16 @@ func GetDelegates(c *client.Client, blockHash *types.Hash) ([]DelegateInfo, erro
 	return delegates, nil
 }
 
-func GetDelegate(c *client.Client, delegateAccount types.AccountID, blockHash *types.Hash) (*DelegateInfo, error) {
+func GetDelegate(c *client.Client, delegateAccount types.AccountID, blockHash *types.Hash) (*types.Option[DelegateInfo], error) {
+	var targetBlockHash types.Hash
 	if blockHash == nil {
-		return nil, fmt.Errorf("block hash cannot be nil")
+		latestHash, err := c.Api.RPC.Chain.GetBlockHashLatest()
+		if err != nil {
+			return nil, fmt.Errorf("failed to get latest block hash: %v", err)
+		}
+		targetBlockHash = latestHash
+	} else {
+		targetBlockHash = *blockHash
 	}
 
 	var encodedResponse []byte
@@ -68,14 +80,10 @@ func GetDelegate(c *client.Client, delegateAccount types.AccountID, blockHash *t
 		&encodedResponse,
 		"delegateInfo_getDelegate",
 		delegateAccount,
-		*blockHash,
+		targetBlockHash,
 	)
 	if err != nil {
 		return nil, fmt.Errorf("failed to call delegateInfo_getDelegate: %v", err)
-	}
-
-	if len(encodedResponse) == 0 {
-		return nil, fmt.Errorf("no delegate found for account %v", delegateAccount)
 	}
 
 	var delegate types.Option[DelegateInfo]
@@ -84,16 +92,19 @@ func GetDelegate(c *client.Client, delegateAccount types.AccountID, blockHash *t
 		return nil, fmt.Errorf("failed to decode delegate: %v", err)
 	}
 
-	ok, d := delegate.Unwrap()
-	if ok {
-		return &d, nil
-	}
-	return nil, errors.New("no delegate found")
+	return &delegate, nil
 }
 
 func GetDelegated(c *client.Client, delegateeAccount types.AccountID, blockHash *types.Hash) ([]DelegatedInfo, error) {
+	var targetBlockHash types.Hash
 	if blockHash == nil {
-		return nil, fmt.Errorf("block hash cannot be nil")
+		latestHash, err := c.Api.RPC.Chain.GetBlockHashLatest()
+		if err != nil {
+			return nil, fmt.Errorf("failed to get latest block hash: %v", err)
+		}
+		targetBlockHash = latestHash
+	} else {
+		targetBlockHash = *blockHash
 	}
 
 	var encodedResponse []byte
@@ -101,7 +112,7 @@ func GetDelegated(c *client.Client, delegateeAccount types.AccountID, blockHash 
 		&encodedResponse,
 		"delegateInfo_getDelegated",
 		delegateeAccount,
-		*blockHash,
+		targetBlockHash,
 	)
 	if err != nil {
 		return nil, fmt.Errorf("failed to call delegateInfo_getDelegated: %v", err)
@@ -119,9 +130,3 @@ func GetDelegated(c *client.Client, delegateeAccount types.AccountID, blockHash 
 
 	return delegated, nil
 }
-
-// Runtime API functions for delegate information
-// Based on Rust runtime API:
-// - get_delegates() -> Vec<DelegateInfo>
-// - get_delegate(delegate_account: AccountId32) -> Option<DelegateInfo>
-// - get_delegated(delegatee_account: AccountId32) -> Vec<(DelegateInfo, (Compact<u64>, Compact<u16>))>
