@@ -24,9 +24,9 @@ import (
 
 //     - [o] batch_reveal_weights (Index: 98)
 //     - [o] set_tao_weights (Index: 8)
-//     - [o] become_delegate (Index: 1)
-//     - [x] decrease_take (Index: 65)
-//     - [x] increase_take (Index: 66)
+//     - [ ] become_delegate (Index: 1)
+//     - [o] decrease_take (Index: 65)
+//     - [o] increase_take (Index: 66)
 //     - [x] add_stake (Index: 2)
 //     - [x] remove_stake (Index: 3)
 //     - [o] serve_prometheus (Index: 5)
@@ -38,8 +38,8 @@ import (
 //     - [o] sudo_set_tx_childkey_take_rate_limit (Index: 69)
 //     - [o] sudo_set_min_childkey_take (Index: 76)
 //     - [o] sudo_set_max_childkey_take (Index: 77)
-//     - [o] sudo (Index: 51)
-//     - [o] sudo_unchecked_weight (Index: 52)
+//     - [ ] sudo (Index: 51)
+//     - [ ] sudo_unchecked_weight (Index: 52)
 //     - [o] vote (Index: 55)
 //     - [o] faucet (Index: 60)
 //     - [o] dissolve_network (Index: 61)
@@ -124,7 +124,6 @@ func DecreaseTakeExt(c *client.Client, hotkey types.AccountID, take types.U16) (
 	return &ext, nil
 }
 
-// remove stake
 func RemoveStakeCall(c *client.Client, hotkey types.AccountID, netuid types.U16, amount_unstaked types.U64) (types.Call, error) {
 	call, err := types.NewCall(c.Meta, "SubtensorModule.remove_stake", hotkey, netuid, amount_unstaked)
 	if err != nil {
@@ -553,12 +552,6 @@ func SudoSetMaxChildkeyTakeExt(c *client.Client, take types.U16) (*extrinsic.Ext
 	return &ext, nil
 }
 
-// //     - [ ] sudo (Index: 51)
-// // what does type box mean?
-
-// //     - [ ] sudo_unchecked_weight (Index: 52)
-
-// - [ ] vote (Index: 55)
 func VoteCall(c *client.Client, proposal types.Hash, index types.U32, approve types.Bool) (types.Call, error) {
 	call, err := types.NewCall(
 		c.Meta,
@@ -1103,28 +1096,6 @@ func SetTaoWeightsExt(
 	return &ext, nil
 }
 
-// // - [ ] become_delegate (Index: 1)// BecomeDelegateCall creates a call to become a delegate (DEPRECATED)
-// func BecomeDelegateCall(c *client.Client, hotkey types.AccountID) (types.Call, error) {
-// 	call, err := types.NewCall(
-// 		c.Meta,
-// 		"SubtensorModule.become_delegate",
-// 		hotkey,
-// 	)
-// 	if err != nil {
-// 		return types.Call{}, err
-// 	}
-// 	return call, nil
-// }
-
-// func BecomeDelegateExt(c *client.Client, hotkey types.AccountID) (*extrinsic.Extrinsic, error) {
-// 	call, err := BecomeDelegateCall(c, hotkey)
-// 	if err != nil {
-// 		return nil, err
-// 	}
-// 	ext := extrinsic.NewExtrinsic(call)
-// 	return &ext, nil
-// }
-
 func ServePrometheusCall(
 	c *client.Client,
 	netuid types.U16,
@@ -1171,7 +1142,6 @@ func ServePrometheusExt(
 	return &ext, nil
 }
 
-// original code here below
 func AddStakeLimitCall(c *client.Client, hotkey types.AccountID, netuid types.U16, amount_staked types.U64, limit_price types.U64, allow_partial types.Bool) (types.Call, error) {
 	call, err := types.NewCall(c.Meta, "SubtensorModule.add_stake_limit", hotkey, netuid, amount_staked, limit_price, allow_partial)
 	if err != nil {
