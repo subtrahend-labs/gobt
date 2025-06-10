@@ -313,20 +313,17 @@ func TestSubtensorModuleExtrinsics(t *testing.T) {
 
 		netuid := types.NewU16(1)
 
-		// Register Bob to root network
 		ext, err := RootRegisterExt(env.Client, *env.Bob.Hotkey.AccID)
 		require.NoError(t, err, "Failed to create root_register ext")
 		testutils.SignAndSubmit(t, env.Client, ext, env.Bob.Coldkey.Keypair, uint32(env.Bob.Coldkey.AccInfo.Nonce))
 		updateUserInfo(t, &env.Bob, env, false)
 
-		// Register Bob to the subnet (required for staking)
 		burnedRegisterExt, err := BurnedRegisterExt(env.Client, *env.Bob.Hotkey.AccID, netuid)
 		require.NoError(t, err, "Failed to create burned_register ext")
 		testutils.SignAndSubmit(t, env.Client, burnedRegisterExt, env.Bob.Coldkey.Keypair, uint32(env.Bob.Coldkey.AccInfo.Nonce))
 		updateUserInfo(t, &env.Bob, env, false)
 
-		// Add some stake first - EXACT same amounts as working test
-		amount_staked := types.NewU64(1000000000) // Same as working RemoveStake test
+		amount_staked := types.NewU64(1000000000)
 		addStakeExt, err := AddStakeExt(
 			env.Client,
 			*env.Bob.Hotkey.AccID,
@@ -346,11 +343,9 @@ func TestSubtensorModuleExtrinsics(t *testing.T) {
 		initialBalance := uint64(env.Bob.Coldkey.AccInfo.Data.Free)
 		t.Logf("Bob's initial balance: %v TAO", initialBalance)
 
-		// Use EXACT same unstake amount as working test
-		amount_unstaked := types.NewU64(500000000) // Same as working RemoveStake test
+		amount_unstaked := types.NewU64(500000000)
 
-		// Now try RemoveStakeLimit with the same amounts
-		unstake_limit_price := types.NewU64(1) // Very low limit price
+		unstake_limit_price := types.NewU64(1)
 		allow_partial_unstake := types.NewBool(true)
 
 		removeStakeLimitExt, err := RemoveStakeLimitExt(
