@@ -34,7 +34,6 @@ func TestAdminUtilsModuleExtrinsics(t *testing.T) {
 		sudoCall, _ := SudoSetDefaultTakeCall(env.Client, defaultTake)
 		ext, _ := NewSudoExt(env.Client, &sudoCall)
 		testutils.SignAndSubmit(t, env.Client, ext, env.Alice.Coldkey.Keypair, uint32(env.Alice.Coldkey.AccInfo.Nonce))
-		updateUserInfo(t, &env.Alice, env, false)
 
 		storageKey, _ := types.CreateStorageKey(env.Client.Meta, "SubtensorModule", "MaxDelegateTake")
 
@@ -52,7 +51,6 @@ func TestAdminUtilsModuleExtrinsics(t *testing.T) {
 		sudoCall, _ := SudoSetTxRateLimitCall(env.Client, txRateLimit)
 		ext, _ := NewSudoExt(env.Client, &sudoCall)
 		testutils.SignAndSubmit(t, env.Client, ext, env.Alice.Coldkey.Keypair, uint32(env.Alice.Coldkey.AccInfo.Nonce))
-		updateUserInfo(t, &env.Alice, env, false)
 
 		storageKey, _ := types.CreateStorageKey(env.Client.Meta, "SubtensorModule", "TxRateLimit")
 		var newTxRateLimit types.U64
@@ -69,7 +67,6 @@ func TestAdminUtilsModuleExtrinsics(t *testing.T) {
 		sudoCall, _ := SudoSetServingRateLimitCall(env.Client, 4, servingRateLimit)
 		ext, _ := NewSudoExt(env.Client, &sudoCall)
 		testutils.SignAndSubmit(t, env.Client, ext, env.Alice.Coldkey.Keypair, uint32(env.Alice.Coldkey.AccInfo.Nonce))
-		updateUserInfo(t, &env.Alice, env, false)
 
 		storageKey, _ := types.CreateStorageKey(env.Client.Meta, "SubtensorModule", "ServingRateLimit", typetools.Uint16ToBytes(uint16(4)))
 		var newServingRateLimit types.U64
