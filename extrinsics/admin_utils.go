@@ -92,3 +92,25 @@ func SudoSetDifficultyExt(c *client.Client, netuid uint16, default_difficulty ty
 	ext := extrinsic.NewExtrinsic(call)
 	return &ext, nil
 }
+
+func SudoSetWeightsVersionKeyCall(c *client.Client, netuid uint16, weights_version_key types.U64) (types.Call, error) {
+	call, err := types.NewCall(
+		c.Meta,
+		"AdminUtils.sudo_set_weights_version_key",
+		netuid,
+		weights_version_key,
+	)
+	if err != nil {
+		return types.Call{}, err
+	}
+	return call, nil
+}
+
+func SudoSetWeightsVersionKeyExt(c *client.Client, netuid uint16, weights_version_key types.U64) (*extrinsic.Extrinsic, error) {
+	call, err := SudoSetWeightsVersionKeyCall(c, netuid, weights_version_key)
+	if err != nil {
+		return nil, err
+	}
+	ext := extrinsic.NewExtrinsic(call)
+	return &ext, nil
+}
