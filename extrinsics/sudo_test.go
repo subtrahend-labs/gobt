@@ -18,9 +18,9 @@ func TestSudoModuleExtrinsics(t *testing.T) {
 		t.Parallel()
 		env := setup(t)
 
-		innerCall, err := SudoSetNetworkRateLimitCall(env.Client, types.NewU64(100))
+		innerCall, _ := SudoSetNetworkRateLimitCall(env.Client, types.NewU64(100))
 
-		sudoCall, err := NewSudoCall(env.Client, &innerCall)
+		sudoCall, _ := NewSudoCall(env.Client, &innerCall)
 		require.NotEmpty(t, sudoCall, "Sudo call should not be empty")
 	})
 
@@ -28,9 +28,9 @@ func TestSudoModuleExtrinsics(t *testing.T) {
 		t.Parallel()
 		env := setup(t)
 
-		innerCall, err := SudoSetNetworkRateLimitCall(env.Client, types.NewU64(150))
+		innerCall, _ := SudoSetNetworkRateLimitCall(env.Client, types.NewU64(150))
 
-		sudoExt, err := NewSudoExt(env.Client, &innerCall)
+		sudoExt, _ := NewSudoExt(env.Client, &innerCall)
 		require.NotNil(t, sudoExt, "Sudo extrinsic should not be nil")
 
 		testutils.SignAndSubmit(

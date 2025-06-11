@@ -318,18 +318,18 @@ func TestSubtensorModuleExtrinsics(t *testing.T) {
 		testutils.SignAndSubmit(t, env.Client, ext, env.Bob.Coldkey.Keypair, uint32(env.Bob.Coldkey.AccInfo.Nonce))
 		updateUserInfo(t, &env.Bob, env, false)
 
-		burnedRegisterExt, err := BurnedRegisterExt(env.Client, *env.Bob.Hotkey.AccID, netuid)
-		require.NoError(t, err, "Failed to create burned_register ext")
-		testutils.SignAndSubmit(t, env.Client, burnedRegisterExt, env.Bob.Coldkey.Keypair, uint32(env.Bob.Coldkey.AccInfo.Nonce))
-		updateUserInfo(t, &env.Bob, env, false)
+			burnedRegisterExt, err := BurnedRegisterExt(env.Client, *env.Bob.Hotkey.AccID, netuid)
+			require.NoError(t, err, "Failed to create burned_register ext")
+			testutils.SignAndSubmit(t, env.Client, burnedRegisterExt, env.Bob.Coldkey.Keypair, uint32(env.Bob.Coldkey.AccInfo.Nonce))
+			updateUserInfo(t, &env.Bob, env, false)
 
-		amount_staked := types.NewU64(1000000000)
-		addStakeExt, err := AddStakeExt(
-			env.Client,
-			*env.Bob.Hotkey.AccID,
-			netuid,
-			amount_staked,
-		)
+			amount_staked := types.NewU64(1000000000) 
+			addStakeExt, err := AddStakeExt(
+				env.Client,
+				*env.Bob.Hotkey.AccID,
+				netuid,
+				amount_staked,
+			)
 		require.NoError(t, err, "Failed to create add_stake ext")
 		testutils.SignAndSubmit(
 			t,
@@ -345,7 +345,7 @@ func TestSubtensorModuleExtrinsics(t *testing.T) {
 
 		amount_unstaked := types.NewU64(500000000)
 
-		unstake_limit_price := types.NewU64(1)
+		unstake_limit_price := types.NewU64(1) 
 		allow_partial_unstake := types.NewBool(true)
 
 		removeStakeLimitExt, err := RemoveStakeLimitExt(

@@ -24,4 +24,5 @@ func TestAdminUtilsModuleExtrinsics(t *testing.T) {
 		testutils.SignAndSubmit(t, env.Client, ext, env.Alice.Coldkey.Keypair, uint32(env.Alice.Coldkey.AccInfo.Nonce))
 		updateUserInfo(t, &env.Alice, env, false)
 	})
+
 }
