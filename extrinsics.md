@@ -125,7 +125,7 @@
 
 #### Module: Sudo (Index: 12)
     - [x] sudo (Index: 0)
-    - [ ] sudo_unchecked_weight (Index: 1)
+    - [x] sudo_unchecked_weight (Index: 1)
     - [ ] set_key (Index: 2)
     - [ ] sudo_as (Index: 3)
     - [ ] remove_key (Index: 4)
