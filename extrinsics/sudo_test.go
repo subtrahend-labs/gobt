@@ -14,6 +14,59 @@ import (
 func TestSudoModuleExtrinsics(t *testing.T) {
 	t.Parallel()
 
+	t.Run("NewSudoCall", func(t *testing.T) {
+		t.Parallel()
+		env := setup(t)
+
+		innerCall, err := SudoSetNetworkRateLimitCall(env.Client, types.NewU64(100))
+
+		sudoCall, err := NewSudoCall(env.Client, &innerCall)
+		require.NotEmpty(t, sudoCall, "Sudo call should not be empty")
+	})
+
+	t.Run("NewSudoExt", func(t *testing.T) {
+		t.Parallel()
+		env := setup(t)
+
+		innerCall, err := SudoSetNetworkRateLimitCall(env.Client, types.NewU64(150))
+
+		sudoExt, err := NewSudoExt(env.Client, &innerCall)
+		require.NotNil(t, sudoExt, "Sudo extrinsic should not be nil")
+
+		testutils.SignAndSubmit(
+			t,
+			env.Client,
+			sudoExt,
+			env.Alice.Coldkey.Keypair,
+			uint32(env.Alice.Coldkey.AccInfo.Nonce),
+		)
+
+		t.Logf("Successfully executed sudo call with network rate limit: 150")
+	})
+
+	t.Run("NewSudoExt", func(t *testing.T) {
+		t.Parallel()
+		env := setup(t)
+
+		// Create an inner call
+		innerCall, err := SudoSetNetworkRateLimitCall(env.Client, types.NewU64(150))
+		require.NoError(t, err, "Failed to create inner call")
+
+		// Test NewSudoExt
+		sudoExt, err := NewSudoExt(env.Client, &innerCall)
+		require.NoError(t, err, "Failed to create sudo extrinsic")
+		require.NotNil(t, sudoExt, "Sudo extrinsic should not be nil")
+
+		// Submit the extrinsic
+		testutils.SignAndSubmit(
+			t,
+			env.Client,
+			sudoExt,
+			env.Alice.Coldkey.Keypair,
+			uint32(env.Alice.Coldkey.AccInfo.Nonce),
+		)
+	})
+
 	t.Run("SudoUncheckedWeight", func(t *testing.T) {
 		t.Parallel()
 		env := setup(t)
