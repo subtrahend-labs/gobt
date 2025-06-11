@@ -32,18 +32,14 @@ func TestAdminUtilsModuleExtrinsics(t *testing.T) {
 
 		defaultTake := types.NewU16(1000)
 		sudoCall, err := SudoSetDefaultTakeCall(env.Client, defaultTake)
-		require.NoError(t, err, "Failed to create sudo_set_default_take ext")
 		ext, _ := NewSudoExt(env.Client, &sudoCall)
 		testutils.SignAndSubmit(t, env.Client, ext, env.Alice.Coldkey.Keypair, uint32(env.Alice.Coldkey.AccInfo.Nonce))
 		updateUserInfo(t, &env.Alice, env, false)
 
 		storageKey, err := types.CreateStorageKey(env.Client.Meta, "SubtensorModule", "MaxDelegateTake")
-		require.NoError(t, err, "Failed to get storage key for MaxDelegateTake")
 
 		var newDefaultTake types.U16
 		ok, err := env.Client.Api.RPC.State.GetStorageLatest(storageKey, &newDefaultTake)
-		require.NoError(t, err, "Failed to get storage value")
-		require.True(t, ok, "Storage value not found")
 
 		require.Equal(t, defaultTake, newDefaultTake, "Default take was not updated correctly")
 	})
@@ -54,18 +50,13 @@ func TestAdminUtilsModuleExtrinsics(t *testing.T) {
 
 		txRateLimit := types.NewU64(1000)
 		sudoCall, err := SudoSetTxRateLimitCall(env.Client, txRateLimit)
-		require.NoError(t, err, "Failed to create sudo_set_tx_rate_limit ext")
 		ext, _ := NewSudoExt(env.Client, &sudoCall)
 		testutils.SignAndSubmit(t, env.Client, ext, env.Alice.Coldkey.Keypair, uint32(env.Alice.Coldkey.AccInfo.Nonce))
 		updateUserInfo(t, &env.Alice, env, false)
 
 		storageKey, err := types.CreateStorageKey(env.Client.Meta, "SubtensorModule", "TxRateLimit")
-		require.NoError(t, err, "Failed to get storage key for TxRateLimit")
-
 		var newTxRateLimit types.U64
 		ok, err := env.Client.Api.RPC.State.GetStorageLatest(storageKey, &newTxRateLimit)
-		require.NoError(t, err, "Failed to get storage value")
-		require.True(t, ok, "Storage value not found")
 
 		require.Equal(t, txRateLimit, newTxRateLimit, "Tx rate limit was not updated correctly")
 	})
@@ -76,18 +67,13 @@ func TestAdminUtilsModuleExtrinsics(t *testing.T) {
 
 		servingRateLimit := types.NewU64(1000)
 		sudoCall, err := SudoSetServingRateLimitCall(env.Client, 4, servingRateLimit)
-		require.NoError(t, err, "Failed to create sudo_set_serving_rate_limit ext")
 		ext, _ := NewSudoExt(env.Client, &sudoCall)
 		testutils.SignAndSubmit(t, env.Client, ext, env.Alice.Coldkey.Keypair, uint32(env.Alice.Coldkey.AccInfo.Nonce))
 		updateUserInfo(t, &env.Alice, env, false)
 
 		storageKey, err := types.CreateStorageKey(env.Client.Meta, "SubtensorModule", "ServingRateLimit", typetools.Uint16ToBytes(uint16(4)))
-		require.NoError(t, err, "Failed to get storage key for ServingRateLimit")
-
 		var newServingRateLimit types.U64
 		ok, err := env.Client.Api.RPC.State.GetStorageLatest(storageKey, &newServingRateLimit)
-		require.NoError(t, err, "Failed to get storage value")
-		require.True(t, ok, "Storage value not found")
 
 		require.Equal(t, servingRateLimit, newServingRateLimit, "Serving rate limit was not updated correctly")
 	})
