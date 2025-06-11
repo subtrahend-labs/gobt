@@ -31,15 +31,15 @@ func TestAdminUtilsModuleExtrinsics(t *testing.T) {
 		env := setup(t)
 
 		defaultTake := types.NewU16(1000)
-		sudoCall, err := SudoSetDefaultTakeCall(env.Client, defaultTake)
+		sudoCall, _ := SudoSetDefaultTakeCall(env.Client, defaultTake)
 		ext, _ := NewSudoExt(env.Client, &sudoCall)
 		testutils.SignAndSubmit(t, env.Client, ext, env.Alice.Coldkey.Keypair, uint32(env.Alice.Coldkey.AccInfo.Nonce))
 		updateUserInfo(t, &env.Alice, env, false)
 
-		storageKey, err := types.CreateStorageKey(env.Client.Meta, "SubtensorModule", "MaxDelegateTake")
+		storageKey, _ := types.CreateStorageKey(env.Client.Meta, "SubtensorModule", "MaxDelegateTake")
 
 		var newDefaultTake types.U16
-		ok, err := env.Client.Api.RPC.State.GetStorageLatest(storageKey, &newDefaultTake)
+		env.Client.Api.RPC.State.GetStorageLatest(storageKey, &newDefaultTake)
 
 		require.Equal(t, defaultTake, newDefaultTake, "Default take was not updated correctly")
 	})
@@ -49,14 +49,14 @@ func TestAdminUtilsModuleExtrinsics(t *testing.T) {
 		env := setup(t)
 
 		txRateLimit := types.NewU64(1000)
-		sudoCall, err := SudoSetTxRateLimitCall(env.Client, txRateLimit)
+		sudoCall, _ := SudoSetTxRateLimitCall(env.Client, txRateLimit)
 		ext, _ := NewSudoExt(env.Client, &sudoCall)
 		testutils.SignAndSubmit(t, env.Client, ext, env.Alice.Coldkey.Keypair, uint32(env.Alice.Coldkey.AccInfo.Nonce))
 		updateUserInfo(t, &env.Alice, env, false)
 
-		storageKey, err := types.CreateStorageKey(env.Client.Meta, "SubtensorModule", "TxRateLimit")
+		storageKey, _ := types.CreateStorageKey(env.Client.Meta, "SubtensorModule", "TxRateLimit")
 		var newTxRateLimit types.U64
-		ok, err := env.Client.Api.RPC.State.GetStorageLatest(storageKey, &newTxRateLimit)
+		env.Client.Api.RPC.State.GetStorageLatest(storageKey, &newTxRateLimit)
 
 		require.Equal(t, txRateLimit, newTxRateLimit, "Tx rate limit was not updated correctly")
 	})
@@ -66,14 +66,14 @@ func TestAdminUtilsModuleExtrinsics(t *testing.T) {
 		env := setup(t)
 
 		servingRateLimit := types.NewU64(1000)
-		sudoCall, err := SudoSetServingRateLimitCall(env.Client, 4, servingRateLimit)
+		sudoCall, _ := SudoSetServingRateLimitCall(env.Client, 4, servingRateLimit)
 		ext, _ := NewSudoExt(env.Client, &sudoCall)
 		testutils.SignAndSubmit(t, env.Client, ext, env.Alice.Coldkey.Keypair, uint32(env.Alice.Coldkey.AccInfo.Nonce))
 		updateUserInfo(t, &env.Alice, env, false)
 
-		storageKey, err := types.CreateStorageKey(env.Client.Meta, "SubtensorModule", "ServingRateLimit", typetools.Uint16ToBytes(uint16(4)))
+		storageKey, _ := types.CreateStorageKey(env.Client.Meta, "SubtensorModule", "ServingRateLimit", typetools.Uint16ToBytes(uint16(4)))
 		var newServingRateLimit types.U64
-		ok, err := env.Client.Api.RPC.State.GetStorageLatest(storageKey, &newServingRateLimit)
+		env.Client.Api.RPC.State.GetStorageLatest(storageKey, &newServingRateLimit)
 
 		require.Equal(t, servingRateLimit, newServingRateLimit, "Serving rate limit was not updated correctly")
 	})
