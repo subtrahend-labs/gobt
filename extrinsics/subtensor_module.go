@@ -59,6 +59,16 @@ import (
 //     - [ ] swap_stake_limit (Index: 90)
 //     - [ ] try_associate_hotkey (Index: 91)
 
+type SubnetIdentityV2 struct {
+	SubnetName    types.Bytes
+	GithubRepo    types.Bytes
+	SubnetContact types.Bytes
+	SubnetURL     types.Bytes
+	Discord       types.Bytes
+	Description   types.Bytes
+	Additional    types.Bytes
+}
+
 func AddStakeLimitCall(c *client.Client, hotkey types.AccountID, netuid types.U16, amount_staked types.U64, limit_price types.U64, allow_partial types.Bool) (types.Call, error) {
 	call, err := types.NewCall(c.Meta, "SubtensorModule.add_stake_limit", hotkey, netuid, amount_staked, limit_price, allow_partial)
 	if err != nil {
