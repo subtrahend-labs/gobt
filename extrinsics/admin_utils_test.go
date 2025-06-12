@@ -140,4 +140,58 @@ func TestAdminUtilsModuleExtrinsics(t *testing.T) {
 		require.NotEqual(t, initialVersion, newVersion, "Weights version key did not change")
 	})
 
+	t.Run("SudoSetTempo", func(t *testing.T) {
+		t.Parallel()
+		env := setup(t)
+
+		netuid := uint16(0)
+		tempo := uint16(1)
+
+		metagraph, err := runtime.GetMetagraph(env.Client, netuid, nil)
+		require.NoError(t, err, "Failed to get initial metagraph")
+		initialTempo := metagraph.Tempo
+
+		sudoCall, err := SudoSetTempoCall(env.Client, netuid, tempo)
+		require.NoError(t, err, "Failed to create sudo_set_tempo call")
+
+		ext, err := NewSudoExt(env.Client, &sudoCall)
+		require.NoError(t, err, "Failed to create sudo extrinsic")
+
+		testutils.SignAndSubmit(t, env.Client, ext, env.Alice.Coldkey.Keypair, uint32(env.Alice.Coldkey.AccInfo.Nonce))
+
+		metagraph, err = runtime.GetMetagraph(env.Client, netuid, nil)
+		require.NoError(t, err, "Failed to get updated metagraph")
+
+		newTempo := uint16(metagraph.Tempo.Int64())
+		require.Equal(t, tempo, newTempo, "Tempo was not set correctly")
+		require.NotEqual(t, initialTempo, metagraph.Tempo, "Tempo did not change")
+	})
+
+	t.Run("SudoSetTotalIssuance", func(t *testing.T) {
+		t.Parallel()
+		env := setup(t)
+
+		netuid := uint16(0)
+		total_issuance := types.NewU64(1000)
+
+		metagraph, err := runtime.GetMetagraph(env.Client, netuid, nil)
+		require.NoError(t, err, "Failed to get initial metagraph")
+		initialTotalIssuance := metagraph.TotalIssuance
+
+		sudoCall, err := SudoSetTotalIssuanceCall(env.Client, netuid, total_issuance)
+		require.NoError(t, err, "Failed to create sudo_set_total_issuance call")
+
+		ext, err := NewSudoExt(env.Client, &sudoCall)
+		require.NoError(t, err, "Failed to create sudo extrinsic")
+
+		testutils.SignAndSubmit(t, env.Client, ext, env.Alice.Coldkey.Keypair, uint32(env.Alice.Coldkey.AccInfo.Nonce))
+
+		metagraph, err = runtime.GetMetagraph(env.Client, netuid, nil)
+		require.NoError(t, err, "Failed to get updated metagraph")
+
+		newTotalIssuance := types.NewU64(uint64(metagraph.TotalIssuance.Int64()))
+		require.Equal(t, total_issuance, newTotalIssuance, "Total issuance was not set correctly")
+		require.NotEqual(t, initialTotalIssuance, newTotalIssuance, "Total issuance did not change")
+	})
+
 }

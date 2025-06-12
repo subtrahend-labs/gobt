@@ -114,3 +114,46 @@ func SudoSetWeightsVersionKeyExt(c *client.Client, netuid uint16, weights_versio
 	ext := extrinsic.NewExtrinsic(call)
 	return &ext, nil
 }
+
+func SudoSetTempoCall(c *client.Client, netuid uint16, tempo uint16) (types.Call, error) {
+	call, err := types.NewCall(
+		c.Meta,
+		"AdminUtils.sudo_set_tempo",
+		netuid,
+		tempo,
+	)
+	if err != nil {
+		return types.Call{}, err
+	}
+	return call, nil
+}
+
+func SudoSetTempoExt(c *client.Client, netuid uint16, tempo uint16) (*extrinsic.Extrinsic, error) {
+	call, err := SudoSetTempoCall(c, netuid, tempo)
+	if err != nil {
+		return nil, err
+	}
+	ext := extrinsic.NewExtrinsic(call)
+	return &ext, nil
+}
+
+func SudoSetTotalIssuanceCall(c *client.Client, total_issuance types.U64) (types.Call, error) {
+	call, err := types.NewCall(
+		c.Meta,
+		"AdminUtils.sudo_set_total_issuance",
+		total_issuance,
+	)
+	if err != nil {
+		return types.Call{}, err
+	}
+	return call, nil
+}
+
+func SudoSetTotalIssuanceExt(c *client.Client, total_issuance types.U64) (*extrinsic.Extrinsic, error) {
+	call, err := SudoSetTotalIssuanceCall(c, total_issuance)
+	if err != nil {
+		return nil, err
+	}
+	ext := extrinsic.NewExtrinsic(call)
+	return &ext, nil
+}
