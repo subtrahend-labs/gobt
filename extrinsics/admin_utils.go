@@ -509,7 +509,6 @@ func SudoSetMaxBurnExt(c *client.Client, netuid types.U16, max_burn types.U64) (
 	return &ext, nil
 }
 
-
 func SudoSetMaxAllowedValidatorsCall(c *client.Client, netuid types.U16, max_allowed_validators types.U16) (types.Call, error) {
 	call, err := types.NewCall(
 		c.Meta,
