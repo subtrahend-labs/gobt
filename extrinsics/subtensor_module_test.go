@@ -10,6 +10,7 @@ import (
 
 	"github.com/centrifuge/go-substrate-rpc-client/v4/types"
 	"github.com/stretchr/testify/require"
+	"github.com/subtrahend-labs/gobt/storage"
 	"github.com/subtrahend-labs/gobt/testutils"
 )
 
@@ -65,29 +66,25 @@ func TestSubtensorModuleExtrinsics(t *testing.T) {
 		t.Parallel()
 		env := setup(t)
 
-		// First, set up a subnet
 		setupSubnet(t, env)
 
-		// Bob needs to register to the subnet first using BurnedRegister
 		netuid := types.NewU16(1)
 		ext, err := RootRegisterExt(env.Client, *env.Bob.Hotkey.AccID)
 		require.NoError(t, err, "Failed to create root_register ext")
 		testutils.SignAndSubmit(t, env.Client, ext, env.Bob.Coldkey.Keypair, uint32(env.Bob.Coldkey.AccInfo.Nonce))
 		updateUserInfo(t, &env.Bob, env, false)
 
-		// Now test ServeAxon with Bob's hotkey
 		version := types.NewU32(0)
 
 		ipInt, _ := new(big.Int).SetString("1676056785", 10)
 		ip := types.NewU128(*ipInt)
 
 		port := types.NewU16(8080)
-		ipType := types.NewU8(4)   // IPv4
-		protocol := types.NewU8(0) // HTTP
+		ipType := types.NewU8(4)
+		protocol := types.NewU8(0)
 		placeholder1 := types.NewU8(0)
 		placeholder2 := types.NewU8(0)
 
-		// Create and submit the ServeAxon extrinsic
 		serveAxonExt, err := ServeAxonExt(
 			env.Client,
 			netuid,
@@ -101,7 +98,6 @@ func TestSubtensorModuleExtrinsics(t *testing.T) {
 		)
 		require.NoError(t, err, "Failed to create serve_axon ext")
 
-		// Sign and submit the extrinsic
 		testutils.SignAndSubmit(
 			t,
 			env.Client,
@@ -110,8 +106,6 @@ func TestSubtensorModuleExtrinsics(t *testing.T) {
 			uint32(0),
 		)
 
-		// Update user info after transaction
-		updateUserInfo(t, &env.Bob, env, false)
 	})
 
 	t.Run("ServeAxonTLS", func(t *testing.T) {
@@ -162,8 +156,44 @@ func TestSubtensorModuleExtrinsics(t *testing.T) {
 			uint32(0),
 		)
 
-		// Update user info after transaction
+	})
+
+	t.Run("AddStake", func(t *testing.T) {
+		t.Parallel()
+		env := setup(t)
+
+		setupSubnet(t, env)
+
+		netuid := types.NewU16(1)
+		ext, err := RootRegisterExt(env.Client, *env.Bob.Hotkey.AccID)
+		require.NoError(t, err, "Failed to create root_register ext")
+		testutils.SignAndSubmit(t, env.Client, ext, env.Bob.Coldkey.Keypair, uint32(env.Bob.Coldkey.AccInfo.Nonce))
 		updateUserInfo(t, &env.Bob, env, false)
+
+		initialBalance := uint64(env.Bob.Coldkey.AccInfo.Data.Free)
+		t.Logf("Bob's initial balance: %v TAO", initialBalance)
+
+		amount_staked := types.NewU64(1000000000)
+
+		addStakeExt, err := AddStakeExt(
+			env.Client,
+			*env.Bob.Hotkey.AccID,
+			netuid,
+			amount_staked,
+		)
+
+		testutils.SignAndSubmit(
+			t,
+			env.Client,
+			addStakeExt,
+			env.Bob.Coldkey.Keypair,
+			uint32(env.Bob.Coldkey.AccInfo.Nonce),
+		)
+
+		finalInfo, err := storage.GetAccountInfo(env.Client, env.Bob.Coldkey.Keypair.PublicKey, nil)
+		finalBalance := uint64(finalInfo.Data.Free)
+		t.Logf("Bob's final balance: %v TAO", finalBalance)
+		require.Equal(t, initialBalance-uint64(amount_staked), finalBalance, "Balance should decrease by staked amount")
 	})
 
 }
