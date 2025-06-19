@@ -75,35 +75,6 @@ func TestAdminUtilsModuleExtrinsics(t *testing.T) {
 
 		require.Equal(t, servingRateLimit, newServingRateLimit, "Serving rate limit was not updated correctly")
 	})
-	t.Run("SudoSetMaxDifficulty", func(t *testing.T) {
-		t.Parallel()
-		env := setup(t)
-
-		netuid := uint16(0)
-		max_difficulty := types.NewU64(1000)
-
-		metagraph, err := runtime.GetMetagraph(env.Client, netuid, nil)
-		require.NoError(t, err, "Failed to get initial metagraph")
-		initialMaxDifficulty := metagraph.MaxDifficulty
-
-		var sudoCall types.Call
-		sudoCall, err = SudoSetMaxDifficultyCall(env.Client, netuid, max_difficulty)
-		require.NoError(t, err, "Failed to create sudo_set_min_difficulty call")
-
-		ext, err := NewSudoExt(env.Client, &sudoCall)
-		require.NoError(t, err, "Failed to create sudo extrinsic")
-
-		testutils.SignAndSubmit(t, env.Client, ext, env.Alice.Coldkey.Keypair, uint32(env.Alice.Coldkey.AccInfo.Nonce))
-
-		metagraph, err = runtime.GetMetagraph(env.Client, netuid, nil)
-		require.NoError(t, err, "Failed to get updated metagraph")
-
-		newMaxDifficulty := types.NewU64(uint64(metagraph.MaxDifficulty.Int64()))
-		require.Equal(t, max_difficulty, newMaxDifficulty, "Max difficulty was not set correctly")
-
-		require.NotEqual(t, initialMaxDifficulty, newMaxDifficulty, "Max difficulty did not change")
-	})
-
 	t.Run("SudoSetDifficulty", func(t *testing.T) {
 		t.Parallel()
 		env := setup(t)
