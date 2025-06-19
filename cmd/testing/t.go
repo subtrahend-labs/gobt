@@ -30,6 +30,6 @@ func main() {
 	}
 
 	for i, v := range res {
-		fmt.Printf("%d: %d\n", i, v.UID)
+		fmt.Printf("%d: %d\n", i, v.UID.Int64())
 	}
 }
