@@ -137,27 +137,6 @@ func SudoSetTempoExt(c *client.Client, netuid uint16, tempo uint16) (*extrinsic.
 	return &ext, nil
 }
 
-func SudoSetTotalIssuanceCall(c *client.Client, total_issuance types.U64) (types.Call, error) {
-	call, err := types.NewCall(
-		c.Meta,
-		"AdminUtils.sudo_set_total_issuance",
-		total_issuance,
-	)
-	if err != nil {
-		return types.Call{}, err
-	}
-	return call, nil
-}
-
-func SudoSetTotalIssuanceExt(c *client.Client, total_issuance types.U64) (*extrinsic.Extrinsic, error) {
-	call, err := SudoSetTotalIssuanceCall(c, total_issuance)
-	if err != nil {
-		return nil, err
-	}
-	ext := extrinsic.NewExtrinsic(call)
-	return &ext, nil
-}
-
 func SudoSetDefaultTakeCall(c *client.Client, default_take types.U16) (types.Call, error) {
 	call, err := types.NewCall(
 		c.Meta,
