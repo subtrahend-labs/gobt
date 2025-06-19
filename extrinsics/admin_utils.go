@@ -310,3 +310,222 @@ func SudoSetNetworkRegistrationAllowedExt(c *client.Client, netuid types.U16, re
 	ext := extrinsic.NewExtrinsic(call)
 	return &ext, nil
 }
+
+func SudoSetNetworkPowRegistrationAllowedCall(c *client.Client, netuid types.U16, registration_allowed bool) (types.Call, error) {
+	call, err := types.NewCall(
+		c.Meta,
+		"AdminUtils.sudo_set_network_pow_registration_allowed",
+		netuid,
+		registration_allowed,
+	)
+	if err != nil {
+		return types.Call{}, err
+	}
+	return call, nil
+}
+
+func SudoSetNetworkPowRegistrationAllowedExt(c *client.Client, netuid types.U16, registration_allowed bool) (*extrinsic.Extrinsic, error) {
+	call, err := SudoSetNetworkPowRegistrationAllowedCall(c, netuid, registration_allowed)
+	if err != nil {
+		return nil, err
+	}
+	ext := extrinsic.NewExtrinsic(call)
+	return &ext, nil
+}
+
+func SudoSetTargetRegistrationsPerIntervalCall(c *client.Client, netuid types.U16, target_registrations_per_interval types.U16) (types.Call, error) {
+	call, err := types.NewCall(
+		c.Meta,
+		"AdminUtils.sudo_set_target_registrations_per_interval",
+		netuid,
+		target_registrations_per_interval,
+	)
+	if err != nil {
+		return types.Call{}, err
+	}
+	return call, nil
+}
+
+func SudoSetTargetRegistrationsPerIntervalExt(c *client.Client, netuid types.U16, target_registrations_per_interval types.U16) (*extrinsic.Extrinsic, error) {
+	call, err := SudoSetTargetRegistrationsPerIntervalCall(c, netuid, target_registrations_per_interval)
+	if err != nil {
+		return nil, err
+	}
+	ext := extrinsic.NewExtrinsic(call)
+	return &ext, nil
+}
+
+func SudoSetMinBurnCall(c *client.Client, netuid types.U16, min_burn types.U64) (types.Call, error) {
+	call, err := types.NewCall(
+		c.Meta,
+		"AdminUtils.sudo_set_min_burn",
+		netuid,
+		min_burn,
+	)
+	if err != nil {
+		return types.Call{}, err
+	}
+	return call, nil
+}
+
+func SudoSetMinBurnExt(c *client.Client, netuid types.U16, min_burn types.U64) (*extrinsic.Extrinsic, error) {
+	call, err := SudoSetMinBurnCall(c, netuid, min_burn)
+	if err != nil {
+		return nil, err
+	}
+	ext := extrinsic.NewExtrinsic(call)
+	return &ext, nil
+}
+
+func SudoSetMaxBurnCall(c *client.Client, netuid types.U16, max_burn types.U64) (types.Call, error) {
+	call, err := types.NewCall(
+		c.Meta,
+		"AdminUtils.sudo_set_max_burn",
+		netuid,
+		max_burn,
+	)
+	if err != nil {
+		return types.Call{}, err
+	}
+	return call, nil
+}
+
+func SudoSetMaxBurnExt(c *client.Client, netuid types.U16, max_burn types.U64) (*extrinsic.Extrinsic, error) {
+	call, err := SudoSetMaxBurnCall(c, netuid, max_burn)
+	if err != nil {
+		return nil, err
+	}
+	ext := extrinsic.NewExtrinsic(call)
+	return &ext, nil
+}
+
+func SudoSetDifficultyCall(c *client.Client, netuid types.U16, difficulty types.U64) (types.Call, error) {
+	call, err := types.NewCall(
+		c.Meta,
+		"AdminUtils.sudo_set_difficulty",
+		netuid,
+		difficulty,
+	)
+	if err != nil {
+		return types.Call{}, err
+	}
+	return call, nil
+}
+
+func SudoSetDifficultyExt(c *client.Client, netuid types.U16, difficulty types.U64) (*extrinsic.Extrinsic, error) {
+	call, err := SudoSetDifficultyCall(c, netuid, difficulty)
+	if err != nil {
+		return nil, err
+	}
+	ext := extrinsic.NewExtrinsic(call)
+	return &ext, nil
+}
+
+func SudoSetMaxAllowedValidatorsCall(c *client.Client, netuid types.U16, max_allowed_validators types.U16) (types.Call, error) {
+	call, err := types.NewCall(
+		c.Meta,
+		"AdminUtils.sudo_set_max_allowed_validators",
+		netuid,
+		max_allowed_validators,
+	)
+	if err != nil {
+		return types.Call{}, err
+	}
+	return call, nil
+}
+
+func SudoSetMaxAllowedValidatorsExt(c *client.Client, netuid types.U16, max_allowed_validators types.U16) (*extrinsic.Extrinsic, error) {
+	call, err := SudoSetMaxAllowedValidatorsCall(c, netuid, max_allowed_validators)
+	if err != nil {
+		return nil, err
+	}
+	ext := extrinsic.NewExtrinsic(call)
+	return &ext, nil
+}
+
+func SudoSetBondsMovingAverageCall(c *client.Client, netuid types.U16, bonds_moving_average types.U64) (types.Call, error) {
+	call, err := types.NewCall(
+		c.Meta,
+		"AdminUtils.sudo_set_bonds_moving_average",
+		netuid,
+		bonds_moving_average,
+	)
+	if err != nil {
+		return types.Call{}, err
+	}
+	return call, nil
+}
+
+func SudoSetBondsMovingAverageExt(c *client.Client, netuid types.U16, bonds_moving_average types.U64) (*extrinsic.Extrinsic, error) {
+	call, err := SudoSetBondsMovingAverageCall(c, netuid, bonds_moving_average)
+	if err != nil {
+		return nil, err
+	}
+	ext := extrinsic.NewExtrinsic(call)
+	return &ext, nil
+}
+
+func SudoSetBondsPenaltyCall(c *client.Client, netuid types.U16, bonds_penalty types.U16) (types.Call, error) {
+	call, err := types.NewCall(
+		c.Meta,
+		"AdminUtils.sudo_set_bonds_penalty",
+		netuid,
+		bonds_penalty,
+	)
+	if err != nil {
+		return types.Call{}, err
+	}
+	return call, nil
+}
+
+func SudoSetBondsPenaltyExt(c *client.Client, netuid types.U16, bonds_penalty types.U16) (*extrinsic.Extrinsic, error) {
+	call, err := SudoSetBondsPenaltyCall(c, netuid, bonds_penalty)
+	if err != nil {
+		return nil, err
+	}
+	ext := extrinsic.NewExtrinsic(call)
+	return &ext, nil
+}
+
+func SudoSetMaxRegistrationsPerBlockCall(c *client.Client, netuid types.U16, max_registrations_per_block types.U16) (types.Call, error) {
+	call, err := types.NewCall(
+		c.Meta,
+		"AdminUtils.sudo_set_max_registrations_per_block",
+		netuid,
+		max_registrations_per_block,
+	)
+	if err != nil {
+		return types.Call{}, err
+	}
+	return call, nil
+}
+
+func SudoSetMaxRegistrationsPerBlockExt(c *client.Client, netuid types.U16, max_registrations_per_block types.U16) (*extrinsic.Extrinsic, error) {
+	call, err := SudoSetMaxRegistrationsPerBlockCall(c, netuid, max_registrations_per_block)
+	if err != nil {
+		return nil, err
+	}
+	ext := extrinsic.NewExtrinsic(call)
+	return &ext, nil
+}
+
+func SudoSetSubnetOwnerCutCall(c *client.Client, subnet_owner_cut types.U16) (types.Call, error) {
+	call, err := types.NewCall(
+		c.Meta,
+		"AdminUtils.sudo_set_subnet_owner_cut",
+		subnet_owner_cut,
+	)
+	if err != nil {
+		return types.Call{}, err
+	}
+	return call, nil
+}
+
+func SudoSetSubnetOwnerCutExt(c *client.Client, subnet_owner_cut types.U16) (*extrinsic.Extrinsic, error) {
+	call, err := SudoSetSubnetOwnerCutCall(c, subnet_owner_cut)
+	if err != nil {
+		return nil, err
+	}
+	ext := extrinsic.NewExtrinsic(call)
+	return &ext, nil
+}
