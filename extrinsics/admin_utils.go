@@ -28,7 +28,6 @@ func SudoSetNetworkRateLimitExt(c *client.Client, rateLimit types.U64) (*extrins
 	return &ext, nil
 }
 
-// - [ ] sudo_toggle_evm_precompile (Index: 62)
 func SudoToggleEvmPrecompileCall(c *client.Client, precompileId types.U8, enabled types.Bool) (types.Call, error) {
 	call, err := types.NewCall(
 		c.Meta,
