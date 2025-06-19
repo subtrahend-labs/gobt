@@ -27,7 +27,6 @@ func TestAdminUtilsModuleExtrinsics(t *testing.T) {
 		testutils.SignAndSubmit(t, env.Client, ext, env.Alice.Coldkey.Keypair, uint32(env.Alice.Coldkey.AccInfo.Nonce))
 	})
 
-<<<<<<< HEAD
 	t.Run("SudoToggleEvmPrecompile", func(t *testing.T) {
 		t.Parallel()
 		env := setup(t)
@@ -99,7 +98,8 @@ func TestAdminUtilsModuleExtrinsics(t *testing.T) {
 		require.NotNil(t, blockHash, "Transaction should be included in block")
 
 		t.Logf("SudoSetEmaPriceHalvingPeriod transaction included in block: %x", blockHash)
-=======
+	})
+
 	t.Run("SudoSetDefaultTake", func(t *testing.T) {
 		t.Parallel()
 		env := setup(t)
@@ -147,7 +147,6 @@ func TestAdminUtilsModuleExtrinsics(t *testing.T) {
 		env.Client.Api.RPC.State.GetStorageLatest(storageKey, &newServingRateLimit)
 
 		require.Equal(t, servingRateLimit, newServingRateLimit, "Serving rate limit was not updated correctly")
->>>>>>> upstream/master
 	})
 
 }
