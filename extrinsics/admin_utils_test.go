@@ -235,5 +235,4 @@ func TestAdminUtilsModuleExtrinsics(t *testing.T) {
 		require.Equal(t, registrationAllowed, newNetworkRegistrationAllowed, "Network registration allowed was not updated correctly")
 	})
 
-
 }
