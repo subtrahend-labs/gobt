@@ -24,7 +24,6 @@ func sha256Hash(str []byte) string {
 	return hex.EncodeToString(sum)
 }
 
-
 // Takes sender ss58, sender public, sender private, receiver ss58 and body
 func GetEpistulaHeaders(kp signature.KeyringPair, rSS58 string, body []byte) (map[string]string, error) {
 	timestamp := time.Now().UnixMilli()
