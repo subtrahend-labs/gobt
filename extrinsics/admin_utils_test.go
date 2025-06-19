@@ -104,35 +104,6 @@ func TestAdminUtilsModuleExtrinsics(t *testing.T) {
 		require.NotEqual(t, initialMaxDifficulty, newMaxDifficulty, "Max difficulty did not change")
 	})
 
-	t.Run("SudoSetDifficulty", func(t *testing.T) {
-		t.Parallel()
-		env := setup(t)
-
-		netuid := uint16(0)
-		default_difficulty := types.NewU64(0)
-
-		metagraph, err := runtime.GetMetagraph(env.Client, netuid, nil)
-		require.NoError(t, err, "Failed to get initial metagraph")
-		initialDifficulty := metagraph.Difficulty
-
-		var sudoCall types.Call
-		sudoCall, err = SudoSetDifficultyCall(env.Client, netuid, default_difficulty)
-		require.NoError(t, err, "Failed to create sudo_set_difficulty call")
-
-		ext, err := NewSudoExt(env.Client, &sudoCall)
-		require.NoError(t, err, "Failed to create sudo extrinsic")
-
-		testutils.SignAndSubmit(t, env.Client, ext, env.Alice.Coldkey.Keypair, uint32(env.Alice.Coldkey.AccInfo.Nonce))
-
-		metagraph, err = runtime.GetMetagraph(env.Client, netuid, nil)
-		require.NoError(t, err, "Failed to get updated metagraph")
-
-		newDifficulty := types.NewU64(uint64(metagraph.Difficulty.Int64()))
-		require.Equal(t, default_difficulty, newDifficulty, "Difficulty was not set correctly")
-
-		require.NotEqual(t, initialDifficulty, metagraph.Difficulty, "Difficulty did not change")
-	})
-
 	t.Run("SudoSetMinDifficulty", func(t *testing.T) {
 		t.Parallel()
 		env := setup(t)
@@ -374,4 +345,173 @@ func TestAdminUtilsModuleExtrinsics(t *testing.T) {
 
 		require.Equal(t, registrationAllowed, newNetworkRegistrationAllowed, "Network registration allowed was not updated correctly")
 	})
+
+	t.Run("SudoSetNetworkPowRegistrationAllowed", func(t *testing.T) {
+		t.Parallel()
+		env := setup(t)
+
+		registrationAllowed := true
+		sudoCall, _ := SudoSetNetworkPowRegistrationAllowedCall(env.Client, 0, registrationAllowed)
+		ext, _ := NewSudoExt(env.Client, &sudoCall)
+		testutils.SignAndSubmit(t, env.Client, ext, env.Alice.Coldkey.Keypair, uint32(env.Alice.Coldkey.AccInfo.Nonce))
+
+		storageKey, _ := types.CreateStorageKey(env.Client.Meta, "SubtensorModule", "NetworkPowRegistrationAllowed", typetools.Uint16ToBytes(uint16(0)))
+		var newNetworkPowRegistrationAllowed bool
+		env.Client.Api.RPC.State.GetStorageLatest(storageKey, &newNetworkPowRegistrationAllowed)
+
+		require.Equal(t, registrationAllowed, newNetworkPowRegistrationAllowed, "Network pow registration allowed was not updated correctly")
+	})
+
+	t.Run("SudoSetTargetRegistrationsPerInterval", func(t *testing.T) {
+		t.Parallel()
+		env := setup(t)
+
+		targetRegistrationsPerInterval := types.NewU16(1000)
+		sudoCall, _ := SudoSetTargetRegistrationsPerIntervalCall(env.Client, 0, targetRegistrationsPerInterval)
+		ext, _ := NewSudoExt(env.Client, &sudoCall)
+		testutils.SignAndSubmit(t, env.Client, ext, env.Alice.Coldkey.Keypair, uint32(env.Alice.Coldkey.AccInfo.Nonce))
+
+		storageKey, _ := types.CreateStorageKey(env.Client.Meta, "SubtensorModule", "TargetRegistrationsPerInterval", typetools.Uint16ToBytes(uint16(0)))
+		var newTargetRegistrationsPerInterval types.U16
+		env.Client.Api.RPC.State.GetStorageLatest(storageKey, &newTargetRegistrationsPerInterval)
+
+		require.Equal(t, targetRegistrationsPerInterval, newTargetRegistrationsPerInterval, "Target registrations per interval was not updated correctly")
+	})
+
+	t.Run("SudoSetMinBurn", func(t *testing.T) {
+		t.Parallel()
+		env := setup(t)
+
+		minBurn := types.NewU64(1000)
+		sudoCall, _ := SudoSetMinBurnCall(env.Client, 0, minBurn)
+		ext, _ := NewSudoExt(env.Client, &sudoCall)
+		testutils.SignAndSubmit(t, env.Client, ext, env.Alice.Coldkey.Keypair, uint32(env.Alice.Coldkey.AccInfo.Nonce))
+
+		storageKey, _ := types.CreateStorageKey(env.Client.Meta, "SubtensorModule", "MinBurn", typetools.Uint16ToBytes(uint16(0)))
+		var newMinBurn types.U64
+		env.Client.Api.RPC.State.GetStorageLatest(storageKey, &newMinBurn)
+
+		require.Equal(t, minBurn, newMinBurn, "Min burn was not updated correctly")
+	})
+
+	t.Run("SudoSetMaxBurn", func(t *testing.T) {
+		t.Parallel()
+		env := setup(t)
+
+		maxBurn := types.NewU64(1000)
+		sudoCall, _ := SudoSetMaxBurnCall(env.Client, 0, maxBurn)
+		ext, _ := NewSudoExt(env.Client, &sudoCall)
+		testutils.SignAndSubmit(t, env.Client, ext, env.Alice.Coldkey.Keypair, uint32(env.Alice.Coldkey.AccInfo.Nonce))
+
+		storageKey, _ := types.CreateStorageKey(env.Client.Meta, "SubtensorModule", "MaxBurn", typetools.Uint16ToBytes(uint16(0)))
+		var newMaxBurn types.U64
+		env.Client.Api.RPC.State.GetStorageLatest(storageKey, &newMaxBurn)
+
+		require.Equal(t, maxBurn, newMaxBurn, "Max burn was not updated correctly")
+	})
+
+	t.Run("SudoSetDifficulty", func(t *testing.T) {
+		t.Parallel()
+		env := setup(t)
+
+		difficulty := types.NewU64(1000)
+		sudoCall, _ := SudoSetDifficultyCall(env.Client, 0, difficulty)
+		ext, _ := NewSudoExt(env.Client, &sudoCall)
+		testutils.SignAndSubmit(t, env.Client, ext, env.Alice.Coldkey.Keypair, uint32(env.Alice.Coldkey.AccInfo.Nonce))
+
+		storageKey, _ := types.CreateStorageKey(env.Client.Meta, "SubtensorModule", "Difficulty", typetools.Uint16ToBytes(uint16(0)))
+		var newDifficulty types.U64
+		env.Client.Api.RPC.State.GetStorageLatest(storageKey, &newDifficulty)
+
+		require.Equal(t, difficulty, newDifficulty, "Difficulty was not updated correctly")
+	})
+
+	t.Run("SudoSetMaxAllowedValidators", func(t *testing.T) {
+		t.Parallel()
+		env := setup(t)
+
+		//Rust code has check that max allowed validators is less than or equal to max allowed uids
+		//So we increase max allowed uids first
+		maxAllowedUids := types.NewU16(1000)
+		sudoCall, _ := SudoSetMaxAllowedUidsCall(env.Client, 0, maxAllowedUids)
+		ext, _ := NewSudoExt(env.Client, &sudoCall)
+		testutils.SignAndSubmit(t, env.Client, ext, env.Alice.Coldkey.Keypair, uint32(env.Alice.Coldkey.AccInfo.Nonce))
+		updateUserInfo(t, &env.Alice, env, false) //updated so that nonce is updated for next transaction
+
+		maxAllowedValidators := types.NewU16(10)
+		sudoCall, _ = SudoSetMaxAllowedValidatorsCall(env.Client, 0, maxAllowedValidators)
+		ext, _ = NewSudoExt(env.Client, &sudoCall)
+		testutils.SignAndSubmit(t, env.Client, ext, env.Alice.Coldkey.Keypair, uint32(env.Alice.Coldkey.AccInfo.Nonce))
+
+		storageKey, _ := types.CreateStorageKey(env.Client.Meta, "SubtensorModule", "MaxAllowedValidators", typetools.Uint16ToBytes(uint16(0)))
+		var newMaxAllowedValidators types.U16
+		env.Client.Api.RPC.State.GetStorageLatest(storageKey, &newMaxAllowedValidators)
+
+		require.Equal(t, maxAllowedValidators, newMaxAllowedValidators, "Max allowed validators was not updated correctly")
+	})
+
+	t.Run("SudoSetBondsMovingAverage", func(t *testing.T) {
+		t.Parallel()
+		env := setup(t)
+
+		bondsMovingAverage := types.NewU64(1000)
+		sudoCall, _ := SudoSetBondsMovingAverageCall(env.Client, 0, bondsMovingAverage)
+		ext, _ := NewSudoExt(env.Client, &sudoCall)
+		testutils.SignAndSubmit(t, env.Client, ext, env.Alice.Coldkey.Keypair, uint32(env.Alice.Coldkey.AccInfo.Nonce))
+
+		storageKey, _ := types.CreateStorageKey(env.Client.Meta, "SubtensorModule", "BondsMovingAverage", typetools.Uint16ToBytes(uint16(0)))
+		var newBondsMovingAverage types.U64
+		env.Client.Api.RPC.State.GetStorageLatest(storageKey, &newBondsMovingAverage)
+
+		require.Equal(t, bondsMovingAverage, newBondsMovingAverage, "Bonds moving average was not updated correctly")
+	})
+
+	t.Run("SudoSetBondsPenalty", func(t *testing.T) {
+		t.Parallel()
+		env := setup(t)
+
+		bondsPenalty := types.NewU16(1000)
+		sudoCall, _ := SudoSetBondsPenaltyCall(env.Client, 0, bondsPenalty)
+		ext, _ := NewSudoExt(env.Client, &sudoCall)
+		testutils.SignAndSubmit(t, env.Client, ext, env.Alice.Coldkey.Keypair, uint32(env.Alice.Coldkey.AccInfo.Nonce))
+
+		storageKey, _ := types.CreateStorageKey(env.Client.Meta, "SubtensorModule", "BondsPenalty", typetools.Uint16ToBytes(uint16(0)))
+		var newBondsPenalty types.U16
+		env.Client.Api.RPC.State.GetStorageLatest(storageKey, &newBondsPenalty)
+
+		require.Equal(t, bondsPenalty, newBondsPenalty, "Bonds penalty was not updated correctly")
+	})
+
+	t.Run("SudoSetMaxRegistrationsPerBlock", func(t *testing.T) {
+		t.Parallel()
+		env := setup(t)
+
+		maxRegistrationsPerBlock := types.NewU16(1000)
+		sudoCall, _ := SudoSetMaxRegistrationsPerBlockCall(env.Client, 0, maxRegistrationsPerBlock)
+		ext, _ := NewSudoExt(env.Client, &sudoCall)
+		testutils.SignAndSubmit(t, env.Client, ext, env.Alice.Coldkey.Keypair, uint32(env.Alice.Coldkey.AccInfo.Nonce))
+
+		storageKey, _ := types.CreateStorageKey(env.Client.Meta, "SubtensorModule", "MaxRegistrationsPerBlock", typetools.Uint16ToBytes(uint16(0)))
+		var newMaxRegistrationsPerBlock types.U16
+		env.Client.Api.RPC.State.GetStorageLatest(storageKey, &newMaxRegistrationsPerBlock)
+
+		require.Equal(t, maxRegistrationsPerBlock, newMaxRegistrationsPerBlock, "Max registrations per block was not updated correctly")
+	})
+
+	t.Run("SudoSetSubnetOwnerCut", func(t *testing.T) {
+		t.Parallel()
+		env := setup(t)
+
+		subnetOwnerCut := types.NewU16(1000)
+		sudoCall, _ := SudoSetSubnetOwnerCutCall(env.Client, subnetOwnerCut)
+		ext, _ := NewSudoExt(env.Client, &sudoCall)
+		testutils.SignAndSubmit(t, env.Client, ext, env.Alice.Coldkey.Keypair, uint32(env.Alice.Coldkey.AccInfo.Nonce))
+
+		storageKey, _ := types.CreateStorageKey(env.Client.Meta, "SubtensorModule", "SubnetOwnerCut")
+		var newSubnetOwnerCut types.U16
+		env.Client.Api.RPC.State.GetStorageLatest(storageKey, &newSubnetOwnerCut)
+		require.Equal(t, subnetOwnerCut, newSubnetOwnerCut, "Subnet owner cut was not updated correctly")
+
+	})
+
 }
