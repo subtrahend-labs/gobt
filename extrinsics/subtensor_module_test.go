@@ -10,6 +10,7 @@ import (
 
 	"github.com/centrifuge/go-substrate-rpc-client/v4/types"
 	"github.com/stretchr/testify/require"
+	"github.com/subtrahend-labs/gobt/storage"
 	"github.com/subtrahend-labs/gobt/testutils"
 )
 
@@ -166,4 +167,41 @@ func TestSubtensorModuleExtrinsics(t *testing.T) {
 		updateUserInfo(t, &env.Bob, env, false)
 	})
 
+	t.Run("AddStake", func(t *testing.T) {
+		t.Parallel()
+		env := setup(t)
+
+		setupSubnet(t, env)
+
+		netuid := types.NewU16(1)
+		ext, err := RootRegisterExt(env.Client, *env.Bob.Hotkey.AccID)
+		require.NoError(t, err, "Failed to create root_register ext")
+		testutils.SignAndSubmit(t, env.Client, ext, env.Bob.Coldkey.Keypair, uint32(env.Bob.Coldkey.AccInfo.Nonce))
+		updateUserInfo(t, &env.Bob, env, false)
+
+		initialBalance := uint64(env.Bob.Coldkey.AccInfo.Data.Free)
+		t.Logf("Bob's initial balance: %v TAO", initialBalance)
+
+		amount_staked := types.NewU64(1000000000)
+
+		addStakeExt, err := AddStakeExt(
+			env.Client,
+			*env.Bob.Hotkey.AccID,
+			netuid,
+			amount_staked,
+		)
+
+		testutils.SignAndSubmit(
+			t,
+			env.Client,
+			addStakeExt,
+			env.Bob.Coldkey.Keypair,
+			uint32(env.Bob.Coldkey.AccInfo.Nonce),
+		)
+
+		finalInfo, err := storage.GetAccountInfo(env.Client, env.Bob.Coldkey.Keypair.PublicKey, nil)
+		finalBalance := uint64(finalInfo.Data.Free)
+		t.Logf("Bob's final balance: %v TAO", finalBalance)
+		require.Equal(t, initialBalance-uint64(amount_staked), finalBalance, "Balance should decrease by staked amount")
+	})
 }

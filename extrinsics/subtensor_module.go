@@ -27,7 +27,7 @@ import (
 //     - [ ] become_delegate (Index: 1)
 //     - [ ] decrease_take (Index: 65)
 //     - [ ] increase_take (Index: 66)
-//     - [ ] add_stake (Index: 2)
+//     - [x] add_stake (Index: 2)
 //     - [ ] remove_stake (Index: 3)
 //     - [ ] serve_prometheus (Index: 5)
 
@@ -54,8 +54,8 @@ import (
 //     - [ ] move_stake (Index: 85)
 //     - [ ] transfer_stake (Index: 86)
 //     - [ ] swap_stake (Index: 87)
-//     - [x] add_stake_limit (Index: 88)
-//     - [x] remove_stake_limit (Index: 89)
+//     - [o] add_stake_limit (Index: 88)
+//     - [o] remove_stake_limit (Index: 89)
 //     - [ ] swap_stake_limit (Index: 90)
 //     - [ ] try_associate_hotkey (Index: 91)
 
@@ -67,6 +67,23 @@ type SubnetIdentityV2 struct {
 	Discord       types.Bytes
 	Description   types.Bytes
 	Additional    types.Bytes
+}
+
+func AddStakeCall(c *client.Client, hotkey types.AccountID, netuid types.U16, amount_staked types.U64) (types.Call, error) {
+	call, err := types.NewCall(c.Meta, "SubtensorModule.add_stake", hotkey, netuid, amount_staked)
+	if err != nil {
+		return types.Call{}, err
+	}
+	return call, nil
+}
+
+func AddStakeExt(c *client.Client, hotkey types.AccountID, netuid types.U16, amount_staked types.U64) (*extrinsic.Extrinsic, error) {
+	call, err := AddStakeCall(c, hotkey, netuid, amount_staked)
+	if err != nil {
+		return nil, err
+	}
+	ext := extrinsic.NewExtrinsic(call)
+	return &ext, nil
 }
 
 func AddStakeLimitCall(c *client.Client, hotkey types.AccountID, netuid types.U16, amount_staked types.U64, limit_price types.U64, allow_partial types.Bool) (types.Call, error) {
