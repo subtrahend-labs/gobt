@@ -41,4 +41,3 @@ func NewSudoUncheckedWeightExt(c *client.Client, call *types.Call, weight types.
 	sudoExt := extrinsic.NewExtrinsic(sudoCall)
 	return &sudoExt, nil
 }
-

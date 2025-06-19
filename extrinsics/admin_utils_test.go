@@ -26,7 +26,6 @@ func TestAdminUtilsModuleExtrinsics(t *testing.T) {
 		updateUserInfo(t, &env.Alice, env, false)
 	})
 
-
 	t.Run("SudoSetDefaultTake", func(t *testing.T) {
 		t.Parallel()
 		env := setup(t)
