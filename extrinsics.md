@@ -178,9 +178,9 @@
 
 #### Module: AdminUtils (Index: 19)
     - [ ] swap_authorities (Index: 0)
-    - [ ] sudo_set_default_take (Index: 1)
-    - [ ] sudo_set_tx_rate_limit (Index: 2)
-    - [ ] sudo_set_serving_rate_limit (Index: 3)
+    - [X] sudo_set_default_take (Index: 1)
+    - [X] sudo_set_tx_rate_limit (Index: 2)
+    - [X] sudo_set_serving_rate_limit (Index: 3)
     - [ ] sudo_set_min_difficulty (Index: 4)
     - [ ] sudo_set_max_difficulty (Index: 5)
     - [ ] sudo_set_weights_version_key (Index: 6)
