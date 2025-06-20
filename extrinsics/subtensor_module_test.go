@@ -10,6 +10,7 @@ import (
 
 	"github.com/centrifuge/go-substrate-rpc-client/v4/types"
 	"github.com/stretchr/testify/require"
+	"github.com/subtrahend-labs/gobt/storage"
 	"github.com/subtrahend-labs/gobt/testutils"
 )
 
@@ -163,11 +164,6 @@ func TestSubtensorModuleExtrinsics(t *testing.T) {
 		)
 
 		// Update user info after transaction
-<<<<<<< HEAD
-		updateUserInfo(t, &env.Bob, env, false)
-	})
-
-=======
 		updateUserInfo(t, &env.Bob, env, false)
 	})
 
@@ -208,5 +204,4 @@ func TestSubtensorModuleExtrinsics(t *testing.T) {
 		t.Logf("Bob's final balance: %v TAO", finalBalance)
 		require.Equal(t, initialBalance-uint64(amount_staked), finalBalance, "Balance should decrease by staked amount")
 	})
->>>>>>> upstream/master
 }
