@@ -28,7 +28,6 @@ func SudoSetNetworkRateLimitExt(c *client.Client, rateLimit types.U64) (*extrins
 	return &ext, nil
 }
 
-<<<<<<< HEAD
 func SudoToggleEvmPrecompileCall(c *client.Client, precompileId types.U8, enabled types.Bool) (types.Call, error) {
 	call, err := types.NewCall(
 		c.Meta,
@@ -78,14 +77,6 @@ func SudoSetSubnetOwnerHotkeyCall(c *client.Client, netuid types.U16, hotkey typ
 		"AdminUtils.sudo_set_subnet_owner_hotkey",
 		netuid,
 		hotkey,
-=======
-func SudoSetMaxDifficultyCall(c *client.Client, netuid uint16, max_difficulty types.U64) (types.Call, error) {
-	call, err := types.NewCall(
-		c.Meta,
-		"AdminUtils.sudo_set_max_difficulty",
-		netuid,
-		max_difficulty,
->>>>>>> upstream/master
 	)
 	if err != nil {
 		return types.Call{}, err
@@ -93,13 +84,8 @@ func SudoSetMaxDifficultyCall(c *client.Client, netuid uint16, max_difficulty ty
 	return call, nil
 }
 
-<<<<<<< HEAD
 func SudoSetSubnetOwnerHotkeyExt(c *client.Client, netuid types.U16, hotkey types.AccountID) (*extrinsic.Extrinsic, error) {
 	call, err := SudoSetSubnetOwnerHotkeyCall(c, netuid, hotkey)
-=======
-func SudoSetMaxDifficultyExt(c *client.Client, netuid uint16, max_difficulty types.U64) (*extrinsic.Extrinsic, error) {
-	call, err := SudoSetMaxDifficultyCall(c, netuid, max_difficulty)
->>>>>>> upstream/master
 	if err != nil {
 		return nil, err
 	}
@@ -107,21 +93,12 @@ func SudoSetMaxDifficultyExt(c *client.Client, netuid uint16, max_difficulty typ
 	return &ext, nil
 }
 
-<<<<<<< HEAD
 func SudoSetEmaPriceHalvingPeriodCall(c *client.Client, netuid types.U16, emaHalving types.U64) (types.Call, error) {
 	call, err := types.NewCall(
 		c.Meta,
 		"AdminUtils.sudo_set_ema_price_halving_period",
 		netuid,
 		emaHalving,
-=======
-func SudoSetMinDifficultyCall(c *client.Client, netuid uint16, min_difficulty types.U64) (types.Call, error) {
-	call, err := types.NewCall(
-		c.Meta,
-		"AdminUtils.sudo_set_min_difficulty",
-		netuid,
-		min_difficulty,
->>>>>>> upstream/master
 	)
 	if err != nil {
 		return types.Call{}, err
@@ -129,10 +106,50 @@ func SudoSetMinDifficultyCall(c *client.Client, netuid uint16, min_difficulty ty
 	return call, nil
 }
 
-<<<<<<< HEAD
 func SudoSetEmaPriceHalvingPeriodExt(c *client.Client, netuid types.U16, emaHalving types.U64) (*extrinsic.Extrinsic, error) {
 	call, err := SudoSetEmaPriceHalvingPeriodCall(c, netuid, emaHalving)
-=======
+	if err != nil {
+		return nil, err
+	}
+	ext := extrinsic.NewExtrinsic(call)
+	return &ext, nil
+}
+
+func SudoSetMaxDifficultyCall(c *client.Client, netuid uint16, max_difficulty types.U64) (types.Call, error) {
+	call, err := types.NewCall(
+		c.Meta,
+		"AdminUtils.sudo_set_max_difficulty",
+		netuid,
+		max_difficulty,
+	)
+	if err != nil {
+		return types.Call{}, err
+	}
+	return call, nil
+}
+
+func SudoSetMaxDifficultyExt(c *client.Client, netuid uint16, max_difficulty types.U64) (*extrinsic.Extrinsic, error) {
+	call, err := SudoSetMaxDifficultyCall(c, netuid, max_difficulty)
+	if err != nil {
+		return nil, err
+	}
+	ext := extrinsic.NewExtrinsic(call)
+	return &ext, nil
+}
+
+func SudoSetMinDifficultyCall(c *client.Client, netuid uint16, min_difficulty types.U64) (types.Call, error) {
+	call, err := types.NewCall(
+		c.Meta,
+		"AdminUtils.sudo_set_min_difficulty",
+		netuid,
+		min_difficulty,
+	)
+	if err != nil {
+		return types.Call{}, err
+	}
+	return call, nil
+}
+
 func SudoSetMinDifficultyExt(c *client.Client, netuid uint16, min_difficulty types.U64) (*extrinsic.Extrinsic, error) {
 	call, err := SudoSetMinDifficultyCall(c, netuid, min_difficulty)
 	if err != nil {
@@ -201,7 +218,6 @@ func SudoSetTempoCall(c *client.Client, netuid uint16, tempo uint16) (types.Call
 
 func SudoSetTempoExt(c *client.Client, netuid uint16, tempo uint16) (*extrinsic.Extrinsic, error) {
 	call, err := SudoSetTempoCall(c, netuid, tempo)
->>>>>>> upstream/master
 	if err != nil {
 		return nil, err
 	}
