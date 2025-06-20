@@ -27,7 +27,6 @@ func TestAdminUtilsModuleExtrinsics(t *testing.T) {
 		testutils.SignAndSubmit(t, env.Client, ext, env.Alice.Coldkey.Keypair, uint32(env.Alice.Coldkey.AccInfo.Nonce))
 	})
 
-<<<<<<< HEAD
 	t.Run("SudoToggleEvmPrecompile", func(t *testing.T) {
 		t.Parallel()
 		env := setup(t)
@@ -101,8 +100,6 @@ func TestAdminUtilsModuleExtrinsics(t *testing.T) {
 		t.Logf("SudoSetEmaPriceHalvingPeriod transaction included in block: %x", blockHash)
 	})
 
-=======
->>>>>>> upstream/master
 	t.Run("SudoSetDefaultTake", func(t *testing.T) {
 		t.Parallel()
 		env := setup(t)

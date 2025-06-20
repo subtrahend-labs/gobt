@@ -27,6 +27,7 @@ import (
 //     - [ ] become_delegate (Index: 1)
 //     - [ ] decrease_take (Index: 65)
 //     - [ ] increase_take (Index: 66)
+//     - [ ] add_stake (Index: 2)
 //     - [x] add_stake (Index: 2)
 //     - [ ] remove_stake (Index: 3)
 //     - [ ] serve_prometheus (Index: 5)
