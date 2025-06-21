@@ -54,8 +54,8 @@ import (
 //     - [ ] move_stake (Index: 85)
 //     - [ ] transfer_stake (Index: 86)
 //     - [ ] swap_stake (Index: 87)
-//     - [o] add_stake_limit (Index: 88)
-//     - [o] remove_stake_limit (Index: 89)
+//     - [x] add_stake_limit (Index: 88)
+//     - [x] remove_stake_limit (Index: 89)
 //     - [ ] swap_stake_limit (Index: 90)
 //     - [ ] try_associate_hotkey (Index: 91)
 
