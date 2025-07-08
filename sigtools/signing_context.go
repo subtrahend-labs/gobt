@@ -11,6 +11,12 @@ import (
 	"github.com/subtrahend-labs/gobt/storage"
 )
 
+func init() {
+	extrinsic.PayloadMutatorFns[extensions.SignedExtensionName("SubtensorSignedExtension")] = func(payload *extrinsic.Payload) {}
+	extrinsic.PayloadMutatorFns[extensions.SignedExtensionName("SubtensorTransactionExtension")] = func(payload *extrinsic.Payload) {}
+	extrinsic.PayloadMutatorFns[extensions.SignedExtensionName("CommitmentsSignedExtension")] = func(payload *extrinsic.Payload) {}
+}
+
 type SigningContext struct {
 	Tip   *types.UCompact
 	Nonce *types.UCompact
@@ -21,8 +27,6 @@ func NewSigningContext(t *types.UCompact, n *types.UCompact) *SigningContext {
 }
 
 func CreateSigningOptions(c *client.Client, keypair signature.KeyringPair, sc *SigningContext) ([]extrinsic.SigningOption, error) {
-	extrinsic.PayloadMutatorFns[extensions.SignedExtensionName("SubtensorSignedExtension")] = func(payload *extrinsic.Payload) {}
-	extrinsic.PayloadMutatorFns[extensions.SignedExtensionName("CommitmentsSignedExtension")] = func(payload *extrinsic.Payload) {}
 	var options []extrinsic.SigningOption
 
 	// tip
