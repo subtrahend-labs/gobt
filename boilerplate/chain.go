@@ -51,7 +51,7 @@ func (b *BaseChainSubscriber) Start(c *client.Client) {
 
 	go b.mainfunc(startCleanup, exitReady)
 	for {
-		sub, err := c.Api.RPC.Chain.SubscribeNewHeads()
+		sub, err := c.Api.RPC.Chain.SubscribeFinalizedHeads()
 		if err != nil {
 			b.onSubscriptionCreationError(err)
 		}
@@ -70,7 +70,7 @@ func (b *BaseChainSubscriber) Start(c *client.Client) {
 				}
 			case err = <-sub.Err():
 				b.onSubscriptionError(err)
-				sub, err = c.Api.RPC.Chain.SubscribeNewHeads()
+				sub, err = c.Api.RPC.Chain.SubscribeFinalizedHeads()
 				if err != nil {
 					b.onSubscriptionCreationError(err)
 				}
