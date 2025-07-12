@@ -93,7 +93,7 @@ func VerfySignature(signed_by string, msg []byte, sig []byte) bool {
 func VerifyEpistulaHeaders(self_ss58 string, sig string, body []byte, timestamp, uuid, signed_for, signed_by string) error {
 	i, err := strconv.ParseInt(timestamp, 10, 64)
 	if err != nil {
-		panic(err)
+		return err
 	}
 	tm := time.Unix(i, 0)
 	ALLOWED_DELTA := 8000 * time.Millisecond
