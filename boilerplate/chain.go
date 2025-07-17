@@ -8,6 +8,7 @@ import (
 type BaseChainSubscriber struct {
 	callbacks           []func(types.Header)
 	onSubscriptionError func(err error)
+	stopChan            chan bool
 }
 
 func (b *BaseChainSubscriber) AddBlockCallback(f func(types.Header)) {
@@ -19,7 +20,11 @@ func (b *BaseChainSubscriber) SetOnSubscriptionError(f func(e error)) {
 }
 
 func NewChainSubscriber() *BaseChainSubscriber {
-	return &BaseChainSubscriber{}
+	return &BaseChainSubscriber{stopChan: make(chan bool, 1)}
+}
+
+func (b *BaseChainSubscriber) Stop() {
+	b.stopChan <- true
 }
 
 func (b *BaseChainSubscriber) Start(c *client.Client) error {
@@ -30,6 +35,8 @@ func (b *BaseChainSubscriber) Start(c *client.Client) error {
 		}
 		for {
 			select {
+			case <-b.stopChan:
+				return nil
 			case head := <-sub.Chan():
 				for _, exec := range b.callbacks {
 					exec(head)
