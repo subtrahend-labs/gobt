@@ -9,6 +9,7 @@ type BaseChainSubscriber struct {
 	callbacks           []func(types.Header)
 	onSubscriptionError func(err error)
 	stopChan            chan bool
+	restartChan         chan bool
 }
 
 func (b *BaseChainSubscriber) AddBlockCallback(f func(types.Header)) {
@@ -24,6 +25,10 @@ func NewChainSubscriber() *BaseChainSubscriber {
 }
 
 func (b *BaseChainSubscriber) Stop() {
+	close(b.stopChan)
+}
+
+func (b *BaseChainSubscriber) Restart() {
 	b.stopChan <- true
 }
 
@@ -35,6 +40,12 @@ func (b *BaseChainSubscriber) Start(c *client.Client) error {
 		}
 		for {
 			select {
+			case <-b.restartChan:
+				sub.Unsubscribe()
+				sub, err = c.Api.RPC.Chain.SubscribeFinalizedHeads()
+				if err != nil {
+					return err
+				}
 			case <-b.stopChan:
 				return nil
 			case head := <-sub.Chan():
@@ -43,6 +54,7 @@ func (b *BaseChainSubscriber) Start(c *client.Client) error {
 				}
 			case err = <-sub.Err():
 				b.onSubscriptionError(err)
+				sub.Unsubscribe()
 				sub, err = c.Api.RPC.Chain.SubscribeFinalizedHeads()
 				if err != nil {
 					return err
