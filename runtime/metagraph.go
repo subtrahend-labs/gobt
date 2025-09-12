@@ -8,14 +8,15 @@ import (
 	"github.com/subtrahend-labs/gobt/client"
 )
 
-// SubnetIdentityV2 represents identity information for a subnet
-type SubnetIdentityV2 struct {
+// SubnetIdentityV3 represents identity information for a subnet
+type SubnetIdentityV3 struct {
 	SubnetName     types.Bytes
 	GithubRepo     types.Bytes
 	SubnetContact  types.Bytes
 	SubnetURL      types.Bytes
 	Discord        types.Bytes
 	Description    types.Bytes
+	LogoURL        types.Bytes
 	AdditionalInfo types.Bytes
 }
 
@@ -50,7 +51,7 @@ type Metagraph struct {
 	Symbol []types.UCompact // Vec<Compact<u8>>
 
 	// Identity
-	Identity            types.Option[SubnetIdentityV2] // Option<SubnetIdentityV2>
+	Identity            types.Option[SubnetIdentityV3] // Option<SubnetIdentityV3>
 	NetworkRegisteredAt types.UCompact                 // Compact<u64>
 	OwnerHotkey         types.AccountID                // AccountId
 	OwnerColdkey        types.AccountID                // AccountId
