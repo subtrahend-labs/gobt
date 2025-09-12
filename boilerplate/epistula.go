@@ -114,7 +114,7 @@ func VerifyEpistulaHeaders(self_ss58 string, sig string, body []byte, timestamp,
 
 	ok = VerfySignature(signed_by, []byte(message), bytes)
 	if !ok {
-		return errors.New("signature mismatch")
+		return fmt.Errorf("signature mismatch against generated message: [%s]", message)
 	}
 	return nil
 }
