@@ -161,9 +161,14 @@ func GetMetagraph(c *client.Client, netuid uint16, blockHash *types.Hash) (*Meta
 	}
 
 	// Try to decode as a Vec<u8> first
-	var m Metagraph
+	var m types.Option[Metagraph]
 	if err := codec.Decode(encodedResponse, &m); err != nil {
 		return nil, fmt.Errorf("failed to decode metagraph: %v", err)
 	}
-	return &m, nil
+
+	if ok, m := m.Unwrap(); ok {
+		return &m, nil
+	}
+
+	return nil, fmt.Errorf("no metagraph found for netuid %d", netuid)
 }
