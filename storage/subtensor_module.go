@@ -1,3 +1,4 @@
+// Package storage
 package storage
 
 import (
@@ -8,7 +9,7 @@ import (
 	"github.com/subtrahend-labs/gobt/typetools"
 )
 
-// Returns sn tao emission percentage * 1e9
+// GetSubnetTaoInEmission Returns sn tao emission percentage * 1e9
 // block is optional, but more performant if already subscribed to chain
 func GetSubnetTaoInEmission(c *client.Client, netuid types.U16, block *types.Hash) (*types.U64, error) {
 	meta, err := c.Api.RPC.State.GetMetadataLatest()
@@ -30,7 +31,73 @@ func GetSubnetTaoInEmission(c *client.Client, netuid types.U16, block *types.Has
 	return &res, nil
 }
 
-// Validator permits per uid
+// GetSubnetAlphaInEmission Returns sn tao emission percentage * 1e9
+// block is optional, but more performant if already subscribed to chain
+func GetSubnetAlphaInEmission(c *client.Client, netuid types.U16, block *types.Hash) (*types.U64, error) {
+	meta, err := c.Api.RPC.State.GetMetadataLatest()
+	if err != nil {
+		return nil, fmt.Errorf("failed to get metadata: %v", err)
+	}
+
+	storageKey, err := types.CreateStorageKey(meta, "SubtensorModule", "SubnetAlphaInEmission", typetools.Uint16ToBytes(uint16(netuid)))
+	if err != nil {
+		return nil, fmt.Errorf("failed to create storage key: %v", err)
+	}
+
+	var res types.U64
+	err = getStorageOptionalBlock(c, storageKey, &res, block)
+	if err != nil {
+		return nil, err
+	}
+
+	return &res, nil
+}
+
+// GetSubnetAlphaOutEmission Returns sn tao emission percentage * 1e9
+// block is optional, but more performant if already subscribed to chain
+func GetSubnetAlphaOutEmission(c *client.Client, netuid types.U16, block *types.Hash) (*types.U64, error) {
+	meta, err := c.Api.RPC.State.GetMetadataLatest()
+	if err != nil {
+		return nil, fmt.Errorf("failed to get metadata: %v", err)
+	}
+
+	storageKey, err := types.CreateStorageKey(meta, "SubtensorModule", "SubnetAlphaOutEmission", typetools.Uint16ToBytes(uint16(netuid)))
+	if err != nil {
+		return nil, fmt.Errorf("failed to create storage key: %v", err)
+	}
+
+	var res types.U64
+	err = getStorageOptionalBlock(c, storageKey, &res, block)
+	if err != nil {
+		return nil, err
+	}
+
+	return &res, nil
+}
+
+// GetSubnetMovingPrice Returns sn tao emission percentage * 1e9
+// block is optional, but more performant if already subscribed to chain
+func GetSubnetMovingPrice (c *client.Client, netuid types.U16, block *types.Hash) (*typetools.U96F32, error) {
+	meta, err := c.Api.RPC.State.GetMetadataLatest()
+	if err != nil {
+		return nil, fmt.Errorf("failed to get metadata: %v", err)
+	}
+
+	storageKey, err := types.CreateStorageKey(meta, "SubtensorModule", "SubnetMovingPrice", typetools.Uint16ToBytes(uint16(netuid)))
+	if err != nil {
+		return nil, fmt.Errorf("failed to create storage key: %v", err)
+	}
+
+	var res typetools.U96F32
+	err = getStorageOptionalBlock(c, storageKey, &res, block)
+	if err != nil {
+		return nil, err
+	}
+
+	return &res, nil
+}
+
+// GetValidatorPermits Validator permits per uid
 func GetValidatorPermits(c *client.Client, netuid types.U16, block *types.Hash) (*[]types.Bool, error) {
 	meta, err := c.Api.RPC.State.GetMetadataLatest()
 	if err != nil {

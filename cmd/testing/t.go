@@ -6,9 +6,10 @@ import (
 	"log"
 	"os"
 
+	"github.com/centrifuge/go-substrate-rpc-client/v4/types"
 	"github.com/joho/godotenv"
 	"github.com/subtrahend-labs/gobt/client"
-	"github.com/subtrahend-labs/gobt/runtime"
+	"github.com/subtrahend-labs/gobt/storage"
 )
 
 func main() {
@@ -24,12 +25,9 @@ func main() {
 		log.Fatalf("Error creating client: %s", err)
 	}
 
-	res, err := runtime.GetNeurons(client, uint16(337), nil)
+	res, err := storage.GetSubnetMovingPrice(client, types.U16(4), nil)
 	if err != nil {
 		log.Fatal(err.Error())
 	}
-
-	for i, v := range res {
-		fmt.Printf("%d: %d\n", i, v.UID.Int64())
-	}
+	fmt.Println(res.Float64())
 }
