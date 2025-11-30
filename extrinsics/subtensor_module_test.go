@@ -204,4 +204,44 @@ func TestSubtensorModuleExtrinsics(t *testing.T) {
 		t.Logf("Bob's final balance: %v TAO", finalBalance)
 		require.Equal(t, initialBalance-uint64(amount_staked), finalBalance, "Balance should decrease by staked amount")
 	})
+
+	t.Run("CommitCRV3Weights", func(t *testing.T) {
+		t.Parallel()
+		env := setup(t)
+
+		// Create test parameters
+		netuid := types.U16(1)
+		commit := types.Bytes([]byte("test_commit_data"))
+		revealRound := types.U64(100)
+
+		// Test CommitCRV3WeightsCall
+		call, err := CommitCRV3WeightsCall(env.Client, netuid, commit, revealRound)
+		require.NoError(t, err, "Failed to create CommitCRV3WeightsCall")
+		require.NotNil(t, call)
+
+		// Test CommitCRV3WeightsExt
+		ext, err := CommitCRV3WeightsExt(env.Client, netuid, commit, revealRound)
+		require.NoError(t, err, "Failed to create CommitCRV3WeightsExt")
+		require.NotNil(t, ext)
+	})
+
+	t.Run("CommitTimelockedWeights", func(t *testing.T) {
+		t.Parallel()
+		env := setup(t)
+
+		// Create test parameters
+		netuid := types.U16(1)
+		commit := types.Bytes([]byte("test_timelocked_data"))
+		revealRound := types.U64(100)
+
+		// Test CommitTimelockedWeightsCall
+		call, err := CommitTimelockedWeightsCall(env.Client, netuid, commit, revealRound)
+		require.NoError(t, err, "Failed to create CommitTimelockedWeightsCall")
+		require.NotNil(t, call)
+
+		// Test CommitTimelockedWeightsExt
+		ext, err := CommitTimelockedWeightsExt(env.Client, netuid, commit, revealRound)
+		require.NoError(t, err, "Failed to create CommitTimelockedWeightsExt")
+		require.NotNil(t, ext)
+	})
 }

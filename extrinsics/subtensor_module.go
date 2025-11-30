@@ -20,7 +20,8 @@ import (
 //     - [ ] batch_commit_weights (Index: 100)
 //     - [ ] reveal_weights (Index: 97)
 
-//     - [ ] commit_crv3_weights (Index: 99)
+//     - [x] commit_crv3_weights (Index: 99)
+//     - [x] commit_timelocked_weights
 
 //     - [ ] batch_reveal_weights (Index: 98)
 //     - [ ] set_tao_weights (Index: 8)
@@ -320,6 +321,32 @@ func CommitCRV3WeightsCall(c *client.Client, netuid types.U16, commit types.Byte
 
 func CommitCRV3WeightsExt(c *client.Client, netuid types.U16, commit types.Bytes, revealRound types.U64) (*extrinsic.Extrinsic, error) {
 	call, err := CommitCRV3WeightsCall(c, netuid, commit, revealRound)
+	if err != nil {
+		return nil, err
+	}
+	ext := extrinsic.NewExtrinsic(call)
+	return &ext, nil
+}
+
+// CommitTimelockedWeightsCall creates the call for commit_timelocked_weights extrinsic
+func CommitTimelockedWeightsCall(c *client.Client, netuid types.U16, commit types.Bytes, revealRound types.U64) (types.Call, error) {
+	call, err := types.NewCall(
+		c.Meta,
+		"SubtensorModule.commit_timelocked_weights",
+		netuid,
+		commit,
+		revealRound,
+	)
+	if err != nil {
+		return types.Call{}, err
+	}
+
+	return call, nil
+}
+
+// CommitTimelockedWeightsExt creates the extrinsic for commit_timelocked_weights
+func CommitTimelockedWeightsExt(c *client.Client, netuid types.U16, commit types.Bytes, revealRound types.U64) (*extrinsic.Extrinsic, error) {
+	call, err := CommitTimelockedWeightsCall(c, netuid, commit, revealRound)
 	if err != nil {
 		return nil, err
 	}

@@ -705,3 +705,31 @@ func SudoSetSubnetOwnerCutExt(c *client.Client, subnet_owner_cut types.U16) (*ex
 	ext := extrinsic.NewExtrinsic(call)
 	return &ext, nil
 }
+
+// SudoSetCommitRevealWeightsEnabledCall creates the call for sudo_set_commit_reveal_weights_enabled
+func SudoSetCommitRevealWeightsEnabledCall(c *client.Client, netuid types.U16, enabled bool) (types.Call, error) {
+	call, err := types.NewCall(
+		c.Meta,
+		"AdminUtils.sudo_set_commit_reveal_weights_enabled",
+		netuid,
+		types.NewBool(enabled),
+	)
+	if err != nil {
+		return types.Call{}, err
+	}
+	return call, nil
+}
+
+// SudoSetWeightsSetRateLimitCall creates the call for sudo_set_weights_set_rate_limit  
+func SudoSetWeightsSetRateLimitCall(c *client.Client, netuid types.U16, weightsSetRateLimit types.U64) (types.Call, error) {
+	call, err := types.NewCall(
+		c.Meta,
+		"AdminUtils.sudo_set_weights_set_rate_limit",
+		netuid,
+		weightsSetRateLimit,
+	)
+	if err != nil {
+		return types.Call{}, err
+	}
+	return call, nil
+}
