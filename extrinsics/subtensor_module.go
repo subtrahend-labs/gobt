@@ -15,18 +15,18 @@ import (
 //     - [x] register (Index: 6)
 //     - [x] burned_register (Index: 7)
 
-//     - [ ] batch_set_weights (Index: 80)
-//     - [ ] commit_weights (Index: 96)
-//     - [ ] batch_commit_weights (Index: 100)
-//     - [ ] reveal_weights (Index: 97)
+//     - [o] batch_set_weights (Index: 80)
+//     - [o] commit_weights (Index: 96)
+//     - [o] batch_commit_weights (Index: 100)
+//     - [o] reveal_weights (Index: 97)
 
-//     - [ ] commit_crv3_weights (Index: 99)
+//     - [o] commit_crv3_weights (Index: 99)
 
-//     - [ ] batch_reveal_weights (Index: 98)
-//     - [ ] set_tao_weights (Index: 8)
+//     - [o] batch_reveal_weights (Index: 98)
+//     - [o] set_tao_weights (Index: 8)
 //     - [ ] become_delegate (Index: 1)
-//     - [ ] decrease_take (Index: 65)
-//     - [ ] increase_take (Index: 66)
+//     - [o] decrease_take (Index: 65)
+//     - [o] increase_take (Index: 66)
 //     - [x] add_stake (Index: 2)
 //     - [ ] remove_stake (Index: 3)
 //     - [ ] serve_prometheus (Index: 5)
@@ -54,8 +54,8 @@ import (
 //     - [ ] move_stake (Index: 85)
 //     - [ ] transfer_stake (Index: 86)
 //     - [ ] swap_stake (Index: 87)
-//     - [x] add_stake_limit (Index: 88)
-//     - [x] remove_stake_limit (Index: 89)
+//     - [ ] add_stake_limit (Index: 88)
+//     - [ ] remove_stake_limit (Index: 89)
 //     - [ ] swap_stake_limit (Index: 90)
 //     - [ ] try_associate_hotkey (Index: 91)
 
@@ -67,23 +67,6 @@ type SubnetIdentityV2 struct {
 	Discord       types.Bytes
 	Description   types.Bytes
 	Additional    types.Bytes
-}
-
-func AddStakeCall(c *client.Client, hotkey types.AccountID, netuid types.U16, amount_staked types.U64) (types.Call, error) {
-	call, err := types.NewCall(c.Meta, "SubtensorModule.add_stake", hotkey, netuid, amount_staked)
-	if err != nil {
-		return types.Call{}, err
-	}
-	return call, nil
-}
-
-func AddStakeExt(c *client.Client, hotkey types.AccountID, netuid types.U16, amount_staked types.U64) (*extrinsic.Extrinsic, error) {
-	call, err := AddStakeCall(c, hotkey, netuid, amount_staked)
-	if err != nil {
-		return nil, err
-	}
-	ext := extrinsic.NewExtrinsic(call)
-	return &ext, nil
 }
 
 func AddStakeLimitCall(c *client.Client, hotkey types.AccountID, netuid types.U16, amount_staked types.U64, limit_price types.U64, allow_partial types.Bool) (types.Call, error) {
@@ -320,6 +303,290 @@ func CommitCRV3WeightsCall(c *client.Client, netuid types.U16, commit types.Byte
 
 func CommitCRV3WeightsExt(c *client.Client, netuid types.U16, commit types.Bytes, revealRound types.U64) (*extrinsic.Extrinsic, error) {
 	call, err := CommitCRV3WeightsCall(c, netuid, commit, revealRound)
+	if err != nil {
+		return nil, err
+	}
+	ext := extrinsic.NewExtrinsic(call)
+	return &ext, nil
+}
+
+type WeightTuple struct {
+	UID    types.U16
+	Weight types.U16
+}
+
+func BatchSetWeightsCall(
+	c *client.Client,
+	netuids []types.U16,
+	weights [][]WeightTuple,
+	versionKeys []types.U64,
+) (types.Call, error) {
+	call, err := types.NewCall(
+		c.Meta,
+		"SubtensorModule.batch_set_weights",
+		netuids,
+		weights,
+		versionKeys,
+	)
+	if err != nil {
+		return types.Call{}, err
+	}
+	return call, nil
+}
+
+func BatchSetWeightsExt(
+	c *client.Client,
+	netuids []types.U16,
+	weights [][]WeightTuple,
+	versionKeys []types.U64,
+) (*extrinsic.Extrinsic, error) {
+	call, err := BatchSetWeightsCall(
+		c,
+		netuids,
+		weights,
+		versionKeys,
+	)
+	if err != nil {
+		return nil, err
+	}
+	ext := extrinsic.NewExtrinsic(call)
+	return &ext, nil
+}
+
+func CommitWeightsCall(
+	c *client.Client,
+	netuid types.U16,
+	commitHash types.Hash,
+) (types.Call, error) {
+	call, err := types.NewCall(
+		c.Meta,
+		"SubtensorModule.commit_weights",
+		netuid,
+		commitHash,
+	)
+	if err != nil {
+		return types.Call{}, err
+	}
+	return call, nil
+}
+
+func CommitWeightsExt(
+	c *client.Client,
+	netuid types.U16,
+	commitHash types.Hash,
+) (*extrinsic.Extrinsic, error) {
+	call, err := CommitWeightsCall(
+		c,
+		netuid,
+		commitHash,
+	)
+	if err != nil {
+		return nil, err
+	}
+	ext := extrinsic.NewExtrinsic(call)
+	return &ext, nil
+}
+
+func BatchCommitWeightsCall(
+	c *client.Client,
+	netuids []types.U16,
+	commitHashes []types.Hash,
+) (types.Call, error) {
+	call, err := types.NewCall(
+		c.Meta,
+		"SubtensorModule.batch_commit_weights",
+		netuids,
+		commitHashes,
+	)
+	if err != nil {
+		return types.Call{}, err
+	}
+	return call, nil
+}
+
+func BatchCommitWeightsExt(
+	c *client.Client,
+	netuids []types.U16,
+	commitHashes []types.Hash,
+) (*extrinsic.Extrinsic, error) {
+	call, err := BatchCommitWeightsCall(
+		c,
+		netuids,
+		commitHashes,
+	)
+	if err != nil {
+		return nil, err
+	}
+	ext := extrinsic.NewExtrinsic(call)
+	return &ext, nil
+}
+
+func RevealWeightsCall(
+	c *client.Client,
+	netuid types.U16,
+	uids []types.U16,
+	values []types.U16,
+	salt []types.U16,
+	versionKey types.U64,
+) (types.Call, error) {
+	call, err := types.NewCall(
+		c.Meta,
+		"SubtensorModule.reveal_weights",
+		netuid,
+		uids,
+		values,
+		salt,
+		versionKey,
+	)
+	if err != nil {
+		return types.Call{}, err
+	}
+	return call, nil
+}
+
+func RevealWeightsExt(
+	c *client.Client,
+	netuid types.U16,
+	uids []types.U16,
+	values []types.U16,
+	salt []types.U16,
+	versionKey types.U64,
+) (*extrinsic.Extrinsic, error) {
+	call, err := RevealWeightsCall(
+		c,
+		netuid,
+		uids,
+		values,
+		salt,
+		versionKey,
+	)
+	if err != nil {
+		return nil, err
+	}
+	ext := extrinsic.NewExtrinsic(call)
+	return &ext, nil
+}
+
+func BatchRevealWeightsCall(
+	c *client.Client,
+	netuid types.U16,
+) (types.Call, error) {
+	call, err := types.NewCall(
+		c.Meta,
+		"SubtensorModule.batch_reveal_weights",
+		netuid,
+	)
+	if err != nil {
+		return types.Call{}, err
+	}
+	return call, nil
+}
+
+func BatchRevealWeightsExt(
+	c *client.Client,
+	netuid types.U16,
+) (*extrinsic.Extrinsic, error) {
+	call, err := BatchRevealWeightsCall(
+		c,
+		netuid,
+	)
+	if err != nil {
+		return nil, err
+	}
+	ext := extrinsic.NewExtrinsic(call)
+	return &ext, nil
+}
+
+func SetTaoWeightsCall(
+	c *client.Client,
+	netuid types.U16,
+	hotkey types.AccountID,
+	dests []types.U16,
+	weights []types.U16,
+	versionKey types.U64,
+) (types.Call, error) {
+	call, err := types.NewCall(
+		c.Meta,
+		"SubtensorModule.set_tao_weights",
+		netuid,
+		hotkey,
+		dests,
+		weights,
+		versionKey,
+	)
+	if err != nil {
+		return types.Call{}, err
+	}
+	return call, nil
+}
+
+func SetTaoWeightsExt(
+	c *client.Client,
+	netuid types.U16,
+	hotkey types.AccountID,
+	dests []types.U16,
+	weights []types.U16,
+	versionKey types.U64,
+) (*extrinsic.Extrinsic, error) {
+	call, err := SetTaoWeightsCall(
+		c,
+		netuid,
+		hotkey,
+		dests,
+		weights,
+		versionKey,
+	)
+	if err != nil {
+		return nil, err
+	}
+	ext := extrinsic.NewExtrinsic(call)
+	return &ext, nil
+}
+
+func AddStakeCall(c *client.Client, hotkey types.AccountID, netuid types.U16, amount_staked types.U64) (types.Call, error) {
+	call, err := types.NewCall(c.Meta, "SubtensorModule.add_stake", hotkey, netuid, amount_staked)
+	if err != nil {
+		return types.Call{}, err
+	}
+	return call, nil
+}
+
+func AddStakeExt(c *client.Client, hotkey types.AccountID, netuid types.U16, amount_staked types.U64) (*extrinsic.Extrinsic, error) {
+	call, err := AddStakeCall(c, hotkey, netuid, amount_staked)
+	if err != nil {
+		return nil, err
+	}
+	ext := extrinsic.NewExtrinsic(call)
+	return &ext, nil
+}
+
+func IncreaseTakeCall(c *client.Client, hotkey types.AccountID, take types.U16) (types.Call, error) {
+	call, err := types.NewCall(c.Meta, "SubtensorModule.increase_take", hotkey, take)
+	if err != nil {
+		return types.Call{}, err
+	}
+	return call, nil
+}
+
+func IncreaseTakeExt(c *client.Client, hotkey types.AccountID, take types.U16) (*extrinsic.Extrinsic, error) {
+	call, err := IncreaseTakeCall(c, hotkey, take)
+	if err != nil {
+		return nil, err
+	}
+	ext := extrinsic.NewExtrinsic(call)
+	return &ext, nil
+}
+
+func DecreaseTakeCall(c *client.Client, hotkey types.AccountID, take types.U16) (types.Call, error) {
+	call, err := types.NewCall(c.Meta, "SubtensorModule.decrease_take", hotkey, take)
+	if err != nil {
+		return types.Call{}, err
+	}
+	return call, nil
+}
+
+func DecreaseTakeExt(c *client.Client, hotkey types.AccountID, take types.U16) (*extrinsic.Extrinsic, error) {
+	call, err := DecreaseTakeCall(c, hotkey, take)
 	if err != nil {
 		return nil, err
 	}
